@@ -1391,25 +1391,37 @@ import { apiEngine } from './apps/api/src/api.js';
     renderAdminLeads();
     populateAdminEditorInputs();
     generateWhatsAppQR();
+
+    document.body.classList.add('admin-open');
+    document.body.style.overflow = 'hidden';
+
     const adminModal = document.getElementById('adminPortalModal');
     if (adminModal) {
-      adminModal.style.display = 'flex';
+      adminModal.style.display = 'block';
       adminModal.classList.add('active');
       adminModal.classList.add('show');
     }
-    document.body.style.overflow = 'hidden';
+
+    const bottomNav = document.querySelector('.mobile-bottom-nav');
+    if (bottomNav) bottomNav.style.display = 'none';
+
     const wrap = document.querySelector('.admin-content-wrap');
     if (wrap) wrap.scrollTop = 0;
   }
 
   function closeAdmin() {
+    document.body.classList.remove('admin-open');
+    document.body.style.overflow = '';
+
     const adminModal = document.getElementById('adminPortalModal');
     if (adminModal) {
       adminModal.style.display = 'none';
       adminModal.classList.remove('active');
       adminModal.classList.remove('show');
     }
-    document.body.style.overflow = '';
+
+    const bottomNav = document.querySelector('.mobile-bottom-nav');
+    if (bottomNav) bottomNav.style.display = '';
   }
 
   function toggleAdminMobileMenu() {

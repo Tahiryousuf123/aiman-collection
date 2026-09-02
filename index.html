@@ -1565,6 +1565,7 @@
             <button class="wp-hamburger-btn" onclick="window.AimanStore.toggleAdminMobileMenu()" aria-label="Toggle Menu">
               <i class="fas fa-bars"></i>
             </button>
+            <span class="wp-mobile-brand-title">AIMAN ADMIN</span>
             <div class="wp-topbar-breadcrumb">
               <span class="wp-crumb-root"><i class="fab fa-wordpress"></i> Aiman WooCommerce</span>
               <span class="wp-crumb-sep">/</span>
@@ -1573,15 +1574,15 @@
           </div>
 
           <div class="wp-topbar-right">
-            <div class="cloud-sync-status-pill" id="adminTopCloudStatus">
+            <div class="cloud-sync-status-pill" id="adminTopCloudStatus" title="Real-Time Cloud Synchronized">
               <span class="pulse-green-dot"></span>
-              <span>Cloud Real-Time Sync ON</span>
+              <span class="cloud-status-text">Cloud Sync ON</span>
             </div>
-            <button class="btn btn-primary btn-sm" onclick="window.AimanStore.switchAdminTab('products');">
-              <i class="fas fa-plus"></i> Add Product
+            <button class="btn btn-primary btn-sm wp-topbar-add-btn" onclick="window.AimanStore.switchAdminTab('products'); setTimeout(() => document.querySelector('#adminTab_products input[name=prod_name]')?.focus(), 150);">
+              <i class="fas fa-plus"></i> <span class="add-btn-text">Add Product</span>
             </button>
-            <button class="btn btn-secondary btn-sm" onclick="window.AimanStore.closeAdmin()" title="Close Admin">
-              <i class="fas fa-times"></i> Exit
+            <button class="btn btn-secondary btn-sm wp-topbar-exit-btn" onclick="window.AimanStore.closeAdmin()" title="Close Admin">
+              <i class="fas fa-times"></i> <span class="exit-btn-text">Exit</span>
             </button>
           </div>
         </header>
@@ -1735,8 +1736,18 @@
 
       <!-- Tab 2: Products Manager -->
       <div class="admin-tab-pane" id="adminTab_products">
+        <!-- Quick Action Nav Pills -->
+        <div style="display: flex; gap: 0.6rem; margin-bottom: 1.2rem; flex-wrap: wrap;">
+          <a href="#adminAddProductCard" class="btn btn-primary btn-sm" style="flex: 1; min-width: 140px; text-align: center; justify-content: center; display: inline-flex; align-items: center; gap: 0.4rem;">
+            <i class="fas fa-plus-circle"></i> ➕ Add New Product
+          </a>
+          <a href="#adminProductCatalogCard" class="btn btn-secondary btn-sm" style="flex: 1; min-width: 140px; text-align: center; justify-content: center; display: inline-flex; align-items: center; gap: 0.4rem;">
+            <i class="fas fa-boxes"></i> 📋 View Stock & Status
+          </a>
+        </div>
+
         <!-- Add New Product Form -->
-        <div class="admin-table-card" style="margin-bottom: 2rem;">
+        <div class="admin-table-card" id="adminAddProductCard" style="margin-bottom: 2rem;">
           <div class="admin-table-header">
             <h4>Add New Product to Store & Cloud Database</h4>
             <span style="font-size: 0.82rem; color: var(--color-text-muted);">Instantly saves and displays in the frontend catalog</span>
@@ -1824,14 +1835,14 @@
               </div>
             </div>
             <div style="padding: 0 1.5rem 1.5rem;">
-              <button type="submit" class="btn btn-primary">
-                <i class="fas fa-plus-circle"></i> Save & Publish Product
+              <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.6rem; font-weight: 800; padding: 1rem; font-size: 1.05rem; box-shadow: 0 6px 24px rgba(197, 168, 128, 0.4); border-radius: 8px;">
+                <i class="fas fa-plus-circle"></i> SAVE & PUBLISH PRODUCT TO CATALOG
               </button>
             </div>
           </form>
         </div>
 
-        <div class="admin-table-card">
+        <div class="admin-table-card" id="adminProductCatalogCard">
           <div class="admin-table-header" style="display:flex; justify-content:space-between; align-items:center;">
             <div>
               <h4>Current Product Catalog (Real-Time Cloud Synced)</h4>
@@ -3196,6 +3207,6 @@
   </div>
 
   <!-- JavaScript -->
-  <script type="module" src="app.js?v=21.0"></script>
+  <script type="module" src="app.js?v=22.0"></script>
 </body>
 </html>

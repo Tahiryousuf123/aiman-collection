@@ -5383,6 +5383,42 @@ ul, ol {
   opacity: 1 !important;
 }
 
+.wp-mobile-brand-title {
+  display: none;
+}
+
+/* Hide Mobile Bottom Nav when Admin is Open */
+body.admin-open .mobile-bottom-nav,
+.admin-portal-modal.active ~ .mobile-bottom-nav,
+.admin-portal-modal.show ~ .mobile-bottom-nav {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  transform: translateY(100%) !important;
+}
+
+/* Hide Netlify Injection Badge, Drawers & Snippets */
+[data-netlify-drawer],
+#netlify-drawer,
+.netlify-badge,
+[class*="netlify-badge"],
+div[data-netlify-badge],
+a[href*="netlify.com"],
+iframe[src*="netlify"],
+div[style*="z-index: 999999"][style*="bottom"],
+div[style*="position: fixed"][style*="bottom: 0"][style*="right: 0"],
+div[style*="position: fixed"][style*="bottom: 16px"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  max-height: 0 !important;
+  z-index: -9999 !important;
+}
+
 @media (max-width: 992px) {
   .wp-admin-sidebar {
     position: fixed !important;
@@ -5423,23 +5459,68 @@ ul, ol {
   }
 
   .wp-topbar {
-    padding: 0 1rem;
-    height: 58px;
-    min-height: 58px;
+    padding: 0 0.8rem !important;
+    height: 60px !important;
+    min-height: 60px !important;
+    gap: 0.5rem;
   }
 
-  .wp-topbar-breadcrumb strong {
-    font-size: 0.8rem;
-    max-width: 140px;
+  .wp-topbar-breadcrumb {
+    display: none !important;
+  }
+
+  .wp-mobile-brand-title {
+    display: inline-block !important;
+    font-family: var(--font-heading, 'Cinzel', serif);
+    color: var(--color-gold-light, #F5D77F);
+    font-weight: 700;
+    font-size: 0.92rem;
+    letter-spacing: 0.04em;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  }
+
+  .wp-topbar-right {
+    gap: 0.4rem !important;
+  }
+
+  .cloud-sync-status-pill {
+    padding: 0.3rem 0.5rem !important;
+    font-size: 0.72rem !important;
+  }
+
+  .cloud-sync-status-pill .cloud-status-text {
+    display: none !important;
+  }
+
+  .wp-topbar-add-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.3rem !important;
+    padding: 0.45rem 0.8rem !important;
+    font-size: 0.82rem !important;
+    font-weight: 700 !important;
+    white-space: nowrap;
+  }
+
+  .wp-topbar-add-btn .add-btn-text {
+    display: inline !important;
+  }
+
+  .wp-topbar-exit-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 0.45rem 0.65rem !important;
+    font-size: 0.82rem !important;
+  }
+
+  .wp-topbar-exit-btn .exit-btn-text {
+    display: none !important;
   }
 
   .admin-content-wrap {
-    height: calc(100vh - 58px) !important;
-    max-height: calc(100vh - 58px) !important;
-    padding: 1rem 0.85rem 5rem 0.85rem !important;
+    height: calc(100vh - 60px) !important;
+    max-height: calc(100vh - 60px) !important;
+    padding: 1rem 0.85rem 7rem 0.85rem !important;
   }
 
   .admin-metrics-grid {
@@ -5468,14 +5549,6 @@ ul, ol {
 @media (max-width: 576px) {
   .admin-metrics-grid {
     grid-template-columns: 1fr !important;
-  }
-
-  .cloud-sync-status-pill span:not(.pulse-green-dot) {
-    display: none;
-  }
-
-  .wp-topbar-add-btn span {
-    display: none;
   }
 }
 
