@@ -141,20 +141,23 @@
         <button class="ribbon-item active" data-cat="all" onclick="window.AimanStore.setCategory('all')">
           <i class="fas fa-border-all text-gold"></i> <span data-i18n="cat_all">All Products</span>
         </button>
-        <button class="ribbon-item" data-cat="deals" onclick="document.getElementById('superDealsSection')?.scrollIntoView({behavior:'smooth'})" style="background: linear-gradient(135deg, rgba(212,175,55,0.25), rgba(184,134,11,0.25)); border-color: var(--color-gold-primary);">
-          <i class="fas fa-fire text-danger"></i> <strong style="color:var(--color-gold-light);" data-i18n="cat_deals">SUPER DEALS 🔥</strong>
+        <button class="ribbon-item" data-cat="heavy-rida" onclick="window.AimanStore.setCategory('heavy-rida')">
+          <i class="fas fa-crown text-gold"></i> <span>👑 Heavy Rida / Bridal</span>
         </button>
-        <button class="ribbon-item" data-cat="rida" onclick="window.AimanStore.setCategory('rida')">
-          <i class="fas fa-crown text-gold"></i> <span data-i18n="cat_ridas">Ridas</span>
+        <button class="ribbon-item" data-cat="new-arrivals" onclick="window.AimanStore.setCategory('new-arrivals')">
+          <i class="fas fa-sparkles" style="color:#F5D77F;"></i> <span>✨ New Arrivals</span>
+        </button>
+        <button class="ribbon-item" data-cat="cotton-ridas" onclick="window.AimanStore.setCategory('cotton-ridas')">
+          <i class="fas fa-tshirt text-gold"></i> <span>🌸 Cotton Pret</span>
         </button>
         <button class="ribbon-item" data-cat="bags" onclick="window.AimanStore.setCategory('bags')">
-          <i class="fas fa-shopping-bag text-gold"></i> <span data-i18n="cat_bags">Bags</span>
+          <i class="fas fa-shopping-bag text-gold"></i> <span data-i18n="cat_bags">Bags & Batwas</span>
         </button>
         <button class="ribbon-item" data-cat="cosmetics" onclick="window.AimanStore.setCategory('cosmetics')">
-          <i class="fas fa-box-open text-rose"></i> <span data-i18n="cat_cosmetics">Cosmetic Bags</span>
+          <i class="fas fa-box-open text-rose"></i> <span data-i18n="cat_cosmetics">Vanity & Topi Pouches</span>
         </button>
-        <button class="ribbon-item" data-cat="other" onclick="window.AimanStore.setCategory('other')">
-          <i class="fas fa-sparkles" style="color:#64B5F6;"></i> <span data-i18n="cat_other">Other</span>
+        <button class="ribbon-item" data-cat="deals" onclick="document.getElementById('superDealsSection')?.scrollIntoView({behavior:'smooth'})" style="background: linear-gradient(135deg, rgba(212,175,55,0.25), rgba(184,134,11,0.25)); border-color: var(--color-gold-primary);">
+          <i class="fas fa-fire text-danger"></i> <strong style="color:var(--color-gold-light);" data-i18n="cat_deals">SUPER DEALS 🔥</strong>
         </button>
         <button class="ribbon-item" onclick="window.AimanStore.openLookbookModal()" style="color:var(--color-gold-light);">
           <i class="fas fa-book-open text-gold"></i> <span data-i18n="cat_lookbook">Lookbook</span>
@@ -430,10 +433,11 @@
         <!-- Category Filter Pills -->
         <div class="filter-pills">
           <button class="filter-btn active" data-category="all" onclick="window.AimanStore.setCategory('all')">All Products</button>
-          <button class="filter-btn" data-category="rida" onclick="window.AimanStore.setCategory('rida')">Ridas</button>
-          <button class="filter-btn" data-category="bags" onclick="window.AimanStore.setCategory('bags')">Bags</button>
-          <button class="filter-btn" data-category="cosmetics" onclick="window.AimanStore.setCategory('cosmetics')">Cosmetic Bags</button>
-          <button class="filter-btn" data-category="other" onclick="window.AimanStore.setCategory('other')">Other</button>
+          <button class="filter-btn" data-category="heavy-rida" onclick="window.AimanStore.setCategory('heavy-rida')">👑 Heavy Rida / Bridal</button>
+          <button class="filter-btn" data-category="new-arrivals" onclick="window.AimanStore.setCategory('new-arrivals')">✨ New Arrivals</button>
+          <button class="filter-btn" data-category="cotton-ridas" onclick="window.AimanStore.setCategory('cotton-ridas')">🌸 Cotton Pret</button>
+          <button class="filter-btn" data-category="bags" onclick="window.AimanStore.setCategory('bags')">👜 Bags & Batwas</button>
+          <button class="filter-btn" data-category="cosmetics" onclick="window.AimanStore.setCategory('cosmetics')">💄 Vanity & Topi Pouches</button>
         </div>
 
         <!-- Search and Sort -->
@@ -1696,11 +1700,12 @@
               <div class="form-group">
                 <label>Category *</label>
                 <select name="prod_category" required>
-                  <option value="silk-ridas">Silk & Formal Ridas</option>
-                  <option value="cotton-ridas">Cotton Daily Ridas</option>
-                  <option value="bridal-ridas">Bridal & Zari Ridas</option>
-                  <option value="handbags">Rida Bags & Batwas</option>
-                  <option value="accessories">Cosmetic & Topi Pouches</option>
+                  <option value="heavy-rida">👑 Heavy Rida / Bridal Zardozi</option>
+                  <option value="silk-ridas">✨ Silk & Formal Ridas</option>
+                  <option value="cotton-ridas">🌸 Cotton Daily Pret</option>
+                  <option value="handbags">👜 Rida Bags & Batwas</option>
+                  <option value="accessories">💄 Cosmetic & Topi Pouches</option>
+                  <option value="other">Other Accessories</option>
                 </select>
               </div>
               <div class="form-group">
@@ -2978,6 +2983,108 @@
         <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
           <i class="fas fa-percent"></i> Save Sale & Publish Badge
         </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ADMIN EDIT PRODUCT & STATUS MODAL (SOLDOUT / BOOKED / NEW ARRIVAL / HEAVY RIDA) -->
+  <div class="modal-wrapper" id="adminEditProductModal">
+    <div class="modal-card" style="max-width: 650px; padding: 2rem;">
+      <button class="modal-close-icon" onclick="window.AimanStore.closeModal('adminEditProductModal')" aria-label="Close modal">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div style="text-align: center; margin-bottom: 1.5rem;">
+        <span class="section-tag" style="background: rgba(197,168,128,0.2); color: var(--color-gold-light);">Merchant Inventory Editor</span>
+        <h2 style="font-family: var(--font-heading); font-size: 1.6rem; color: var(--color-gold-light);">Edit Product & Availability Status</h2>
+        <p style="font-size: 0.85rem; color: var(--color-text-muted);">Update product details, mark as Sold Out, Booked, or New Arrival.</p>
+      </div>
+
+      <form id="adminEditProductForm" onsubmit="window.AimanStore.saveAdminProductForm(event)">
+        <input type="hidden" id="edit_prod_id">
+
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label>Product Title *</label>
+          <input type="text" id="edit_prod_name" required placeholder="e.g. Royal Crimson Heavy Zardozi Bridal Silk Rida">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+          <div class="form-group">
+            <label>Category *</label>
+            <select id="edit_prod_category" required>
+              <option value="heavy-rida">👑 Heavy Rida / Bridal Zardozi</option>
+              <option value="silk-ridas">✨ Silk Pret Rida</option>
+              <option value="cotton-ridas">🌸 Pastel Cotton Everyday Pret</option>
+              <option value="handbags">👜 Handbags & Matching Batwas</option>
+              <option value="accessories">💄 Vanity & Topi Pouches</option>
+              <option value="other">Other Accessories</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Availability / Inventory Status *</label>
+            <select id="edit_prod_status" required style="font-weight: 700;">
+              <option value="available" style="color: #4ADE80; background: #122B1E;">🟢 In Stock / Available</option>
+              <option value="booked" style="color: #F5D77F; background: #3D2F1B;">🔒 BOOKED / Reserved for Client</option>
+              <option value="soldout" style="color: #FF6B6B; background: #3B0D0C;">🚫 SOLD OUT</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+          <div class="form-group">
+            <label>Selling Price (Rs.) *</label>
+            <input type="number" id="edit_prod_price" required min="0" placeholder="18500">
+          </div>
+          <div class="form-group">
+            <label>Cost of Goods (Rs.)</label>
+            <input type="number" id="edit_prod_cost_price" min="0" placeholder="9500">
+          </div>
+          <div class="form-group">
+            <label>Stock Count</label>
+            <input type="number" id="edit_prod_stock" min="0" placeholder="10">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+          <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: 700; color: #FFF; margin-top: 1.8rem;">
+              <input type="checkbox" id="edit_prod_is_new" style="width: 18px; height: 18px; accent-color: var(--color-gold-primary);">
+              <span>✨ Mark as New Arrival</span>
+            </label>
+          </div>
+          <div class="form-group">
+            <label>Custom Badge Tag</label>
+            <input type="text" id="edit_prod_badge" placeholder="e.g. Best Seller, Limited Edition">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label>Fabric & Embroidery Details</label>
+          <input type="text" id="edit_prod_fabric" placeholder="e.g. Pure Raw Silk with Gold Zardozi needlework">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label>Image URL / Path</label>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="edit_prod_image" placeholder="images/luxury_rida.png" style="flex: 1;">
+            <label class="btn btn-secondary btn-sm" style="display: flex; align-items: center; cursor: pointer; margin: 0;">
+              <i class="fas fa-upload"></i> Upload
+              <input type="file" accept="image/*" style="display: none;" onchange="window.AimanStore.handleImageUploadToInput(this, 'edit_prod_image')">
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+          <label>Description & Artisan Notes</label>
+          <textarea id="edit_prod_desc" rows="3" placeholder="Enter full details..."></textarea>
+        </div>
+
+        <div style="display: flex; gap: 1rem;">
+          <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="window.AimanStore.closeModal('adminEditProductModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary" style="flex: 2;">
+            <i class="fas fa-save"></i> Save Changes & Update Storefront
+          </button>
+        </div>
       </form>
     </div>
   </div>

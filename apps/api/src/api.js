@@ -265,21 +265,21 @@ class AimanApiEngine {
         if (target === 'new-arrivals' || target === 'new' || target === 'new_arrivals') {
           return Boolean(p.isNewArrival) || pBadge.includes('new') || p.badgeClass === 'new';
         }
+        if (target === 'heavy-rida' || target === 'heavy-ridas' || target === 'heavy' || target === 'bridal-ridas' || target === 'bridal') {
+          return pSub === 'bridal-ridas' || pSub === 'heavy-rida' || pCat === 'bridal' || pCat === 'heavy-rida' || pName.includes('heavy') || pName.includes('bridal') || pName.includes('zardozi') || pFab.includes('zardozi') || pBadge.includes('heavy') || pBadge.includes('bridal');
+        }
         if (target === pCat || target === pSub) return true;
-        if (target === 'ridas') return pCat === 'ridas' || pSub.includes('rida');
+        if (target === 'ridas' || target === 'rida') return pCat === 'ridas' || pCat === 'rida' || pSub.includes('rida');
         if (target === 'silk-ridas') {
           return pSub === 'silk-ridas' || (pCat === 'ridas' && (pFab.includes('silk') || pName.includes('silk') || pFab.includes('zari')));
         }
-        if (target === 'cotton-ridas') {
-          return pSub === 'cotton-ridas' || (pCat === 'ridas' && (pFab.includes('cotton') || pFab.includes('lawn') || pName.includes('cotton') || pName.includes('chikankari')));
+        if (target === 'cotton-ridas' || target === 'cotton-pret' || target === 'cotton') {
+          return pSub === 'cotton-ridas' || pCat === 'cotton-pret' || (pCat === 'ridas' && (pFab.includes('cotton') || pFab.includes('lawn') || pName.includes('cotton') || pName.includes('chikankari')));
         }
-        if (target === 'bridal-ridas' || target === 'bridal') {
-          return pSub === 'bridal-ridas' || pCat === 'bridal' || pName.includes('bridal') || pFab.includes('zardozi');
-        }
-        if (target === 'handbags' || target === 'bags') {
+        if (target === 'handbags' || target === 'bags' || target === 'bag') {
           return pCat === 'handbags' || pSub === 'bags' || pCat === 'bags' || pName.includes('bag') || pName.includes('batwa');
         }
-        if (target === 'accessories' || target === 'cosmetics') {
+        if (target === 'accessories' || target === 'cosmetics' || target === 'pouches') {
           return pCat === 'accessories' || pSub === 'cosmetics' || pName.includes('pouch') || pName.includes('vanity') || pName.includes('topi');
         }
         return pCat === target || pSub === target;

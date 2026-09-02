@@ -1324,6 +1324,16 @@ import { apiEngine } from './apps/api/src/api.js';
   /* ==========================================================================
      11. ADMIN PORTAL CONTROLLER, PIN VERIFICATION (7860) & FRONTEND EDITORS
      ========================================================================== */
+  function openModal(modalId) {
+    if (!modalId) return;
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.style.display = 'flex';
+      modal.classList.add('active');
+      modal.classList.add('show');
+    }
+  }
+
   function closeModal(modalId) {
     if (!modalId) return;
     const modal = document.getElementById(modalId);
@@ -2173,7 +2183,13 @@ import { apiEngine } from './apps/api/src/api.js';
 
     let category = 'ridas';
     let subCategory = rawCategory;
-    if (rawCategory === 'handbags' || rawCategory === 'bags') {
+    if (rawCategory === 'heavy-rida' || rawCategory === 'bridal-ridas') {
+      category = 'bridal';
+      subCategory = 'bridal-ridas';
+    } else if (rawCategory === 'cotton-ridas' || rawCategory === 'cotton-pret') {
+      category = 'cotton-pret';
+      subCategory = 'cotton-ridas';
+    } else if (rawCategory === 'handbags' || rawCategory === 'bags') {
       category = 'handbags';
       subCategory = 'bags';
     } else if (rawCategory === 'accessories' || rawCategory === 'cosmetics') {
@@ -2402,9 +2418,26 @@ import { apiEngine } from './apps/api/src/api.js';
     const image = document.getElementById('edit_prod_image')?.value || 'images/luxury_rida.png';
     const description = document.getElementById('edit_prod_desc')?.value || '';
 
+    let subCategory = category;
+    let mainCategory = category;
+    if (category === 'heavy-rida' || category === 'bridal-ridas') {
+      mainCategory = 'bridal';
+      subCategory = 'bridal-ridas';
+    } else if (category === 'cotton-ridas' || category === 'cotton-pret') {
+      mainCategory = 'cotton-pret';
+      subCategory = 'cotton-ridas';
+    } else if (category === 'handbags' || category === 'bags') {
+      mainCategory = 'handbags';
+      subCategory = 'bags';
+    } else if (category === 'accessories' || category === 'cosmetics') {
+      mainCategory = 'accessories';
+      subCategory = 'cosmetics';
+    }
+
     apiEngine.updateProduct(id, {
       name,
-      category,
+      category: mainCategory,
+      subCategory,
       costPrice,
       price,
       stockQuantity,
@@ -3507,6 +3540,7 @@ import { apiEngine } from './apps/api/src/api.js';
     submitCustomMeasurement,
     openAdminLoginModal,
     verifyAdminLogin,
+    openModal,
     closeModal,
     openAdmin,
     closeAdmin,
