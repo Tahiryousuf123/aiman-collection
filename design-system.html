@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIMAN COLLECTION — Figma Design System & Brand Specification</title>
+  <meta name="description" content="Official UI/UX Design System, Color Tokens, Typography Hierarchy, Component Library, and WhatsApp AI Architecture for Aiman Collection.">
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --ds-gold-primary: #C5A880;
+      --ds-gold-light: #DFCAAB;
+      --ds-gold-dark: #9A7B56;
+      --ds-rose-gold: #E0A96D;
+      --ds-bg-dark: #0B0D11;
+      --ds-bg-card: #13161C;
+      --ds-text-primary: #FAF9F6;
+      --ds-text-secondary: #C8CDD6;
+      --ds-text-muted: #858D9D;
+      --ds-border: rgba(197, 168, 128, 0.22);
+      --ds-whatsapp: #25D366;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--ds-bg-dark);
+      color: var(--ds-text-primary);
+      line-height: 1.6;
+      padding: 0;
+      margin: 0;
+    }
+
+    /* Top Control Bar */
+    .top-bar {
+      position: sticky;
+      top: 0;
+      background: rgba(19, 22, 28, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--ds-border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .top-bar-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--ds-gold-light);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .btn-export-pdf {
+      background: linear-gradient(135deg, #D4B68F 0%, #B8966C 100%);
+      color: #0F1115;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 0.65rem 1.4rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 15px rgba(197, 168, 128, 0.35);
+      transition: transform 0.2s ease;
+    }
+
+    .btn-export-pdf:hover {
+      transform: translateY(-2px);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 2rem 5rem;
+    }
+
+    /* Header Presentation Hero */
+    .ds-hero {
+      text-align: center;
+      padding: 3rem 0 4rem;
+      border-bottom: 1px solid var(--ds-border);
+      margin-bottom: 4rem;
+    }
+
+    .ds-badge {
+      display: inline-block;
+      padding: 0.35rem 1rem;
+      background: rgba(197, 168, 128, 0.12);
+      border: 1px solid var(--ds-border);
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--ds-gold-light);
+      margin-bottom: 1rem;
+      letter-spacing: 0.1em;
+    }
+
+    .ds-hero h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #FFF1D6 0%, #C5A880 50%, #9A7B56 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .ds-hero p {
+      font-size: 1.1rem;
+      color: var(--ds-text-secondary);
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* Section Styling */
+    .ds-section {
+      margin-bottom: 4.5rem;
+    }
+
+    .ds-section-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--ds-gold-light);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .ds-section-subtitle {
+      font-size: 0.95rem;
+      color: var(--ds-text-muted);
+      margin-bottom: 2rem;
+    }
+
+    /* Swatches Grid */
+    .swatches-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .swatch-card {
+      background: var(--ds-bg-card);
+      border: 1px solid var(--ds-border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .swatch-color-box {
+      height: 110px;
+      width: 100%;
+      position: relative;
+    }
+
+    .swatch-info {
+      padding: 1rem;
+    }
+
+    .swatch-info h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+    }
+
+    .swatch-info span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--ds-gold-light);
+      display: block;
+    }
+
+    .swatch-info small {
+      font-size: 0.75rem;
+      color: var(--ds-text-muted);
+    }
+
+    /* Typography Scale Table */
+    .ds-table-card {
+      background: var(--ds-bg-card);
+      border: 1px solid var(--ds-border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .ds-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .ds-table th {
+      background: #0E1015;
+      padding: 1rem 1.4rem;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ds-text-muted);
+      border-bottom: 1px solid var(--ds-border);
+    }
+
+    .ds-table td {
+      padding: 1.2rem 1.4rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.9rem;
+    }
+
+    /* UI Component Previews */
+    .components-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+    }
+
+    .component-box {
+      background: var(--ds-bg-card);
+      border: 1px solid var(--ds-border);
+      border-radius: 14px;
+      padding: 2rem;
+    }
+
+    .component-box h4 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      color: var(--ds-gold-light);
+      margin-bottom: 1.2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding-bottom: 0.6rem;
+    }
+
+    /* Architecture Flow Diagram */
+    .flow-diagram {
+      background: #0E1117;
+      border: 1px solid var(--ds-border);
+      border-radius: 14px;
+      padding: 2.5rem;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      position: relative;
+    }
+
+    .flow-step {
+      background: #161A22;
+      border: 1px solid rgba(197, 168, 128, 0.3);
+      border-radius: 10px;
+      padding: 1.5rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .flow-step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--ds-gold-primary);
+      color: #000;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 0.8rem;
+      font-size: 0.85rem;
+    }
+
+    .flow-step h5 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+
+    .flow-step p {
+      font-size: 0.78rem;
+      color: var(--ds-text-muted);
+    }
+
+    /* PRINT SPECIFIC STYLES FOR CRISP HIGH-RES PDF EXPORT */
+    @media print {
+      body {
+        background: #FFFFFF !important;
+        color: #111111 !important;
+      }
+      .top-bar {
+        display: none !important;
+      }
+      .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+      }
+      .swatch-card, .component-box, .ds-table-card, .flow-step {
+        background: #FFFFFF !important;
+        border: 1px solid #CCC !important;
+        color: #000 !important;
+        break-inside: avoid;
+        box-shadow: none !important;
+      }
+      .ds-hero h1 {
+        background: none !important;
+        -webkit-text-fill-color: #9A7B56 !important;
+        color: #9A7B56 !important;
+      }
+      .ds-section-title {
+        color: #9A7B56 !important;
+      }
+      .swatch-info span {
+        color: #333 !important;
+      }
+      .swatch-info small, .ds-section-subtitle, .flow-step p {
+        color: #555 !important;
+      }
+      .ds-table th {
+        background: #F0F0F0 !important;
+        color: #000 !important;
+      }
+      .ds-table td {
+        border-bottom: 1px solid #DDD !important;
+        color: #111 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="top-bar-title">
+      <i class="fab fa-figma text-rose"></i>
+      <span>AIMAN COLLECTION — DESIGN SYSTEM & FIGMA SPECIFICATIONS</span>
+    </div>
+    <div style="display: flex; gap: 1rem; align-items: center;">
+      <a href="index.html" style="color: var(--ds-gold-light); font-size: 0.88rem; text-decoration: underline;">
+        <i class="fas fa-store"></i> Return to Live Store
+      </a>
+      <button class="btn-export-pdf" onclick="window.print()">
+        <i class="fas fa-file-pdf"></i> Export / Save as PDF
+      </button>
+    </div>
+  </div>
+
+  <div class="container">
+    
+    <!-- HERO -->
+    <header class="ds-hero">
+      <span class="ds-badge">FIGMA DESIGN TOKENS & SYSTEM GUIDE</span>
+      <h1>Aiman Collection Design Blueprint</h1>
+      <p>
+        Comprehensive design specification, color palettes, typography scales, interactive component states, and WhatsApp AI conversational flows crafted for high-end Pakistani luxury couture.
+      </p>
+    </header>
+
+    <!-- 1. COLOR PALETTE -->
+    <section class="ds-section">
+      <h2 class="ds-section-title"><i class="fas fa-palette text-gold"></i> 1. Color Palette & Token System</h2>
+      <p class="ds-section-subtitle">Curated high-contrast luxury palette balancing royal golds, obsidian darks, velvet tones, and WhatsApp green.</p>
+
+      <div class="swatches-grid">
+        <!-- Gold Primary -->
+        <div class="swatch-card">
+          <div class="swatch-color-box" style="background-color: #C5A880;"></div>
+          <div class="swatch-info">
+            <h4>Royal Gold Primary</h4>
+            <span>#C5A880</span>
+            <small>RGB: 197, 168, 128 | Accents & CTAs</small>
+          </div>
+        </div>
+
+        <!-- Rose Gold -->
+        <div class="swatch-card">
+          <div class="swatch-color-box" style="background-color: #E0A96D;"></div>
+          <div class="swatch-info">
+            <h4>Rose Gold Light</h4>
+            <span>#E0A96D</span>
+            <small>RGB: 224, 169, 109 | Highlights & Badges</small>
+          </div>
+        </div>
+
+        <!-- Velvet Burgundy -->
+        <div class="swatch-card">
+          <div class="swatch-color-box" style="background-color: #661826;"></div>
+          <div class="swatch-info">
+            <h4>Velvet Burgundy</h4>
+            <span>#661826</span>
+            <small>RGB: 102, 24, 38 | Sale & Luxury Badges</small>
+          </div>
+        </div>
+
+        <!-- Emerald Green -->
+        <div class="swatch-card">
+          <div class="swatch-color-box" style="background-color: #1B4D3E;"></div>
+          <div class="swatch-info">
+            <h4>Heritage Emerald</h4>
+            <span>#1B4D3E</span>
+            <small>RGB: 27, 77, 62 | Traditional Motifs</small>
+          </div>
+        </div>
+
+        <!-- WhatsApp Green -->
+        <div class="swatch-card">
+          <div class="swatch-color-box" style="background-color: #25D366;"></div>
+          <div class="swatch-info">
+            <h4>WhatsApp Emerald</h4>
+            <span>#25D366</span>
+            <small>RGB: 37, 211, 102 | AI Assistant & CTAs</small>
+          </div>
+        </div>
+
+        <!-- Obsidian Dark -->
+        <div class="swatch-card">
+          <div class="swatch-color-box" style="background-color: #0B0D11; border-bottom: 1px solid rgba(255,255,255,0.1);"></div>
+          <div class="swatch-info">
+            <h4>Midnight Obsidian</h4>
+            <span>#0B0D11</span>
+            <small>RGB: 11, 13, 17 | Primary Background</small>
+          </div>
+        </div>
+
+        <!-- Card Background -->
+        <div class="swatch-card">
+          <div class="swatch-color-box" style="background-color: #13161C; border-bottom: 1px solid rgba(255,255,255,0.1);"></div>
+          <div class="swatch-info">
+            <h4>Elevated Card</h4>
+            <span>#13161C</span>
+            <small>RGB: 19, 22, 28 | Surface Cards & Modals</small>
+          </div>
+        </div>
+
+        <!-- Pearl White Text -->
+        <div class="swatch-card">
+          <div class="swatch-color-box" style="background-color: #FAF9F6;"></div>
+          <div class="swatch-info">
+            <h4>Warm Pearl Text</h4>
+            <span>#FAF9F6</span>
+            <small>RGB: 250, 249, 246 | Primary Typography</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. TYPOGRAPHY HIERARCHY -->
+    <section class="ds-section">
+      <h2 class="ds-section-title"><i class="fas fa-font text-gold"></i> 2. Typography Hierarchy & Scales</h2>
+      <p class="ds-section-subtitle">Cinzel & Playfair Display for regal elegance paired with Plus Jakarta Sans for crisp legibility.</p>
+
+      <div class="ds-table-card">
+        <table class="ds-table">
+          <thead>
+            <tr>
+              <th>Role</th>
+              <th>Font Family</th>
+              <th>Size / Line Height</th>
+              <th>Weight</th>
+              <th>Sample Preview</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Display Hero</strong></td>
+              <td>Cinzel</td>
+              <td>58px / 1.15</td>
+              <td>Bold (700)</td>
+              <td><span style="font-family: 'Cinzel', serif; font-size: 1.5rem; font-weight: 700; color: var(--ds-gold-light);">AIMAN COLLECTION</span></td>
+            </tr>
+            <tr>
+              <td><strong>Section Title H2</strong></td>
+              <td>Cinzel</td>
+              <td>40px / 1.2</td>
+              <td>Bold (700)</td>
+              <td><span style="font-family: 'Cinzel', serif; font-size: 1.3rem; font-weight: 700;">Curated Festive Collections</span></td>
+            </tr>
+            <tr>
+              <td><strong>Product Heading H3</strong></td>
+              <td>Playfair Display</td>
+              <td>22px / 1.35</td>
+              <td>SemiBold (600)</td>
+              <td><span style="font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 600;">Royal Velvet Embroidered Rida</span></td>
+            </tr>
+            <tr>
+              <td><strong>Body Regular</strong></td>
+              <td>Plus Jakarta Sans</td>
+              <td>16px / 1.6</td>
+              <td>Regular (400)</td>
+              <td><span>Handcrafted with regal golden tilla embroidery on pure velvet.</span></td>
+            </tr>
+            <tr>
+              <td><strong>Meta / Badges</strong></td>
+              <td>Plus Jakarta Sans</td>
+              <td>12px / 1.4</td>
+              <td>Bold (700)</td>
+              <td><span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--ds-gold-light);">Bestseller • 100% Pure Silk</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 3. COMPONENT SPECIFICATIONS -->
+    <section class="ds-section">
+      <h2 class="ds-section-title"><i class="fas fa-cube text-gold"></i> 3. Interactive Component Library</h2>
+      <p class="ds-section-subtitle">Standardized reusable UI elements used across customer journey and admin workflows.</p>
+
+      <div class="components-grid">
+        <!-- Buttons Box -->
+        <div class="component-box">
+          <h4>Button Variants & States</h4>
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div style="display: flex; gap: 1rem; align-items: center;">
+              <button style="padding: 0.8rem 1.6rem; border-radius: 999px; background: linear-gradient(135deg, #D4B68F 0%, #B8966C 100%); color: #0F1115; font-weight: 700; border: none; cursor: pointer;">
+                <i class="fas fa-shopping-bag"></i> Primary Gold Action
+              </button>
+              <small style="color: var(--ds-text-muted);">Main CTA</small>
+            </div>
+
+            <div style="display: flex; gap: 1rem; align-items: center;">
+              <button style="padding: 0.8rem 1.6rem; border-radius: 999px; background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color: #FFFFFF; font-weight: 700; border: none; cursor: pointer;">
+                <i class="fab fa-whatsapp"></i> WhatsApp 1-Click Order
+              </button>
+              <small style="color: var(--ds-text-muted);">WhatsApp Deep Link</small>
+            </div>
+
+            <div style="display: flex; gap: 1rem; align-items: center;">
+              <button style="padding: 0.8rem 1.6rem; border-radius: 999px; background: rgba(255,255,255,0.06); border: 1px solid var(--ds-border); color: #FFF; font-weight: 600; cursor: pointer;">
+                <i class="fas fa-eye"></i> Secondary Glass Button
+              </button>
+              <small style="color: var(--ds-text-muted);">Filters & Modals</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- WhatsApp Chat Simulation Box -->
+        <div class="component-box">
+          <h4>WhatsApp AI Chat Widget Anatomy</h4>
+          <div style="background: #080A0E; border: 1px solid var(--ds-border); border-radius: 10px; padding: 1rem; display: flex; flex-direction: column; gap: 0.8rem;">
+            <div style="background: #1C232E; color: #FFF; padding: 0.6rem 0.9rem; border-radius: 8px; font-size: 0.82rem; width: 85%;">
+              ✨ <strong>Aiman AI Stylist:</strong> Assalam-o-Alaikum! Main aapki personal fashion concierge hoon. Aapko kis type ki collection dekhni hai?
+            </div>
+            <div style="background: #005C4B; color: #FFF; padding: 0.6rem 0.9rem; border-radius: 8px; font-size: 0.82rem; align-self: flex-end; width: 75%;">
+              Mujhe bridal collection aur order tracking dekhni hai.
+            </div>
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+              <span style="background: rgba(37,211,102,0.15); color: #6EE7B7; border: 1px solid rgba(37,211,102,0.3); font-size: 0.7rem; padding: 2px 8px; border-radius: 999px;">🛍️ Best Sellers</span>
+              <span style="background: rgba(37,211,102,0.15); color: #6EE7B7; border: 1px solid rgba(37,211,102,0.3); font-size: 0.7rem; padding: 2px 8px; border-radius: 999px;">📦 Track Order</span>
+              <span style="background: rgba(37,211,102,0.15); color: #6EE7B7; border: 1px solid rgba(37,211,102,0.3); font-size: 0.7rem; padding: 2px 8px; border-radius: 999px;">📏 Size Guide</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. WHATSAPP AI STATE MACHINE ARCHITECTURE -->
+    <section class="ds-section">
+      <h2 class="ds-section-title"><i class="fas fa-network-wired text-gold"></i> 4. WhatsApp AI Conversational Architecture</h2>
+      <p class="ds-section-subtitle">End-to-end intent resolution pipeline supporting Urdu, Roman Urdu, and English.</p>
+
+      <div class="flow-diagram">
+        <div class="flow-step">
+          <div class="flow-step-num">1</div>
+          <h5>Customer Query</h5>
+          <p>User enters text or selects quick chips (Urdu, Roman Urdu, or English).</p>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-step-num">2</div>
+          <h5>Intent Engine</h5>
+          <p>Regex & keyword matching for Order IDs (<code>AC-XXXX</code>), Sizing, Pricing, or Product catalogs.</p>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-step-num">3</div>
+          <h5>Contextual Reply</h5>
+          <p>Instant rich response with courier tracking status, size advice, or product preview cards.</p>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-step-num">4</div>
+          <h5>WhatsApp Handover</h5>
+          <p>Formatted deep-link pre-filling exact inquiry sent to WhatsApp (+92 336 3925950).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. STORE MANAGEMENT & ADMIN CAPABILITIES -->
+    <section class="ds-section">
+      <h2 class="ds-section-title"><i class="fas fa-sliders-h text-gold"></i> 5. Admin Portal Control Center</h2>
+      <p class="ds-section-subtitle">Real-time store governance and conversational automation control.</p>
+
+      <div class="ds-table-card">
+        <table class="ds-table">
+          <thead>
+            <tr>
+              <th>Admin Module</th>
+              <th>Functionality</th>
+              <th>Data Persistence</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Inventory Manager</strong></td>
+              <td>Add new dresses/handbags, edit prices, sale badges, stock levels, and fabric details.</td>
+              <td>Real-time LocalStorage & Live Storefront Sync</td>
+            </tr>
+            <tr>
+              <td><strong>Order Status Tracker</strong></td>
+              <td>Track customer orders, toggle status (Pending / Processing / Shipped / Delivered), print tax invoices.</td>
+              <td>Persistent order history with customer courier codes</td>
+            </tr>
+            <tr>
+              <td><strong>WhatsApp AI Rules Engine</strong></td>
+              <td>Configure custom keyword triggers, automated multilingual replies, and business contact numbers.</td>
+              <td>Instant reactive bot memory update</td>
+            </tr>
+            <tr>
+              <td><strong>Live Leads & Logs</strong></td>
+              <td>Inspect customer queries, capture contact details, and review chat sessions.</td>
+              <td>Full query analytics store</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- FOOTER SIGN-OFF -->
+    <div style="text-align: center; border-top: 1px solid var(--ds-border); padding-top: 2.5rem; margin-top: 4rem; color: var(--ds-text-muted); font-size: 0.85rem;">
+      <strong>AIMAN COLLECTION</strong> • Luxury Haute Couture & Pret System Specification • Karachi, Pakistan<br>
+      Ready for Figma import, stakeholder presentation, and high-resolution PDF print.
+    </div>
+
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "name": "aiman-collection",
+  "version": "2.0.0",
+  "description": "AIMAN COLLECTION — Luxury Dawoodi Bohra Libas, Handcrafted Ridas, Matching Bags & Accounting Suite",
+  "main": "index.html",
+  "type": "module",
+  "scripts": {
+    "dev": "npx http-server ./ -p 3000 -o",
+    "start": "npx http-server ./ -p 3000",
+    "build": "node build.js",
+    "bot": "node apps/api/src/whatsapp-bot-server.js"
+  },
+  "keywords": [
+    "aiman-collection",
+    "dawoodi-bohra-libas",
+    "luxury-ridas",
+    "bohra-rida-designs",
+    "haute-couture-karachi",
+    "pakistan-pret",
+    "e-commerce-suite"
+  ],
+  "author": "Aiman Collection Atelier",
+  "license": "ISC",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

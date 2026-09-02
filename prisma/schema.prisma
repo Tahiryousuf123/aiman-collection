@@ -1,0 +1,203 @@
+// Prisma Schema for Aiman Collection — Luxury Haute Couture & Pret E-Commerce Platform
+// Scalable Architecture with Multi-Currency, Multi-Gateway Payments, Reviews & AI Leads
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum ProductCategory {
+  RIDAS
+  HANDBAGS
+  ACCESSORIES
+  BRIDAL
+  PRET
+  FESTIVE
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  STITCHING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentGateway {
+  STRIPE_CARD
+  JAZZCASH
+  EASYPAISA
+  BANK_TRANSFER
+  CASH_ON_DELIVERY
+}
+
+enum PaymentStatus {
+  UNPAID
+  PENDING_VERIFICATION
+  PAID
+  REFUNDED
+  FAILED
+}
+
+enum CurrencyCode {
+  PKR
+  USD
+  AED
+  GBP
+  SAR
+}
+
+model Product {
+  id            String          @id @default(cuid())
+  slug          String          @unique
+  name          String
+  category      ProductCategory @default(RIDAS)
+  price         Float
+  originalPrice Float?
+  image         String
+  galleryImages String[]        @default([])
+  badge         String?
+  badgeClass    String?         @default("new")
+  rating        Float           @default(5.0)
+  reviewsCount  Int             @default(0)
+  description   String
+  fabric        String
+  sizes         String[]        @default(["Standard"])
+  inStock       Boolean         @default(true)
+  stockQuantity Int             @default(50)
+  isFeatured    Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  orderItems    OrderItem[]
+  reviews       Review[]
+}
+
+model Order {
+  id              String          @id @default(cuid())
+  orderNumber     String          @unique // e.g. AC-2026-8491
+  customerName    String
+  customerEmail   String
+  customerPhone   String
+  shippingAddress String
+  city            String
+  postalCode      String?
+  country         String          @default("Pakistan")
+  currency        CurrencyCode    @default(PKR)
+  subtotal        Float
+  discount        Float           @default(0)
+  shippingFee     Float           @default(0)
+  total           Float
+  paymentMethod   PaymentGateway  @default(CASH_ON_DELIVERY)
+  paymentStatus   PaymentStatus   @default(UNPAID)
+  orderStatus     OrderStatus     @default(PENDING)
+  trackingNumber  String?
+  courier         String?         // TCS, Leopard, DHL Express
+  notes           String?
+  paymentSlipUrl  String?         // For Bank Transfer verification
+  emailSent       Boolean         @default(false)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  items           OrderItem[]
+  transactions    PaymentTransaction[]
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  productName String
+  productImage String
+  price       Float
+  quantity    Int      @default(1)
+  size        String?
+  customMeasurements Json?
+}
+
+model PaymentTransaction {
+  id             String         @id @default(cuid())
+  orderId        String
+  order          Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  gateway        PaymentGateway
+  transactionRef String         @unique // Stripe Intent ID / JazzCash Txn ID / EasyPaisa Ref
+  amount         Float
+  currency       CurrencyCode   @default(PKR)
+  accountNumber  String?        // Masked mobile or card number
+  status         PaymentStatus  @default(PENDING_VERIFICATION)
+  receiptUrl     String?
+  rawResponse    Json?
+  createdAt      DateTime       @default(now())
+}
+
+model Review {
+  id               String   @id @default(cuid())
+  productId        String?
+  product          Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName      String?
+  customerName     String
+  customerEmail    String?
+  rating           Int      @default(5)
+  headline         String?
+  comment          String
+  photos           String[] @default([]) // Customer style photos
+  fitRating        String?  // True to size, Runs small, Runs large
+  isVerifiedBuyer  Boolean  @default(true)
+  isFeatured       Boolean  @default(false)
+  likesCount       Int      @default(0)
+  createdAt        DateTime @default(now())
+}
+
+model Lead {
+  id             String   @id @default(cuid())
+  name           String
+  phone          String
+  email          String?
+  channel        String   @default("WHATSAPP_AI")
+  productInterest String?
+  intentCategory String?  // PRICING, CUSTOM_STITCHING, ORDER_TRACKING, GENERAL
+  lastMessage    String?
+  status         String   @default("HOT_LEAD") // HOT_LEAD, CONTACTED, CONVERTED, CLOSED
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model BotRule {
+  id              String   @id @default(cuid())
+  keywords        String[]
+  responseEnglish String
+  responseUrdu    String?
+  intentCategory  String
+  quickActions    String[] @default([])
+  isActive        Boolean  @default(true)
+  priority        Int      @default(1)
+  createdAt       DateTime @default(now())
+}
+
+model CustomStitchingInquiry {
+  id             String   @id @default(cuid())
+  customerName   String
+  customerPhone  String
+  customerEmail  String?
+  garmentType    String   // Rida, 3-Piece Bridal, Pret Kurti, Lehanga
+  fabricOption   String   // Velvet, Pure Silk, Organza, Lawn
+  embroideryType String   // Heavy Zardozi, Tilla Work, Chikankari, Minimalist
+  bust           Float?
+  waist          Float?
+  hips           Float?
+  length         Float?
+  shoulder       Float?
+  notes          String?
+  estimatedPrice Float
+  status         String   @default("PENDING_CONSULTATION")
+  createdAt      DateTime @default(now())
+}

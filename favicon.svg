@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1A1E26"/>
+      <stop offset="100%" stop-color="#080A0E"/>
+    </radialGradient>
+    <linearGradient id="goldLuxury" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCEBA4"/>
+      <stop offset="30%" stop-color="#E0A96D"/>
+      <stop offset="65%" stop-color="#C5A880"/>
+      <stop offset="100%" stop-color="#99733E"/>
+    </linearGradient>
+    <linearGradient id="goldShimmer" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#E0A96D"/>
+      <stop offset="50%" stop-color="#FFF5D1"/>
+      <stop offset="100%" stop-color="#C5A880"/>
+    </linearGradient>
+    <filter id="goldGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background with rounded gold border -->
+  <rect width="512" height="512" rx="100" fill="url(#bgGlow)"/>
+  <rect x="14" y="14" width="484" height="484" rx="88" fill="none" stroke="url(#goldLuxury)" stroke-width="6" opacity="0.85"/>
+  <circle cx="256" cy="256" r="220" fill="none" stroke="url(#goldLuxury)" stroke-width="2" stroke-dasharray="8 6" opacity="0.6"/>
+
+  <!-- Crown on top -->
+  <g fill="url(#goldLuxury)" filter="url(#goldGlow)">
+    <path d="M200 135 L218 100 L256 125 L294 100 L312 135 L300 150 L212 150 Z"/>
+    <circle cx="218" cy="94" r="7"/>
+    <circle cx="256" cy="90" r="9"/>
+    <circle cx="294" cy="94" r="7"/>
+    <rect x="210" y="152" width="92" height="10" rx="3" fill="url(#goldShimmer)"/>
+  </g>
+
+  <!-- Royal Floral Crest Accents -->
+  <path d="M110 256 C110 180 170 120 220 120 C180 160 160 210 160 256 C160 302 180 352 220 392 C170 392 110 332 110 256 Z" fill="url(#goldLuxury)" opacity="0.35"/>
+  <path d="M402 256 C402 180 342 120 292 120 C332 160 352 210 352 256 C352 302 332 352 292 392 C342 392 402 332 402 256 Z" fill="url(#goldLuxury)" opacity="0.35"/>
+
+  <!-- Interlocking AC Monogram -->
+  <!-- Letter A -->
+  <path d="M190 345 L242 195 L270 195 L322 345 L294 345 L278 296 L234 296 L218 345 Z M241 274 L271 274 L256 226 Z" fill="url(#goldLuxury)" filter="url(#goldGlow)"/>
+  
+  <!-- Letter C overlaid -->
+  <path d="M335 220 C310 195 270 195 240 215 C215 235 205 270 215 305 C225 340 260 365 300 360 C325 356 345 340 355 320 L330 310 C322 322 310 332 295 334 C272 337 250 322 242 300 C234 278 242 252 260 238 C278 224 302 224 320 238 L335 220 Z" fill="url(#goldShimmer)"/>
+
+  <!-- Brand Typography -->
+  <text x="256" y="405" font-family="'Playfair Display', 'Cinzel', 'Georgia', serif" font-weight="900" font-size="34" fill="url(#goldShimmer)" text-anchor="middle" letter-spacing="4">AIMAN</text>
+  <text x="256" y="435" font-family="'Outfit', 'Montserrat', sans-serif" font-weight="700" font-size="16" fill="url(#goldLuxury)" text-anchor="middle" letter-spacing="8" opacity="0.9">COLLECTION</text>
+
+  <!-- Sparkle Stars -->
+  <path d="M140 180 Q150 180 150 170 Q150 180 160 180 Q150 180 150 190 Q150 180 140 180 Z" fill="#FFF8DC"/>
+  <path d="M360 180 Q370 180 370 170 Q370 180 380 180 Q370 180 370 190 Q370 180 360 180 Z" fill="#FFF8DC"/>
+</svg>
