@@ -41,7 +41,8 @@ const filesToCopy = [
   'app.js',
   'favicon.svg',
   'googlef360c93cdc6e6eea.html',
-  'FIGMA_DESIGN_SYSTEM.md'
+  'FIGMA_DESIGN_SYSTEM.md',
+  'README.md'
 ];
 
 filesToCopy.forEach(file => {
