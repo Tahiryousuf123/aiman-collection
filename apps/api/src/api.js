@@ -41,19 +41,19 @@ class AimanApiEngine {
      1. Database Initialization & Local Persistence
      -------------------------------------------------------------------------- */
   initDatabase() {
-    const DATA_VERSION_KEY = 'aiman_data_version_v15_zero_mock';
+    const DATA_VERSION_KEY = 'aiman_data_version_v16_luxury_bohra';
     const currentVersion = typeof localStorage !== 'undefined' ? localStorage.getItem(DATA_VERSION_KEY) : null;
-    if (!currentVersion || currentVersion !== '15.0') {
+    if (!currentVersion || currentVersion !== '16.0') {
       if (typeof localStorage !== 'undefined') {
         localStorage.clear();
-        localStorage.setItem(DATA_VERSION_KEY, '15.0');
+        localStorage.setItem(DATA_VERSION_KEY, '16.0');
       }
-      this.products = [];
-      this.sales = [];
-      this.reviews = [];
-      this.orders = [];
+      this.products = [...INITIAL_PRODUCTS];
+      this.sales = [...INITIAL_SALES];
+      this.reviews = [...INITIAL_REVIEWS];
+      this.orders = [...INITIAL_ORDERS];
       this.botRules = [...INITIAL_BOT_RULES];
-      this.expenses = [];
+      this.expenses = [...INITIAL_EXPENSES];
       this.leads = [];
       this.emails = [];
       this.transactions = [];
@@ -67,15 +67,15 @@ class AimanApiEngine {
       return;
     }
 
-    this.products = this.load(STORAGE_KEYS.PRODUCTS, []);
-    this.sales = this.load(STORAGE_KEYS.SALES, []);
-    this.reviews = this.load(STORAGE_KEYS.REVIEWS, []);
-    this.orders = this.load(STORAGE_KEYS.ORDERS, []);
+    this.products = this.load(STORAGE_KEYS.PRODUCTS, INITIAL_PRODUCTS);
+    this.sales = this.load(STORAGE_KEYS.SALES, INITIAL_SALES);
+    this.reviews = this.load(STORAGE_KEYS.REVIEWS, INITIAL_REVIEWS);
+    this.orders = this.load(STORAGE_KEYS.ORDERS, INITIAL_ORDERS);
     this.leads = this.load(STORAGE_KEYS.LEADS, []);
     this.botRules = this.load(STORAGE_KEYS.BOT_RULES, INITIAL_BOT_RULES);
     this.emails = this.load(STORAGE_KEYS.EMAILS, []);
     this.transactions = this.load(STORAGE_KEYS.TRANSACTIONS, []);
-    this.expenses = this.load(STORAGE_KEYS.EXPENSES, []);
+    this.expenses = this.load(STORAGE_KEYS.EXPENSES, INITIAL_EXPENSES);
   }
 
   load(key, fallback) {
