@@ -1480,64 +1480,112 @@
   </div>
 
   <!-- =========================================================================
-       21. COMPREHENSIVE STORE & ACCOUNTING ADMIN PORTAL
+       21. COMPREHENSIVE STORE & ACCOUNTING ADMIN PORTAL (WORDPRESS / WOOCOMMERCE STYLE)
        ========================================================================= -->
   <div class="admin-portal-modal" id="adminPortalModal">
-    <!-- Admin Navbar -->
-    <header class="admin-navbar">
-      <div class="admin-logo">
-        <div style="display: flex; align-items: center; gap: 0.6rem;">
-          <img src="images/aiman_logo.png" alt="Aiman Collection Crest" style="width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--color-gold-primary); box-shadow: 0 0 8px rgba(197, 168, 128, 0.5);">
-          <span>AIMAN CONTROL</span>
+    <div class="wp-admin-layout">
+      
+      <!-- WordPress / WooCommerce Luxury Dark Sidebar -->
+      <aside class="wp-admin-sidebar" id="wpAdminSidebar">
+        <div class="wp-sidebar-brand">
+          <div class="wp-brand-crest">
+            <img src="images/aiman_logo.png" alt="Aiman Collection">
+          </div>
+          <div class="wp-brand-text">
+            <h3>AIMAN CONTROL</h3>
+            <span class="wp-subtag"><i class="fab fa-wordpress"></i> WooCommerce Pro</span>
+          </div>
+          <button class="wp-mobile-close-sidebar" onclick="window.AimanStore.toggleAdminMobileMenu()" aria-label="Close Sidebar">
+            <i class="fas fa-times"></i>
+          </button>
         </div>
-        <button class="admin-mobile-toggle-btn" onclick="window.AimanStore.toggleAdminMobileMenu()" aria-label="Toggle Admin Menu">
-          <i class="fas fa-bars"></i> Menu
-        </button>
-      </div>
 
-      <nav class="admin-nav-tabs" id="adminNavTabs">
-        <button class="admin-tab-btn active" data-tab="dashboard" onclick="window.AimanStore.switchAdminTab('dashboard')">
-          <i class="fas fa-chart-line"></i> Analytics
-        </button>
-        <button class="admin-tab-btn" data-tab="products" onclick="window.AimanStore.switchAdminTab('products')">
-          <i class="fas fa-tshirt"></i> Products
-        </button>
-        <button class="admin-tab-btn" data-tab="frontend-editor" onclick="window.AimanStore.switchAdminTab('frontend-editor')">
-          <i class="fas fa-palette"></i> Frontend Editor
-        </button>
-        <button class="admin-tab-btn" data-tab="payment-settings" onclick="window.AimanStore.switchAdminTab('payment-settings')">
-          <i class="fas fa-wallet"></i> Payment Accounts
-        </button>
-        <button class="admin-tab-btn" data-tab="orders" onclick="window.AimanStore.switchAdminTab('orders')">
-          <i class="fas fa-shopping-bag"></i> Orders
-        </button>
-        <button class="admin-tab-btn" data-tab="sales" onclick="window.AimanStore.switchAdminTab('sales')">
-          <i class="fas fa-file-invoice-dollar"></i> Log Sales
-        </button>
-        <button class="admin-tab-btn" data-tab="expenses" onclick="window.AimanStore.switchAdminTab('expenses')">
-          <i class="fas fa-receipt"></i> Expenses
-        </button>
-        <button class="admin-tab-btn" data-tab="reviews-mod" onclick="window.AimanStore.switchAdminTab('reviews-mod')">
-          <i class="fas fa-star text-gold"></i> Reviews
-        </button>
-        <button class="admin-tab-btn" data-tab="ai-agent" onclick="window.AimanStore.switchAdminTab('ai-agent')">
-          <i class="fab fa-whatsapp text-whatsapp"></i> WhatsApp AI
-        </button>
-        <button class="admin-tab-btn" data-tab="backup-sync" onclick="window.AimanStore.switchAdminTab('backup-sync')">
-          <i class="fas fa-cloud-arrow-down"></i> Backup & Sync
-        </button>
-        <button class="admin-tab-btn admin-mobile-exit-btn" onclick="window.AimanStore.closeAdmin()">
-          <i class="fas fa-times-circle"></i> Exit Admin
-        </button>
-      </nav>
+        <div class="wp-admin-user-card">
+          <div class="user-avatar-badge">
+            <i class="fas fa-user-shield"></i>
+            <span class="user-status-dot"></span>
+          </div>
+          <div class="user-info-text">
+            <strong>Tahir Yousuf</strong>
+            <span>👑 Store Administrator</span>
+          </div>
+        </div>
 
-      <button class="btn btn-secondary btn-sm admin-desktop-exit" onclick="window.AimanStore.closeAdmin()">
-        <i class="fas fa-times"></i> Exit Admin
-      </button>
-    </header>
+        <nav class="wp-sidebar-nav" id="adminNavTabs">
+          <div class="wp-nav-heading">MAIN COMMERCE</div>
+          <button class="admin-tab-btn wp-nav-btn active" data-tab="dashboard" onclick="window.AimanStore.switchAdminTab('dashboard')">
+            <i class="fas fa-chart-pie"></i> <span>Dashboard & Analytics</span>
+            <span class="wp-pill-live">LIVE</span>
+          </button>
+          <button class="admin-tab-btn wp-nav-btn" data-tab="products" onclick="window.AimanStore.switchAdminTab('products')">
+            <i class="fas fa-tshirt"></i> <span>Products & Inventory</span>
+          </button>
+          <button class="admin-tab-btn wp-nav-btn" data-tab="orders" onclick="window.AimanStore.switchAdminTab('orders')">
+            <i class="fas fa-shopping-bag"></i> <span>Orders & Shipments</span>
+          </button>
+          <button class="admin-tab-btn wp-nav-btn" data-tab="sales" onclick="window.AimanStore.switchAdminTab('sales')">
+            <i class="fas fa-file-invoice-dollar"></i> <span>Sales Ledger</span>
+          </button>
+          <button class="admin-tab-btn wp-nav-btn" data-tab="expenses" onclick="window.AimanStore.switchAdminTab('expenses')">
+            <i class="fas fa-receipt"></i> <span>Expenses & COGS</span>
+          </button>
 
-    <!-- Admin Content Screen -->
-    <div class="admin-content-wrap">
+          <div class="wp-nav-heading">STORE MANAGEMENT</div>
+          <button class="admin-tab-btn wp-nav-btn" data-tab="frontend-editor" onclick="window.AimanStore.switchAdminTab('frontend-editor')">
+            <i class="fas fa-palette"></i> <span>Storefront Customizer</span>
+          </button>
+          <button class="admin-tab-btn wp-nav-btn" data-tab="payment-settings" onclick="window.AimanStore.switchAdminTab('payment-settings')">
+            <i class="fas fa-wallet"></i> <span>Payment Accounts</span>
+          </button>
+          <button class="admin-tab-btn wp-nav-btn" data-tab="reviews-mod" onclick="window.AimanStore.switchAdminTab('reviews-mod')">
+            <i class="fas fa-star text-gold"></i> <span>Customer Reviews</span>
+          </button>
+          <button class="admin-tab-btn wp-nav-btn" data-tab="ai-agent" onclick="window.AimanStore.switchAdminTab('ai-agent')">
+            <i class="fab fa-whatsapp text-whatsapp"></i> <span>WhatsApp AI Stylist</span>
+          </button>
+          <button class="admin-tab-btn wp-nav-btn" data-tab="backup-sync" onclick="window.AimanStore.switchAdminTab('backup-sync')">
+            <i class="fas fa-cloud-arrow-down"></i> <span>Cloud Sync & Backup</span>
+          </button>
+        </nav>
+
+        <div class="wp-sidebar-bottom">
+          <button class="btn btn-secondary btn-sm wp-exit-btn" onclick="window.AimanStore.closeAdmin()">
+            <i class="fas fa-door-open"></i> Exit to Storefront
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Admin Area -->
+      <div class="wp-admin-main-area">
+        <!-- Top WooCommerce Admin Bar -->
+        <header class="wp-topbar">
+          <div class="wp-topbar-left">
+            <button class="wp-hamburger-btn" onclick="window.AimanStore.toggleAdminMobileMenu()" aria-label="Toggle Menu">
+              <i class="fas fa-bars"></i>
+            </button>
+            <div class="wp-topbar-breadcrumb">
+              <span class="wp-crumb-root"><i class="fab fa-wordpress"></i> Aiman WooCommerce</span>
+              <span class="wp-crumb-sep">/</span>
+              <strong id="adminBreadcrumbTitle">Analytics & Financial Profit</strong>
+            </div>
+          </div>
+
+          <div class="wp-topbar-right">
+            <div class="cloud-sync-status-pill" id="adminTopCloudStatus">
+              <span class="pulse-green-dot"></span>
+              <span>Cloud Real-Time Sync ON</span>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="window.AimanStore.switchAdminTab('products');">
+              <i class="fas fa-plus"></i> Add Product
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="window.AimanStore.closeAdmin()" title="Close Admin">
+              <i class="fas fa-times"></i> Exit
+            </button>
+          </div>
+        </header>
+
+        <!-- Admin Content Screen -->
+        <div class="admin-content-wrap">
       
       <!-- Tab 1: Dashboard & Accounting Analytics -->
       <div class="admin-tab-pane active" id="adminTab_dashboard">
@@ -2617,6 +2665,8 @@
         </div>
       </div>
 
+        </div>
+      </div>
     </div>
   </div>
 

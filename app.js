@@ -1418,16 +1418,41 @@ import { apiEngine } from './apps/api/src/api.js';
   }
 
   function switchAdminTab(tabName) {
-    document.querySelectorAll('.admin-tab-btn').forEach(b => {
+    const titlesMap = {
+      'dashboard': 'Analytics & Financial Profit',
+      'products': 'Products & Stock Inventory',
+      'orders': 'Customer Orders & Shipments',
+      'sales': 'Sales Ledger & Invoices',
+      'expenses': 'Expenses & Cost of Goods (COGS)',
+      'frontend-editor': 'Storefront Customizer & Banners',
+      'payment-settings': 'Payment Gateways & Accounts',
+      'reviews-mod': 'Verified Customer Reviews',
+      'ai-agent': 'WhatsApp AI Bot Stylist',
+      'backup-sync': 'Cloud Sync & Data Backup',
+      'leads': 'Customer Leads & Inquiries'
+    };
+
+    document.querySelectorAll('.admin-tab-btn, .wp-nav-btn').forEach(b => {
       b.classList.toggle('active', b.getAttribute('data-tab') === tabName);
     });
     document.querySelectorAll('.admin-tab-pane').forEach(p => {
       p.classList.toggle('active', p.id === `adminTab_${tabName}`);
     });
+
+    const breadcrumb = document.getElementById('adminBreadcrumbTitle');
+    if (breadcrumb && titlesMap[tabName]) {
+      breadcrumb.textContent = titlesMap[tabName];
+    }
+
+    const sidebar = document.getElementById('wpAdminSidebar');
+    if (sidebar) sidebar.classList.remove('mobile-open');
+
     const tabs = document.getElementById('adminNavTabs');
     if (tabs) tabs.classList.remove('mobile-open');
+
     const wrap = document.querySelector('.admin-content-wrap');
     if (wrap) wrap.scrollTop = 0;
+
     if (tabName === 'dashboard') {
       setTimeout(() => renderSalesChart(AppState.activeChartPeriod), 100);
     }
