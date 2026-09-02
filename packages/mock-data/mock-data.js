@@ -235,18 +235,23 @@ export const INITIAL_EXPENSES = [
 export const INITIAL_ORDERS = [
   {
     id: 'AC-2026-8801',
+    orderNumber: 'AC-2026-8801',
     date: '2026-09-01',
     customerName: 'Rashida Bhen Taher',
+    name: 'Rashida Bhen Taher',
     phone: '03001234567',
     city: 'Karachi',
     address: 'Block 7, Clifton, Karachi',
     items: [
       { name: 'Royal Crimson Heavy Zardozi Bridal Silk Rida', qty: 1, price: 18500 }
     ],
+    total: 18500,
     totalAmount: 18500,
+    amount: 18500,
     paymentMethod: 'CASH_ON_DELIVERY',
     paymentStatus: 'PENDING',
     orderStatus: 'PROCESSING',
+    courier: 'TCS-78609214',
     tcsTracking: 'TCS-78609214'
   }
 ];
@@ -254,23 +259,37 @@ export const INITIAL_ORDERS = [
 export const INITIAL_REVIEWS = [
   {
     id: 'rev-01',
+    customerName: 'Fatema Bhen Shabbir',
     name: 'Fatema Bhen Shabbir',
+    productName: 'Royal Crimson Heavy Zardozi Bridal Silk Rida',
     rating: 5,
     headline: 'Breathtaking bridal zardozi needlework!',
     comment: 'The bridal rida was stitched to perfection according to my daughter exact naap. The pardi drape is regal and comfortable. 100% recommended!',
+    fitRating: 'Custom Tailored Fit',
     fit: 'Custom Tailored Fit',
+    isVerifiedBuyer: true,
+    verified: true,
+    likesCount: 14,
+    createdAt: '2026-08-20T10:00:00Z',
     date: 'August 2026',
-    verified: true
+    photos: []
   },
   {
     id: 'rev-02',
+    customerName: 'Sakina Bhen Burhanuddin',
     name: 'Sakina Bhen Burhanuddin',
+    productName: 'Pastel Lavender Cotton Everyday Pret Rida',
     rating: 5,
     headline: 'Best daily cotton ridas for Karachi weather',
     comment: 'Super breathable Egyptian cotton and durable lace borders. Delivery via TCS was super fast!',
+    fitRating: 'True to Size',
     fit: 'True to Size',
+    isVerifiedBuyer: true,
+    verified: true,
+    likesCount: 9,
+    createdAt: '2026-08-22T14:30:00Z',
     date: 'August 2026',
-    verified: true
+    photos: []
   }
 ];
 

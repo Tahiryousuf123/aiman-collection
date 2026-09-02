@@ -842,7 +842,7 @@ import { apiEngine } from './apps/api/src/api.js';
       const photosHTML = (rev.photos && rev.photos.length > 0) ? `
         <div class="review-photos-strip">
           ${rev.photos.map(p => `
-            <div class="review-photo-thumb" onclick="window.AimanStore.openLightbox('${p}', '${escapeHtml(rev.customerName + ' wearing ' + (rev.productName || 'Aiman Collection'))}')">
+            <div class="review-photo-thumb" onclick="window.AimanStore.openLightbox('${p}', '${escapeHtml((rev.customerName || rev.name || 'Client') + ' wearing ' + (rev.productName || 'Aiman Collection'))}')">
               <img src="${p}" alt="Review Photo" loading="lazy">
               <div class="photo-zoom-icon"><i class="fas fa-search-plus"></i></div>
             </div>
@@ -850,8 +850,9 @@ import { apiEngine } from './apps/api/src/api.js';
         </div>
       ` : '';
 
-      const stars = '★'.repeat(rev.rating) + '☆'.repeat(5 - rev.rating);
-      const initials = rev.customerName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+      const custName = rev.customerName || rev.name || 'Anonymous Client';
+      const stars = '★'.repeat(rev.rating || 5) + '☆'.repeat(5 - (rev.rating || 5));
+      const initials = custName.split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'AC';
 
       return `
         <div class="photo-review-card">
@@ -860,8 +861,8 @@ import { apiEngine } from './apps/api/src/api.js';
               <div class="reviewer-meta">
                 <div class="reviewer-avatar">${initials}</div>
                 <div class="reviewer-details">
-                  <h4>${escapeHtml(rev.customerName)} ${rev.isVerifiedBuyer ? '<span class="verified-badge-pill"><i class="fas fa-check-circle"></i> Verified</span>' : ''}</h4>
-                  <div class="review-product-tag">${escapeHtml(rev.productName || 'Haute Couture')} &bull; <span style="color:var(--color-gold-primary); font-size:0.75rem;">${rev.fitRating || 'True to Size'}</span></div>
+                  <h4>${escapeHtml(custName)} ${rev.isVerifiedBuyer || rev.verified ? '<span class="verified-badge-pill"><i class="fas fa-check-circle"></i> Verified</span>' : ''}</h4>
+                  <div class="review-product-tag">${escapeHtml(rev.productName || 'Haute Couture')} &bull; <span style="color:var(--color-gold-primary); font-size:0.75rem;">${rev.fitRating || rev.fit || 'True to Size'}</span></div>
                 </div>
               </div>
               <div class="review-stars-gold">${stars}</div>
@@ -873,7 +874,7 @@ import { apiEngine } from './apps/api/src/api.js';
           </div>
 
           <div class="review-card-footer">
-            <span>${new Date(rev.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+            <span>${rev.createdAt ? new Date(rev.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : (rev.date || 'Recent')}</span>
             <button class="review-like-btn" onclick="window.AimanStore.likeReview('${rev.id}')">
               <i class="far fa-heart"></i> Helpful (${rev.likesCount || 0})
             </button>
@@ -2015,35 +2016,46 @@ import { apiEngine } from './apps/api/src/api.js';
       return;
     }
 
-    tbody.innerHTML = apiEngine.orders.map(o => `
-      <tr>
-        <td><strong>${o.orderNumber}</strong><br><span style="font-size:0.75rem; color:var(--color-text-muted);">${o.courier || 'TCS'}</span></td>
-        <td>${escapeHtml(o.customerName)}<br><span style="font-size:0.75rem; color:var(--color-text-muted);">${o.city}</span></td>
-        <td>${o.items ? o.items.length : 1} items</td>
-        <td style="color:var(--color-gold-light); font-weight:700;">Rs. ${o.total.toLocaleString()}</td>
-        <td>
-          <span class="badge badge-${o.paymentStatus === 'PAID' ? 'success' : 'warning'}">${o.paymentMethod.replace(/_/g, ' ')} (${o.paymentStatus})</span>
-        </td>
-        <td>
-          <select onchange="window.AimanStore.updateOrderStatus('${o.id}', this.value)" style="padding:0.25rem 0.5rem; font-size:0.8rem; background:#12151B; color:#FFF; border:1px solid #C5A880; border-radius:4px;">
-            <option value="PROCESSING" ${o.orderStatus === 'PROCESSING' ? 'selected' : ''}>PROCESSING</option>
-            <option value="SHIPPED" ${o.orderStatus === 'SHIPPED' ? 'selected' : ''}>SHIPPED</option>
-            <option value="DELIVERED" ${o.orderStatus === 'DELIVERED' ? 'selected' : ''}>DELIVERED</option>
-            <option value="CANCELLED" ${o.orderStatus === 'CANCELLED' ? 'selected' : ''}>CANCELLED</option>
-          </select>
-        </td>
-        <td>
-          <div style="display:flex; gap:0.4rem;">
-            <button class="btn btn-secondary btn-sm" onclick="window.AimanStore.previewOrderEmailById('${o.id}')" title="Preview Email Receipt">
-              <i class="fas fa-envelope"></i>
-            </button>
-            <button class="btn btn-secondary btn-sm" onclick="window.AimanStore.printInvoice('${o.id}')" title="Print Invoice">
-              <i class="fas fa-print"></i>
-            </button>
-          </div>
-        </td>
-      </tr>
-    `).join('');
+    tbody.innerHTML = apiEngine.orders.map(o => {
+      const orderNum = o.orderNumber || o.id || 'AC-2026-01';
+      const cName = o.customerName || o.name || 'Client';
+      const city = o.city || 'Karachi';
+      const itemCount = o.items ? o.items.length : 1;
+      const totalVal = Number(o.total !== undefined ? o.total : (o.totalAmount !== undefined ? o.totalAmount : (o.amount !== undefined ? o.amount : 0)));
+      const payMethod = (o.paymentMethod || 'CASH_ON_DELIVERY').replace(/_/g, ' ');
+      const payStatus = o.paymentStatus || 'PENDING';
+      const isPaid = payStatus === 'PAID' || payStatus === 'COMPLETED';
+
+      return `
+        <tr>
+          <td><strong>${orderNum}</strong><br><span style="font-size:0.75rem; color:var(--color-text-muted);">${o.courier || o.tcsTracking || 'TCS'}</span></td>
+          <td>${escapeHtml(cName)}<br><span style="font-size:0.75rem; color:var(--color-text-muted);">${city}</span></td>
+          <td>${itemCount} items</td>
+          <td style="color:var(--color-gold-light); font-weight:700;">Rs. ${totalVal.toLocaleString()}</td>
+          <td>
+            <span class="badge badge-${isPaid ? 'success' : 'warning'}">${payMethod} (${payStatus})</span>
+          </td>
+          <td>
+            <select onchange="window.AimanStore.updateOrderStatus('${o.id}', this.value)" style="padding:0.25rem 0.5rem; font-size:0.8rem; background:#12151B; color:#FFF; border:1px solid #C5A880; border-radius:4px;">
+              <option value="PROCESSING" ${o.orderStatus === 'PROCESSING' ? 'selected' : ''}>PROCESSING</option>
+              <option value="SHIPPED" ${o.orderStatus === 'SHIPPED' ? 'selected' : ''}>SHIPPED</option>
+              <option value="DELIVERED" ${o.orderStatus === 'DELIVERED' ? 'selected' : ''}>DELIVERED</option>
+              <option value="CANCELLED" ${o.orderStatus === 'CANCELLED' ? 'selected' : ''}>CANCELLED</option>
+            </select>
+          </td>
+          <td>
+            <div style="display:flex; gap:0.4rem;">
+              <button class="btn btn-secondary btn-sm" onclick="window.AimanStore.previewOrderEmailById('${o.id}')" title="Preview Email Receipt">
+                <i class="fas fa-envelope"></i>
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="window.AimanStore.printInvoice('${o.id}')" title="Print Invoice">
+                <i class="fas fa-print"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
   }
 
   function formatCategoryBadge(cat, subCat) {
