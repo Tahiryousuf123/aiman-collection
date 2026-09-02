@@ -1413,8 +1413,10 @@ import { apiEngine } from './apps/api/src/api.js';
   }
 
   function toggleAdminMobileMenu() {
-    const tabs = document.getElementById('adminNavTabs');
-    if (tabs) tabs.classList.toggle('mobile-open');
+    const sidebar = document.getElementById('wpAdminSidebar');
+    if (sidebar) sidebar.classList.toggle('mobile-open');
+    const backdrop = document.getElementById('wpAdminBackdrop');
+    if (backdrop) backdrop.classList.toggle('active');
   }
 
   function switchAdminTab(tabName) {
@@ -1447,6 +1449,9 @@ import { apiEngine } from './apps/api/src/api.js';
     const sidebar = document.getElementById('wpAdminSidebar');
     if (sidebar) sidebar.classList.remove('mobile-open');
 
+    const backdrop = document.getElementById('wpAdminBackdrop');
+    if (backdrop) backdrop.classList.remove('active');
+
     const tabs = document.getElementById('adminNavTabs');
     if (tabs) tabs.classList.remove('mobile-open');
 
@@ -1461,13 +1466,17 @@ import { apiEngine } from './apps/api/src/api.js';
     }
   }
 
-  function handleImageUploadToInput(input, targetInputId) {
+  function handleImageUploadToInput(input, targetInputId, targetPreviewImgId) {
     if (!input.files || !input.files[0]) return;
     const reader = new FileReader();
     reader.onload = function (e) {
       const target = document.getElementById(targetInputId);
       if (target) {
         target.value = e.target.result;
+      }
+      if (targetPreviewImgId) {
+        const prev = document.getElementById(targetPreviewImgId);
+        if (prev) prev.src = e.target.result;
       }
       showToast('Image uploaded and preview set! Click "Save" to apply.', 'success');
     };
@@ -2194,17 +2203,22 @@ import { apiEngine } from './apps/api/src/api.js';
     const form = event.target;
     const formData = new FormData(form);
 
-    const name = formData.get('prod_name');
-    const rawCategory = formData.get('prod_category') || 'ridas';
-    const price = parseFloat(formData.get('prod_price')) || 0;
-    const costPrice = parseFloat(formData.get('prod_cost_price')) || (price * 0.5);
-    const image = formData.get('prod_image') || 'images/luxury_rida.png';
-    const fabric = formData.get('prod_fabric') || 'Standard Fine Fabric';
-    const description = formData.get('prod_desc') || '';
-    const isNewArrival = formData.get('prod_is_new') === 'on' || formData.get('prod_is_new') === 'true' || Boolean(document.getElementById('add_prod_is_new')?.checked);
-    const customBadge = formData.get('prod_badge')?.trim();
-    const stockQuantity = parseInt(formData.get('prod_stock')) || 25;
-    const initialStatus = formData.get('prod_status') || 'available';
+    const name = (formData.get('prod_name') || form.querySelector('[name=prod_name]')?.value || '').trim();
+    if (!name) {
+      showToast('⚠️ Please enter a product title!', 'error');
+      return;
+    }
+
+    const rawCategory = formData.get('prod_category') || form.querySelector('[name=prod_category]')?.value || 'ridas';
+    const price = parseFloat(formData.get('prod_price') || form.querySelector('[name=prod_price]')?.value) || 0;
+    const costPrice = parseFloat(formData.get('prod_cost_price') || form.querySelector('[name=prod_cost_price]')?.value) || (price * 0.5);
+    const image = (formData.get('prod_image') || form.querySelector('[name=prod_image]')?.value || '').trim() || 'images/luxury_rida.png';
+    const fabric = (formData.get('prod_fabric') || form.querySelector('[name=prod_fabric]')?.value || '').trim() || 'Standard Fine Fabric';
+    const description = (formData.get('prod_desc') || form.querySelector('[name=prod_desc]')?.value || '').trim();
+    const isNewArrival = form.querySelector('#add_prod_is_new')?.checked ?? true;
+    const customBadge = (formData.get('prod_badge') || form.querySelector('[name=prod_badge]')?.value || '').trim();
+    const stockQuantity = parseInt(formData.get('prod_stock') || form.querySelector('[name=prod_stock]')?.value) || 25;
+    const initialStatus = formData.get('prod_status') || form.querySelector('[name=prod_status]')?.value || 'available';
 
     let category = 'ridas';
     let subCategory = rawCategory;
@@ -2253,7 +2267,7 @@ import { apiEngine } from './apps/api/src/api.js';
       renderProductsCatalog();
       renderAdminMetrics();
       populateLogSaleProductDropdown();
-      showToast('✨ New product added & published to catalog!', 'success');
+      showToast(`✨ "${name}" successfully published to catalog!`, 'success');
     }
   }
 

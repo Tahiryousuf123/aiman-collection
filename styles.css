@@ -5365,313 +5365,117 @@ ul, ol {
 }
 
 /* ==========================================================================
-   ADMIN PORTAL COMPREHENSIVE RESPONSIVE DESIGN SYSTEM
+   WORDPRESS / WOOCOMMERCE MOBILE RESPONSIVE SYSTEM
    ========================================================================== */
-.admin-portal-modal {
+.wp-admin-backdrop {
+  display: none;
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: #0B0D11;
-  color: #F5F5F7;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  z-index: 99999;
-  display: none;
-  flex-direction: column;
-  overflow: hidden;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 99998;
+  opacity: 0;
+  transition: opacity 0.25s ease;
 }
 
-.admin-portal-modal.active {
-  display: flex !important;
-}
-
-/* Admin Top Header Navigation Bar */
-.admin-navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.8rem 1.5rem;
-  background: #12151B;
-  border-bottom: 1px solid rgba(197, 168, 128, 0.25);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  flex-shrink: 0;
-  z-index: 10;
-}
-
-.admin-logo {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-family: 'Cinzel', serif;
-  font-weight: 700;
-  color: #C5A880;
-  font-size: 1.1rem;
-  white-space: nowrap;
-}
-
-.admin-nav-tabs {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: #C5A880 transparent;
-  flex-grow: 1;
-  flex-shrink: 1;
-  min-width: 0;
-}
-
-.admin-nav-tabs::-webkit-scrollbar {
-  height: 4px;
-}
-.admin-nav-tabs::-webkit-scrollbar-thumb {
-  background: #C5A880;
-  border-radius: 4px;
-}
-
-.admin-tab-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.65rem 1.1rem;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  color: #E0E0E0;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.admin-tab-btn:hover {
-  background: rgba(197, 168, 128, 0.15);
-  border-color: #C5A880;
-  color: #FFF;
-  transform: translateY(-1px);
-}
-
-.admin-tab-btn.active {
-  background: linear-gradient(135deg, #C5A880, #A4865E);
-  color: #0B0D11;
-  font-weight: 700;
-  border-color: #C5A880;
-  box-shadow: 0 4px 14px rgba(197, 168, 128, 0.3);
-}
-
-/* Admin Main Scrollable Body Content */
-.admin-content-wrap {
-  flex: 1 1 auto;
-  min-height: 0 !important;
-  height: calc(100vh - 65px) !important;
-  max-height: calc(100vh - 65px) !important;
-  overflow-y: scroll !important;
-  overflow-x: hidden;
-  padding: 2rem 1.5rem 6rem 1.5rem;
-  max-width: 1400px;
-  width: 100%;
-  margin: 0 auto;
-  box-sizing: border-box;
-  -webkit-overflow-scrolling: touch;
-}
-
-.admin-content-wrap::-webkit-scrollbar {
-  width: 6px;
-}
-.admin-content-wrap::-webkit-scrollbar-thumb {
-  background: rgba(197, 168, 128, 0.5);
-  border-radius: 4px;
-}
-
-.admin-tab-pane {
-  display: none;
-}
-
-.admin-tab-pane.active {
+.wp-admin-backdrop.active {
   display: block !important;
-  animation: fadeInAdmin 0.25s ease-in-out;
+  opacity: 1 !important;
 }
 
-@keyframes fadeInAdmin {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Metrics & Cards Styling */
-.admin-metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.25rem;
-  margin-bottom: 2rem;
-}
-
-.metric-card {
-  background: #12151B;
-  border: 1px solid rgba(197, 168, 128, 0.2);
-  border-radius: 12px;
-  padding: 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.metric-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-  border-color: #C5A880;
-}
-
-.admin-table-card {
-  background: #12151B;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  overflow: hidden;
-  margin-bottom: 2rem;
-}
-
-.admin-table-header {
-  padding: 1.25rem 1.5rem;
-  background: rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.admin-table-wrap {
-  overflow-x: auto;
-  width: 100%;
-  -webkit-overflow-scrolling: touch;
-}
-
-.admin-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 800px;
-}
-
-.admin-table th,
-.admin-table td {
-  padding: 0.9rem 1.1rem;
-  text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  font-size: 0.88rem;
-  vertical-align: middle;
-}
-
-.admin-table th {
-  background: rgba(255, 255, 255, 0.03);
-  color: #C5A880;
-  font-family: 'Cinzel', serif;
-  font-size: 0.82rem;
-  letter-spacing: 0.05em;
-  font-weight: 700;
-}
-
-.admin-table tr:hover td {
-  background: rgba(255, 255, 255, 0.02);
-}
-
-/* Mobile & Tablet Responsiveness */
-.admin-mobile-toggle-btn {
-  display: none;
-}
-
-.admin-mobile-exit-btn {
-  display: none;
-  background: rgba(229,57,53,0.2) !important;
-  color: #FF4D4D !important;
-  border-color: #E53935 !important;
-}
-
-/* Mobile & Tablet Responsiveness */
 @media (max-width: 992px) {
-  .admin-navbar {
-    height: auto;
-    flex-direction: column;
-    align-items: stretch;
-    padding: 0.75rem 1rem;
-    gap: 0.5rem;
-    border-bottom: 1px solid rgba(197, 168, 128, 0.3);
+  .wp-admin-sidebar {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 285px;
+    max-width: 86vw;
+    height: 100vh;
+    z-index: 100000 !important;
+    transform: translateX(-100%);
+    box-shadow: 12px 0 40px rgba(0, 0, 0, 0.9);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .admin-logo {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    font-size: 1rem;
+  .wp-admin-sidebar.mobile-open {
+    transform: translateX(0) !important;
   }
 
-  .admin-mobile-toggle-btn {
-    display: inline-flex;
+  .wp-mobile-close-sidebar {
+    display: flex !important;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.45rem 0.9rem;
-    background: linear-gradient(135deg, #C5A880, #A4865E);
-    color: #0B0D11;
-    border: none;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
     border-radius: 6px;
-    font-weight: 800;
-    font-size: 0.82rem;
+    background: rgba(255, 255, 255, 0.08);
+    color: #FFF;
+    border: 1px solid rgba(197, 168, 128, 0.3);
+    margin-left: auto;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(197,168,128,0.3);
   }
 
-  .admin-desktop-exit {
-    display: none !important;
-  }
-
-  .admin-mobile-exit-btn {
+  .wp-hamburger-btn {
     display: flex !important;
-    margin-top: 0.5rem;
+    align-items: center;
+    justify-content: center;
   }
 
-  .admin-nav-tabs {
-    display: none;
-    width: 100%;
-    flex-direction: column;
-    gap: 0.4rem;
-    padding: 0.75rem 0;
-    border-top: 1px solid rgba(255,255,255,0.08);
-    max-height: 70vh;
-    overflow-y: auto;
+  .wp-topbar {
+    padding: 0 1rem;
+    height: 58px;
+    min-height: 58px;
   }
 
-  .admin-nav-tabs.mobile-open {
-    display: flex !important;
-    animation: adminMenuSlide 0.25s ease-in-out;
-  }
-
-  @keyframes adminMenuSlide {
-    from { opacity: 0; transform: translateY(-8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .admin-tab-btn {
-    width: 100%;
-    justify-content: flex-start;
-    padding: 0.75rem 1rem;
-    font-size: 0.9rem;
-    border-radius: 8px;
+  .wp-topbar-breadcrumb strong {
+    font-size: 0.8rem;
+    max-width: 140px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .admin-content-wrap {
-    height: calc(100vh - 70px) !important;
-    padding: 1rem 0.75rem 6rem 0.75rem;
+    height: calc(100vh - 58px) !important;
+    max-height: calc(100vh - 58px) !important;
+    padding: 1rem 0.85rem 5rem 0.85rem !important;
   }
 
   .admin-metrics-grid {
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 0.85rem;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+
+  .admin-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .admin-table-card {
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+  }
+
+  .admin-table-header {
+    padding: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .admin-metrics-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .cloud-sync-status-pill span:not(.pulse-green-dot) {
+    display: none;
+  }
+
+  .wp-topbar-add-btn span {
+    display: none;
   }
 }
 
