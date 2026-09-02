@@ -1023,7 +1023,7 @@ class AimanApiEngine {
           <tr>
             <td style="background:#0E1015; padding:20px; text-align:center; border-top:1px solid #222630; font-size:12px; color:#858D9D;">
               Aiman Collection &bull; Dawoodi Bohra Libas, Luxury Ridas & Matching Accessories &bull; ${CONTACT_CONFIG.city}<br>
-              EasyPaisa: 03452439196 | JazzCash: 03452439196 | WhatsApp: 03452439196
+              EasyPaisa: 03428301490 (Tahir) | JazzCash: 03252005028 (Tahir) | WhatsApp: 03452439196
             </td>
           </tr>
         </table>
