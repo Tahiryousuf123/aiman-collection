@@ -166,132 +166,13 @@ export const INITIAL_PRODUCTS = [
   }
 ];
 
-export const INITIAL_SALES = [
-  {
-    id: 'sale-101',
-    date: '2026-08-28',
-    customerName: 'Fatema Bhen Shabbir',
-    phone: '03332145892',
-    productName: 'Royal Crimson Heavy Zardozi Bridal Silk Rida',
-    amount: 18500,
-    cost: 9500,
-    profit: 9000,
-    status: 'COMPLETED',
-    channel: 'WHATSAPP'
-  },
-  {
-    id: 'sale-102',
-    date: '2026-08-29',
-    customerName: 'Sakina Bhen Burhanuddin',
-    phone: '03218845210',
-    productName: 'Pastel Lavender Cotton Everyday Pret Rida',
-    amount: 4800,
-    cost: 2200,
-    profit: 2600,
-    status: 'COMPLETED',
-    channel: 'STOREFRONT'
-  },
-  {
-    id: 'sale-103',
-    date: '2026-08-30',
-    customerName: 'Zahra Bhen Moiz',
-    phone: '03458971204',
-    productName: 'Emerald Velvet Boti Festive Milad Rida + Matching Batwa',
-    amount: 18000,
-    cost: 8600,
-    profit: 9400,
-    status: 'COMPLETED',
-    channel: 'WHATSAPP'
-  }
-];
+export const INITIAL_SALES = [];
 
-export const INITIAL_EXPENSES = [
-  {
-    id: 'exp-01',
-    date: '2026-08-25',
-    category: 'Fabric & Raw Silk Purchase',
-    description: 'Pure Khaddi raw silk rolls from Karachi Saddar wholesale market',
-    amount: 25000,
-    vendor: 'Karachi Silk Mills'
-  },
-  {
-    id: 'exp-02',
-    date: '2026-08-27',
-    category: 'Master Darzi Stitching Labor',
-    description: 'Custom bridal rida cutting and pardi pleating wages',
-    amount: 8500,
-    vendor: 'Ustad Master Tailor'
-  },
-  {
-    id: 'exp-03',
-    date: '2026-08-29',
-    category: 'Packaging & Luxury Dust Bags',
-    description: 'Custom gold embossed boxes & satin bags for ridas',
-    amount: 3200,
-    vendor: 'Karachi Box Packaging'
-  }
-];
+export const INITIAL_EXPENSES = [];
 
-export const INITIAL_ORDERS = [
-  {
-    id: 'AC-2026-8801',
-    orderNumber: 'AC-2026-8801',
-    date: '2026-09-01',
-    customerName: 'Rashida Bhen Taher',
-    name: 'Rashida Bhen Taher',
-    phone: '03001234567',
-    city: 'Karachi',
-    address: 'Block 7, Clifton, Karachi',
-    items: [
-      { name: 'Royal Crimson Heavy Zardozi Bridal Silk Rida', qty: 1, price: 18500 }
-    ],
-    total: 18500,
-    totalAmount: 18500,
-    amount: 18500,
-    paymentMethod: 'CASH_ON_DELIVERY',
-    paymentStatus: 'PENDING',
-    orderStatus: 'PROCESSING',
-    courier: 'TCS-78609214',
-    tcsTracking: 'TCS-78609214'
-  }
-];
+export const INITIAL_ORDERS = [];
 
-export const INITIAL_REVIEWS = [
-  {
-    id: 'rev-01',
-    customerName: 'Fatema Bhen Shabbir',
-    name: 'Fatema Bhen Shabbir',
-    productName: 'Royal Crimson Heavy Zardozi Bridal Silk Rida',
-    rating: 5,
-    headline: 'Breathtaking bridal zardozi needlework!',
-    comment: 'The bridal rida was stitched to perfection according to my daughter exact naap. The pardi drape is regal and comfortable. 100% recommended!',
-    fitRating: 'Custom Tailored Fit',
-    fit: 'Custom Tailored Fit',
-    isVerifiedBuyer: true,
-    verified: true,
-    likesCount: 14,
-    createdAt: '2026-08-20T10:00:00Z',
-    date: 'August 2026',
-    photos: []
-  },
-  {
-    id: 'rev-02',
-    customerName: 'Sakina Bhen Burhanuddin',
-    name: 'Sakina Bhen Burhanuddin',
-    productName: 'Pastel Lavender Cotton Everyday Pret Rida',
-    rating: 5,
-    headline: 'Best daily cotton ridas for Karachi weather',
-    comment: 'Super breathable Egyptian cotton and durable lace borders. Delivery via TCS was super fast!',
-    fitRating: 'True to Size',
-    fit: 'True to Size',
-    isVerifiedBuyer: true,
-    verified: true,
-    likesCount: 9,
-    createdAt: '2026-08-22T14:30:00Z',
-    date: 'August 2026',
-    photos: []
-  }
-];
+export const INITIAL_REVIEWS = [];
 
 export const INITIAL_BOT_RULES = [
   {

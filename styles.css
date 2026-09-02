@@ -2789,6 +2789,9 @@ ul, ol {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  max-height: 100vh;
+  min-height: 0;
+  min-width: 0;
   overflow: hidden;
   background: #0B0E14;
 }
@@ -2890,17 +2893,29 @@ ul, ol {
 /* Scrollable Body Content */
 .admin-content-wrap {
   flex: 1;
+  height: calc(100vh - 64px);
+  max-height: calc(100vh - 64px);
+  min-height: 0;
   padding: 2rem 2.5rem;
-  overflow-y: auto;
+  overflow-y: scroll !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch;
   background: #0B0E14;
 }
 
 .admin-content-wrap::-webkit-scrollbar {
-  width: 6px;
+  width: 8px !important;
+  display: block !important;
+}
+.admin-content-wrap::-webkit-scrollbar-track {
+  background: #0B0E14 !important;
 }
 .admin-content-wrap::-webkit-scrollbar-thumb {
-  background: rgba(197, 168, 128, 0.25);
-  border-radius: 6px;
+  background: #C5A880 !important;
+  border-radius: 4px !important;
+}
+.admin-content-wrap::-webkit-scrollbar-thumb:hover {
+  background: #E6CA9E !important;
 }
 
 /* Responsive Breakpoints */

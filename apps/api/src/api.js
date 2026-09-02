@@ -41,12 +41,12 @@ class AimanApiEngine {
      1. Database Initialization & Local Persistence
      -------------------------------------------------------------------------- */
   initDatabase() {
-    const DATA_VERSION_KEY = 'aiman_data_version_v17_clean';
+    const DATA_VERSION_KEY = 'aiman_data_version_v20_zero_financial_mock';
     const currentVersion = typeof localStorage !== 'undefined' ? localStorage.getItem(DATA_VERSION_KEY) : null;
-    if (!currentVersion || currentVersion !== '17.0') {
+    if (!currentVersion || currentVersion !== '20.0') {
       if (typeof localStorage !== 'undefined') {
         localStorage.clear();
-        localStorage.setItem(DATA_VERSION_KEY, '17.0');
+        localStorage.setItem(DATA_VERSION_KEY, '20.0');
       }
       this.products = [...INITIAL_PRODUCTS];
       this.sales = [...INITIAL_SALES];
