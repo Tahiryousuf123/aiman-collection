@@ -1501,10 +1501,10 @@ import { apiEngine } from './apps/api/src/api.js';
       document.getElementById('admin_whatsapp_num').value = paySettings.whatsapp || '03452439196';
     }
     if (document.getElementById('admin_easypaisa_num')) {
-      document.getElementById('admin_easypaisa_num').value = paySettings.easypaisa || '03428301490';
+      document.getElementById('admin_easypaisa_num').value = paySettings.easypaisa || '03452439196';
     }
     if (document.getElementById('admin_jazzcash_num')) {
-      document.getElementById('admin_jazzcash_num').value = paySettings.jazzcash || '003252005028';
+      document.getElementById('admin_jazzcash_num').value = paySettings.jazzcash || '03452439196';
     }
     if (document.getElementById('admin_raast_num')) {
       document.getElementById('admin_raast_num').value = paySettings.raast || '03452439196';
@@ -1664,8 +1664,8 @@ import { apiEngine } from './apps/api/src/api.js';
     event.preventDefault();
     const payment = {
       whatsapp: document.getElementById('admin_whatsapp_num')?.value.trim() || '03452439196',
-      easypaisa: document.getElementById('admin_easypaisa_num')?.value.trim() || '03428301490',
-      jazzcash: document.getElementById('admin_jazzcash_num')?.value.trim() || '003252005028',
+      easypaisa: document.getElementById('admin_easypaisa_num')?.value.trim() || '03452439196',
+      jazzcash: document.getElementById('admin_jazzcash_num')?.value.trim() || '03452439196',
       raast: document.getElementById('admin_raast_num')?.value.trim() || '03452439196',
       title: document.getElementById('admin_account_title')?.value.trim() || 'AIMAN COLLECTION'
     };
@@ -2705,7 +2705,7 @@ import { apiEngine } from './apps/api/src/api.js';
     // Add standard AI responses
     csvContent += `"price, rate, catalog, silk, rida, designs","✨ Khush Amdeed! Hamari Bohra Ridas start from Rs. 3,600 (Cotton daily wear), Luxury Silk Ridas from Rs. 5,200, matching Rida Bags from Rs. 4,800, and Topi/Cosmetic Pouches from Rs. 1,800. Use promo code AIMAN25 for 25% discount!"\n`;
     csvContent += `"custom, stitch, measurement, size, naap","✨ Aiman Collection Bespoke Stitching: Hum Dawoodi Bohra Libas & Ridas ki custom stitching exact naap ke mutabiq karte hain. Please provide Pardi Length, Ghagra Length, and Bust size."\n`;
-    csvContent += `"pay, account, easypaisa, jazzcash, bank, raast","💳 Official Accounts: EasyPaisa 03428301490 (AIMAN COLLECTION) | JazzCash 003252005028 | Meezan Bank Raast 03452439196 | COD Nationwide Available via TCS."\n`;
+    csvContent += `"pay, account, easypaisa, jazzcash, bank, raast","💳 Official Accounts: EasyPaisa 03452439196 (AIMAN COLLECTION) | JazzCash 03452439196 | Meezan Bank Raast 03452439196 | COD Nationwide Available via TCS."\n`;
     csvContent += `"track, order, status, parcel","📦 Please provide your Order Number (e.g. AC-2026-8491) to track your delivery."\n`;
 
     rules.forEach(r => {

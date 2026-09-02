@@ -51,7 +51,7 @@ Official design system tokens, typography scales, interactive component states, 
 - Dynamic quick suggestion chips (`Best Sellers`, `Track Order`, `Size Guide`, `Delivery Info`).
 - Multilingual intent recognition (Urdu, Roman Urdu, English).
 - Live Order Tracker with simulated courier details (TCS / Leopard / DHL).
-- Formatted deep-linking into native WhatsApp (`https://wa.me/923363925950`).
+- Formatted deep-linking into native WhatsApp (`https://wa.me/923452439196`).
 
 ### D. Admin Portal Component
 - Navigation tabs: `Dashboard Overview`, `Orders Manager`, `Products Inventory`, `WhatsApp AI Bot Rules`, `Live Leads`.

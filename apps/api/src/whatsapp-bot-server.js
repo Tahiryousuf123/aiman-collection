@@ -77,8 +77,8 @@ function resolveWhatsAppAIResponse(userMessage, senderPhone, senderName = 'Value
   // 5. Payment Methods & Bank Account Info
   if (q.includes('pay') || q.includes('account') || q.includes('easypaisa') || q.includes('jazzcash') || q.includes('bank') || q.includes('raast')) {
     return `💳 *Aiman Collection Official Payment Accounts:*\n\n` +
-           `📱 *EasyPaisa:* 03428301490 (AIMAN COLLECTION)\n` +
-           `📱 *JazzCash:* 003252005028 (AIMAN COLLECTION)\n` +
+           `📱 *EasyPaisa:* 03452439196 (AIMAN COLLECTION)\n` +
+           `📱 *JazzCash:* 03452439196 (AIMAN COLLECTION)\n` +
            `🏦 *Meezan Bank Raast ID:* 03452439196\n` +
            `💵 *Cash on Delivery (COD):* Available Nationwide via TCS\n\n` +
            `Payment transfer karne ke baad receipt/screenshot yahan share karein for instant confirmation!`;

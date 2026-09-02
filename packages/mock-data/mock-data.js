@@ -7,9 +7,9 @@
 export const CONTACT_CONFIG = {
   whatsappNumber: '923452439196',
   whatsappDisplay: '+92 345 2439196',
-  easypaisaNumber: '03428301490',
-  jazzcashNumber: '003252005028',
-  jazzcashDisplay: '0325-2005028',
+  easypaisaNumber: '03452439196',
+  jazzcashNumber: '03452439196',
+  jazzcashDisplay: '0345-2439196',
   accountTitle: 'AIMAN COLLECTION',
   city: 'Karachi, Pakistan'
 };
@@ -27,8 +27,8 @@ export const BANK_DETAILS = {
   accountNumber: '0102-0105849201',
   iban: 'PK45MEZN0001020105849201',
   branch: 'Clifton / Saddar Branch, Karachi',
-  easypaisa: '03428301490 (AIMAN COLLECTION)',
-  jazzcash: '003252005028 (AIMAN COLLECTION)',
+  easypaisa: '03452439196 (AIMAN COLLECTION)',
+  jazzcash: '03452439196 (AIMAN COLLECTION)',
   raastId: '03452439196'
 };
 
@@ -60,7 +60,7 @@ export const INITIAL_BOT_RULES = [
   {
     id: 'rule-03',
     keywords: ['payment', 'easypaisa', 'jazzcash', 'meezan', 'bank transfer', 'cod', 'paisa'],
-    responseEnglish: "💳 EasyPaisa: *03428301490* | JazzCash: *003252005028* | Meezan Bank Raast: *03452439196* (Title: AIMAN COLLECTION). Cash on Delivery (COD) bhi available hai!",
+    responseEnglish: "💳 EasyPaisa: *03452439196* | JazzCash: *03452439196* | Meezan Bank Raast: *03452439196* (Title: AIMAN COLLECTION). Cash on Delivery (COD) bhi available hai!",
     intentCategory: 'PAYMENT',
     isActive: true,
     priority: 3
