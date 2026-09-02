@@ -2462,6 +2462,74 @@ ul, ol {
   font-size: 0.9rem;
 }
 
+/* Modal Wrapper System */
+.modal-wrapper {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 99998;
+  display: none !important;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-wrapper.active,
+.modal-wrapper.show {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+.modal-card {
+  background: var(--color-bg-card, #13161C);
+  border: 1px solid var(--color-border, rgba(197, 168, 128, 0.3));
+  border-radius: var(--radius-lg, 20px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(197, 168, 128, 0.15);
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: modalScaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-close-icon {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--color-border);
+  color: #FAF9F6;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.modal-close-icon:hover {
+  background: var(--color-gold-primary);
+  color: #000;
+  transform: rotate(90deg);
+}
+
+@keyframes modalScaleIn {
+  from { transform: scale(0.94); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
 .admin-portal-modal {
   position: fixed;
   inset: 0;

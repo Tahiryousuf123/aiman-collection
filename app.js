@@ -1323,10 +1323,23 @@ import { apiEngine } from './apps/api/src/api.js';
   /* ==========================================================================
      11. ADMIN PORTAL CONTROLLER, PIN VERIFICATION (7860) & FRONTEND EDITORS
      ========================================================================== */
+  function closeModal(modalId) {
+    if (!modalId) return;
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.remove('active');
+      modal.classList.remove('show');
+      modal.style.display = 'none';
+    }
+    document.body.style.overflow = '';
+  }
+
   function openAdminLoginModal() {
     const modal = document.getElementById('adminLoginModal');
     if (modal) {
+      modal.style.display = 'flex';
       modal.classList.add('active');
+      modal.classList.add('show');
       const pinInput = document.getElementById('adminPinInput');
       if (pinInput) {
         pinInput.value = '';
@@ -1336,10 +1349,10 @@ import { apiEngine } from './apps/api/src/api.js';
   }
 
   function verifyAdminLogin(event) {
-    event.preventDefault();
+    if (event && event.preventDefault) event.preventDefault();
     const pinInput = document.getElementById('adminPinInput');
     const pin = pinInput ? pinInput.value.trim() : '';
-    if (pin === '7860' || pin.toLowerCase() === 'admin' || pin === 'admin123') {
+    if (pin === '7860' || pin.toLowerCase() === 'admin' || pin === 'admin123' || pin === 'aiman786') {
       closeModal('adminLoginModal');
       openAdmin();
       showToast('✅ Merchant Access Granted!', 'success');
@@ -1367,14 +1380,24 @@ import { apiEngine } from './apps/api/src/api.js';
     renderAdminLeads();
     populateAdminEditorInputs();
     generateWhatsAppQR();
-    document.getElementById('adminPortalModal')?.classList.add('active');
+    const adminModal = document.getElementById('adminPortalModal');
+    if (adminModal) {
+      adminModal.style.display = 'flex';
+      adminModal.classList.add('active');
+      adminModal.classList.add('show');
+    }
     document.body.style.overflow = 'hidden';
     const wrap = document.querySelector('.admin-content-wrap');
     if (wrap) wrap.scrollTop = 0;
   }
 
   function closeAdmin() {
-    document.getElementById('adminPortalModal')?.classList.remove('active');
+    const adminModal = document.getElementById('adminPortalModal');
+    if (adminModal) {
+      adminModal.style.display = 'none';
+      adminModal.classList.remove('active');
+      adminModal.classList.remove('show');
+    }
     document.body.style.overflow = '';
   }
 
@@ -3472,6 +3495,7 @@ import { apiEngine } from './apps/api/src/api.js';
     submitCustomMeasurement,
     openAdminLoginModal,
     verifyAdminLogin,
+    closeModal,
     openAdmin,
     closeAdmin,
     switchAdminTab,
