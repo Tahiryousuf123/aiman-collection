@@ -183,7 +183,6 @@ body {
   overflow-x: hidden;
   overflow-y: visible;
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-y pinch-zoom;
 }
 
 img, picture, video, canvas, svg {
@@ -2469,7 +2468,7 @@ ul, ol {
   background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  z-index: 99998;
+  z-index: 100005;
   display: none !important;
   align-items: center;
   justify-content: center;
@@ -2533,9 +2532,19 @@ ul, ol {
 /* ==========================================================================
    WORDPRESS & WOOCOMMERCE LUXURY ADMIN PORTAL SUITE
    ========================================================================== */
+body.admin-open {
+  overflow: hidden !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+}
+
 .admin-portal-modal {
   position: fixed;
   inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
   background: #0B0E14;
   z-index: 99999;
   display: none !important;
@@ -2543,6 +2552,7 @@ ul, ol {
   visibility: hidden;
   pointer-events: none;
   transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
 }
 
 .admin-portal-modal.active,
@@ -2555,8 +2565,10 @@ ul, ol {
 
 .wp-admin-layout {
   display: flex;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
+  max-width: 100vw;
+  max-height: 100vh;
   overflow: hidden;
   background: #0B0E14;
   color: #FAF9F6;
@@ -2676,6 +2688,7 @@ ul, ol {
 .wp-sidebar-nav {
   flex: 1;
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 1rem 0.8rem;
   display: flex;
   flex-direction: column;
@@ -2897,9 +2910,10 @@ ul, ol {
   max-height: calc(100vh - 64px);
   min-height: 0;
   padding: 2rem 2.5rem;
-  overflow-y: scroll !important;
+  overflow-y: auto !important;
   overflow-x: hidden !important;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   background: #0B0E14;
 }
 
@@ -3130,7 +3144,7 @@ ul, ol {
   position: fixed;
   top: 1.5rem;
   right: 1.5rem;
-  z-index: 9999;
+  z-index: 100010;
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
@@ -4297,139 +4311,7 @@ ul, ol {
   transform: translateY(-4px);
 }
 
-/* --------------------------------------------------------------------------
-   21. Daraz-Style E-Commerce UI & Mobile Navigation System
-   -------------------------------------------------------------------------- */
-.daraz-header-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  min-height: 75px;
-  width: 100%;
-}
 
-.daraz-search-wrap {
-  flex: 1;
-  max-width: 580px;
-  position: relative;
-}
-
-.daraz-search-bar {
-  display: flex;
-  align-items: center;
-  background: #15181F;
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-full);
-  overflow: hidden;
-  transition: var(--transition-normal);
-}
-
-.daraz-search-bar:focus-within {
-  border-color: var(--color-gold-primary);
-  box-shadow: 0 0 15px rgba(197, 168, 128, 0.25);
-}
-
-.daraz-search-bar input {
-  flex: 1;
-  background: none;
-  border: none;
-  padding: 0.7rem 1.25rem;
-  font-size: 0.9rem;
-  color: var(--color-text-primary);
-  outline: none;
-}
-
-.daraz-search-btn {
-  background: linear-gradient(135deg, #D4B68F 0%, #B8966C 100%);
-  color: #0F1115;
-  border: none;
-  padding: 0.7rem 1.3rem;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: var(--transition-fast);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.daraz-search-btn:hover {
-  background: linear-gradient(135deg, #E0C7A6 0%, #C5A880 100%);
-}
-
-.daraz-cart-btn {
-  display: flex !important;
-  align-items: center;
-  gap: 0.6rem;
-  width: auto !important;
-  padding: 0 1rem !important;
-  border-radius: var(--radius-full) !important;
-}
-
-.cart-icon-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.daraz-cart-label {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--color-gold-light);
-}
-
-.top-nav-link {
-  color: var(--color-text-secondary);
-  font-size: 0.78rem;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  transition: var(--transition-fast);
-}
-
-.top-nav-link:hover {
-  color: var(--color-gold-light);
-}
-
-.daraz-category-ribbon {
-  background: rgba(19, 22, 28, 0.96);
-  border-top: 1px solid var(--color-border-subtle);
-  border-bottom: 1px solid var(--color-border);
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.daraz-category-ribbon::-webkit-scrollbar {
-  display: none;
-}
-
-.ribbon-inner {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  padding: 0.55rem 1.5rem;
-  white-space: nowrap;
-}
-
-.ribbon-item {
-  font-size: 0.86rem;
-  font-weight: 500;
-  color: var(--color-text-secondary);
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  background: none;
-  border: none;
-  padding: 0.35rem 0.65rem;
-  border-radius: var(--radius-sm);
-  transition: var(--transition-fast);
-  cursor: pointer;
-}
-
-.ribbon-item:hover, .ribbon-item.active {
-  color: var(--color-gold-light);
-  background: rgba(197, 168, 128, 0.12);
-}
 
 .flash-sale-section {
   padding: 1.2rem 0;

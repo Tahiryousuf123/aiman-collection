@@ -32,9 +32,11 @@ class AimanApiEngine {
   constructor() {
     this.listeners = [];
     this.isFirebaseActive = false;
+    this.isMongoActive = false;
     this.db = null;
     this.initDatabase();
     this.initFirebase();
+    this.initMongoSync();
   }
 
   /* --------------------------------------------------------------------------
@@ -161,7 +163,8 @@ class AimanApiEngine {
       expenses: this.expenses,
       bankDetails: BANK_DETAILS,
       contact: CONTACT_CONFIG,
-      firebaseActive: this.isFirebaseActive
+      firebaseActive: this.isFirebaseActive,
+      mongoActive: this.isMongoActive
     };
   }
 
@@ -174,7 +177,7 @@ class AimanApiEngine {
     try {
       const app = window.firebase.apps.length ? window.firebase.app() : window.firebase.initializeApp(FIREBASE_CONFIG);
       this.db = window.firebase.firestore(app);
-      this.db.enablePersistence().catch(() => {});
+      this.db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
       this.isFirebaseActive = true;
 
       // Unconditionally purge any leftover mock products and mock sales from Firestore
@@ -233,6 +236,108 @@ class AimanApiEngine {
     } catch (err) {
       console.warn('Firebase init fallback to local storage:', err);
       this.isFirebaseActive = false;
+    }
+  }
+
+  /* --------------------------------------------------------------------------
+     2.5. MongoDB Atlas Cloud REST Synchronization
+     -------------------------------------------------------------------------- */
+  async initMongoSync() {
+    if (typeof window === 'undefined' || typeof fetch === 'undefined') return;
+
+    try {
+      const res = await fetch('/api/health');
+      if (!res.ok) return;
+      const ct = res.headers.get('content-type') || '';
+      if (!ct.includes('application/json')) return;
+      const data = await res.json();
+      if (data && data.mongo && data.mongo.isConnected) {
+        this.isMongoActive = true;
+        console.log(`✨ [AimanApi] MongoDB Atlas Cloud sync active (${data.mongo.type})`);
+
+        // Sync products
+        fetch('/api/products')
+          .then(r => r.json())
+          .then(res => {
+            if (res.success && res.data && res.data.length > 0) {
+              this.products = res.data;
+              this.save(STORAGE_KEYS.PRODUCTS, this.products);
+              this.notify('PRODUCTS_SYNCED', this.products);
+            }
+          }).catch(console.warn);
+
+        // Sync orders
+        fetch('/api/orders')
+          .then(r => r.json())
+          .then(res => {
+            if (res.success && res.data && res.data.length > 0) {
+              this.orders = res.data;
+              this.save(STORAGE_KEYS.ORDERS, this.orders);
+              this.notify('ORDERS_SYNCED', this.orders);
+            }
+          }).catch(console.warn);
+
+        // Sync sales
+        fetch('/api/sales')
+          .then(r => r.json())
+          .then(res => {
+            if (res.success && res.data && res.data.length > 0) {
+              this.sales = res.data;
+              this.save(STORAGE_KEYS.SALES, this.sales);
+              this.notify('SALES_SYNCED', this.sales);
+            }
+          }).catch(console.warn);
+
+        // Sync expenses
+        fetch('/api/expenses')
+          .then(r => r.json())
+          .then(res => {
+            if (res.success && res.data && res.data.length > 0) {
+              this.expenses = res.data;
+              this.save(STORAGE_KEYS.EXPENSES, this.expenses);
+              this.notify('EXPENSES_SYNCED', this.expenses);
+            }
+          }).catch(console.warn);
+
+        // Sync reviews
+        fetch('/api/reviews')
+          .then(r => r.json())
+          .then(res => {
+            if (res.success && res.data && res.data.length > 0) {
+              this.reviews = res.data;
+              this.save(STORAGE_KEYS.REVIEWS, this.reviews);
+              this.notify('REVIEWS_SYNCED', this.reviews);
+            }
+          }).catch(console.warn);
+
+        // Sync bot rules
+        fetch('/api/bot-rules')
+          .then(r => r.json())
+          .then(res => {
+            if (res.success && res.data && res.data.length > 0) {
+              this.botRules = res.data;
+              this.save(STORAGE_KEYS.BOT_RULES, this.botRules);
+              this.notify('BOT_RULES_SYNCED', this.botRules);
+            }
+          }).catch(console.warn);
+      }
+    } catch (e) {
+      console.log('[AimanApi] MongoDB server offline or running in standalone static mode.');
+    }
+  }
+
+  async syncToMongo(endpoint, method = 'POST', payload = null) {
+    if (!this.isMongoActive || typeof window === 'undefined' || typeof fetch === 'undefined') return;
+    try {
+      const opts = {
+        method,
+        headers: { 'Content-Type': 'application/json' }
+      };
+      if (payload) opts.body = JSON.stringify(payload);
+      const res = await fetch(endpoint, opts);
+      return await res.json();
+    } catch (e) {
+      // Graceful offline fallback
     }
   }
 
@@ -337,6 +442,8 @@ class AimanApiEngine {
       this.db.collection('products').doc(newProduct.id).set(newProduct).catch(console.error);
     }
 
+    this.syncToMongo('/api/products', 'POST', newProduct);
+
     this.products.unshift(newProduct);
     this.save(STORAGE_KEYS.PRODUCTS, this.products);
     this.notify('PRODUCT_CREATED', newProduct);
@@ -363,6 +470,8 @@ class AimanApiEngine {
     if (this.isFirebaseActive && this.db) {
       this.db.collection('products').doc(id).set(p, { merge: true }).catch(console.error);
     }
+
+    this.syncToMongo(`/api/products/${id}`, 'PUT', p);
 
     this.save(STORAGE_KEYS.PRODUCTS, this.products);
     this.notify('PRODUCT_UPDATED', p);
@@ -529,6 +638,7 @@ class AimanApiEngine {
     if (this.isFirebaseActive && this.db) {
       this.db.collection('products').doc(id).delete().catch(console.error);
     }
+    this.syncToMongo(`/api/products/${id}`, 'DELETE');
     this.products = this.products.filter(p => p.id !== id);
     this.save(STORAGE_KEYS.PRODUCTS, this.products);
     this.notify('PRODUCT_DELETED', { id });
@@ -559,6 +669,8 @@ class AimanApiEngine {
     if (this.isFirebaseActive && this.db) {
       this.db.collection('sales').doc(newSale.id).set(newSale).catch(console.error);
     }
+
+    this.syncToMongo('/api/sales', 'POST', newSale);
 
     this.sales.push(newSale);
     this.sales.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -600,6 +712,7 @@ class AimanApiEngine {
     if (this.isFirebaseActive && this.db) {
       this.db.collection('sales').doc(id).delete().catch(console.error);
     }
+    this.syncToMongo(`/api/sales/${id}`, 'DELETE');
     this.sales = this.sales.filter(s => s.id !== id);
     this.save(STORAGE_KEYS.SALES, this.sales);
     this.notify('SALE_DELETED', { id });
@@ -617,6 +730,7 @@ class AimanApiEngine {
       vendor: expenseData.vendor || 'Local Market Vendor',
       notes: expenseData.notes || ''
     };
+    this.syncToMongo('/api/expenses', 'POST', newExp);
     this.expenses.unshift(newExp);
     this.save(STORAGE_KEYS.EXPENSES, this.expenses);
     this.notify('EXPENSE_LOGGED', newExp);
@@ -624,6 +738,7 @@ class AimanApiEngine {
   }
 
   deleteExpense(id) {
+    this.syncToMongo(`/api/expenses/${id}`, 'DELETE');
     this.expenses = this.expenses.filter(e => e.id !== id);
     this.save(STORAGE_KEYS.EXPENSES, this.expenses);
     this.notify('EXPENSE_DELETED', { id });
@@ -872,6 +987,7 @@ class AimanApiEngine {
 
     this.orders.unshift(newOrder);
     this.save(STORAGE_KEYS.ORDERS, this.orders);
+    this.syncToMongo('/api/orders', 'POST', newOrder);
 
     // Also auto-log sale for accounting
     newOrder.items.forEach(item => {

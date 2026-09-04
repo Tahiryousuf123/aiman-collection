@@ -1,21 +1,19 @@
-# Production Dockerfile for MediSync AI Healthcare SaaS Platform
+# Production Dockerfile for Aiman Collection Haute Couture E-Commerce Platform
 
 FROM node:20-alpine AS base
 WORKDIR /app
 
 # Copy dependency definitions
 COPY package.json ./
-COPY prisma ./prisma
 
-# Install dependencies and generate Prisma Client
+# Install dependencies
 RUN npm install
-RUN npx prisma generate
 
 # Copy source files
 COPY . .
 
 # Expose HTTP port
-EXPOSE 3000
+EXPOSE 5000
 
 # Start production application server
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "server"]

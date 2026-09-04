@@ -59,9 +59,9 @@ import { apiEngine } from './apps/api/src/api.js';
 
       const savedHero = localStorage.getItem('aiman_hero_image');
       if (savedHero) {
-        const heroImg = document.getElementById('hero-img');
+        const heroImg = document.getElementById('heroVisualImg') || document.getElementById('hero-img');
         if (heroImg) heroImg.src = savedHero;
-        const bannerInp = document.getElementById('heroBannerUrlInput');
+        const bannerInp = document.getElementById('admin_hero_img') || document.getElementById('heroBannerUrlInput');
         if (bannerInp) bannerInp.value = savedHero;
       }
     } catch (e) {
@@ -251,11 +251,15 @@ import { apiEngine } from './apps/api/src/api.js';
 
   function setCategory(cat) {
     AppState.activeProductCategory = cat;
-    document.querySelectorAll('.filter-btn, .category-chip, .ribbon-item').forEach(btn => {
-      const match = btn.getAttribute('data-category') === cat || btn.getAttribute('data-cat') === cat;
-      btn.classList.toggle('active', match);
+    document.querySelectorAll('.category-chip, .filter-btn, .filter-pills button, .ribbon-item').forEach(btn => {
+      const bCat = btn.getAttribute('data-category') || btn.getAttribute('data-cat');
+      btn.classList.toggle('active', bCat === cat);
     });
     renderProductsCatalog();
+    const catSection = document.getElementById('catalog') || document.getElementById('shop');
+    if (catSection) {
+      catSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   function setSortBy(sortBy) {
@@ -507,11 +511,24 @@ import { apiEngine } from './apps/api/src/api.js';
   }
 
   function openModal(modalId) {
-    document.getElementById(modalId)?.classList.add('active');
+    if (!modalId) return;
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.style.display = 'flex';
+      modal.classList.add('active');
+      modal.classList.add('show');
+    }
   }
 
   function closeModal(modalId) {
-    document.getElementById(modalId)?.classList.remove('active');
+    if (!modalId) return;
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.remove('active');
+      modal.classList.remove('show');
+      modal.style.display = 'none';
+    }
+    document.body.style.overflow = '';
   }
 
   /* ==========================================================================
@@ -1324,26 +1341,6 @@ import { apiEngine } from './apps/api/src/api.js';
   /* ==========================================================================
      11. ADMIN PORTAL CONTROLLER, PIN VERIFICATION (7860) & FRONTEND EDITORS
      ========================================================================== */
-  function openModal(modalId) {
-    if (!modalId) return;
-    const modal = document.getElementById(modalId);
-    if (modal) {
-      modal.style.display = 'flex';
-      modal.classList.add('active');
-      modal.classList.add('show');
-    }
-  }
-
-  function closeModal(modalId) {
-    if (!modalId) return;
-    const modal = document.getElementById(modalId);
-    if (modal) {
-      modal.classList.remove('active');
-      modal.classList.remove('show');
-      modal.style.display = 'none';
-    }
-    document.body.style.overflow = '';
-  }
 
   function openAdminLoginModal() {
     const modal = document.getElementById('adminLoginModal');
@@ -2695,6 +2692,14 @@ import { apiEngine } from './apps/api/src/api.js';
     renderPhotoReviews();
   }
 
+  function deleteReview(id) {
+    if (!confirm('Are you sure you want to remove this review?')) return;
+    apiEngine.deleteReview(id);
+    renderAdminReviewsMod();
+    renderPhotoReviews();
+    showToast('Review removed.', 'info');
+  }
+
   function renderAdminFaqs() {
     const container = document.getElementById('adminFaqList');
     if (!container) return;
@@ -2984,12 +2989,13 @@ import { apiEngine } from './apps/api/src/api.js';
   }
 
   function updateHeroBanner(event) {
-    event.preventDefault();
-    const url = document.getElementById('heroBannerUrlInput').value.trim();
+    if (event) event.preventDefault();
+    const inputEl = document.getElementById('heroBannerUrlInput') || document.getElementById('admin_hero_img');
+    const url = inputEl ? inputEl.value.trim() : '';
     if (!url) return;
 
     localStorage.setItem('aiman_hero_image', url);
-    const heroImg = document.getElementById('hero-img');
+    const heroImg = document.getElementById('heroVisualImg') || document.getElementById('hero-img');
     if (heroImg) heroImg.src = url;
     showToast('Hero banner image updated!', 'success');
   }
@@ -2998,8 +3004,9 @@ import { apiEngine } from './apps/api/src/api.js';
     if (!input.files || !input.files[0]) return;
     const reader = new FileReader();
     reader.onload = function (e) {
-      document.getElementById('heroBannerUrlInput').value = e.target.result;
-      const heroImg = document.getElementById('hero-img');
+      const inputEl = document.getElementById('heroBannerUrlInput') || document.getElementById('admin_hero_img');
+      if (inputEl) inputEl.value = e.target.result;
+      const heroImg = document.getElementById('heroVisualImg') || document.getElementById('hero-img');
       if (heroImg) heroImg.src = e.target.result;
       localStorage.setItem('aiman_hero_image', e.target.result);
       showToast('Custom banner uploaded and applied!', 'success');
@@ -3081,30 +3088,7 @@ import { apiEngine } from './apps/api/src/api.js';
     showToast('Bot rule deleted.', 'info');
   }
 
-  function saveBotSettings(event) {
-    event.preventDefault();
-    showToast('WhatsApp Bot Settings saved successfully!', 'success');
-  }
 
-  function deleteReview(id) {
-    apiEngine.deleteReview(id);
-    renderAdminReviewsMod();
-    renderPhotoReviews();
-    showToast('Review removed.', 'info');
-  }
-
-  function setCategory(cat) {
-    AppState.activeProductCategory = cat;
-    document.querySelectorAll('.category-chip, .filter-btn, .filter-pills button, .ribbon-item').forEach(btn => {
-      const bCat = btn.getAttribute('data-category') || btn.getAttribute('data-cat');
-      btn.classList.toggle('active', bCat === cat);
-    });
-    renderProductsCatalog();
-    const catSection = document.getElementById('catalog') || document.getElementById('shop');
-    if (catSection) {
-      catSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }
 
   const BLOG_ARTICLES = {
     'guide-1': {
@@ -3516,6 +3500,7 @@ import { apiEngine } from './apps/api/src/api.js';
     initDealCountdown();
     initListeners();
     setLanguage(currentLanguage);
+    checkMongoAtlasHealth();
 
     apiEngine.subscribe(({ event, payload }) => {
       console.log(`[Aiman Engine Event]: ${event}`, payload);
@@ -3529,7 +3514,59 @@ import { apiEngine } from './apps/api/src/api.js';
         renderAdminSales();
         renderSalesChart(AppState.activeChartPeriod);
       }
+      if (event === 'EXPENSES_SYNCED') {
+        renderAdminExpenses();
+      }
+      if (event === 'REVIEWS_SYNCED') {
+        renderPhotoReviews();
+        renderAdminReviewsMod();
+      }
+      if (event === 'ORDERS_SYNCED') {
+        renderAdminOrders();
+      }
     });
+  }
+
+  function checkMongoAtlasHealth() {
+    const statusPill = document.getElementById('adminTopMongoStatus');
+    const statusText = document.getElementById('adminMongoStatusText');
+    if (typeof fetch === 'undefined') return;
+
+    fetch('/api/health')
+      .then(r => {
+        const ct = r.headers.get('content-type') || '';
+        if (!r.ok || !ct.includes('application/json')) throw new Error('Not JSON');
+        return r.json();
+      })
+      .then(data => {
+        if (data && data.mongo && data.mongo.isConnected) {
+          if (statusPill) {
+            statusPill.style.borderColor = '#25D366';
+            statusPill.style.color = '#25D366';
+            statusPill.title = `Connected to ${data.mongo.type} (${data.mongo.database})`;
+          }
+          if (statusText) {
+            statusText.innerHTML = `<i class="fas fa-database"></i> MongoDB Atlas (Live)`;
+          }
+        } else {
+          if (statusPill) {
+            statusPill.style.borderColor = '#F59E0B';
+            statusPill.style.color = '#F59E0B';
+          }
+          if (statusText) {
+            statusText.innerHTML = `<i class="fas fa-database"></i> MongoDB: Standalone`;
+          }
+        }
+      })
+      .catch(() => {
+        if (statusPill) {
+          statusPill.style.borderColor = '#F59E0B';
+          statusPill.style.color = '#F59E0B';
+        }
+        if (statusText) {
+          statusText.innerHTML = `<i class="fas fa-database"></i> Standalone Static`;
+        }
+      });
   }
 
   function resetStoreData() {
@@ -3561,6 +3598,7 @@ import { apiEngine } from './apps/api/src/api.js';
     closeDrawers,
     openModal,
     closeModal,
+    checkMongoAtlasHealth,
     applyPromoCode,
     openCheckoutModal,
     selectPaymentTab,
@@ -3591,8 +3629,6 @@ import { apiEngine } from './apps/api/src/api.js';
     submitCustomMeasurement,
     openAdminLoginModal,
     verifyAdminLogin,
-    openModal,
-    closeModal,
     openAdmin,
     closeAdmin,
     switchAdminTab,
