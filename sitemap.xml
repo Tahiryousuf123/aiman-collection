@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://aimancollection.store/</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://aimancollection.store/images/aiman_logo.png</image:loc>
+      <image:title>Aiman Collection - Luxury Dawoodi Bohra Haute Couture</image:title>
+      <image:caption>Pakistan's premier bespoke Dawoodi Bohra couture house, ceremonial bridal ridas, handmade designer leather handbags, and vanity accessories.</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://aimancollection.store/images/luxury_rida.png</image:loc>
+      <image:title>Royal Crimson Heavy Zardozi Bridal Silk Rida - Aiman Collection</image:title>
+      <image:caption>Handcrafted Dawoodi Bohra ceremonial bridal rida in Karachi Atelier with pure raw silk base and intricate gold zardozi needlework.</image:caption>
+    </image:image>
+  </url>
+</urlset>
