@@ -80,5 +80,5 @@ const redirectsContent = `/sitemap.xml  /sitemap.xml  200
 fs.writeFileSync(path.join(distDir, '_redirects'), redirectsContent);
 console.log('  ✓ Created Netlify _redirects file');
 
-console.log('\n✨ Production build complete! All files ready inside: c:\\Users\\Lenovo\\Desktop\\Aiman Collectiion\\dist');
+console.log(`\n✨ Production build complete! All files ready inside: ${distDir}`);
 process.exit(0);
