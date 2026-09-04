@@ -1,13 +1,7 @@
 [build]
-  command = "npm run build"
+  command = "node build.js"
   publish = "dist"
 
-[dev]
-  command = "npm run dev"
-  port = 3000
-  targetPort = 3000
-
-# Optional: set Node version
 [build.environment]
   NODE_VERSION = "18"
 
