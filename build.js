@@ -73,7 +73,10 @@ dirsToCopy.forEach(dir => {
 });
 
 // Create Netlify _redirects file
-const redirectsContent = `/*    /index.html   200\n`;
+const redirectsContent = `/sitemap.xml  /sitemap.xml  200
+/robots.txt   /robots.txt   200
+/*            /index.html   200
+`;
 fs.writeFileSync(path.join(distDir, '_redirects'), redirectsContent);
 console.log('  ✓ Created Netlify _redirects file');
 
