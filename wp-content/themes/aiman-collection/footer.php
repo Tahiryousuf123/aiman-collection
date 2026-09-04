@@ -89,6 +89,9 @@ $checkout_url = function_exists( 'wc_get_checkout_url' ) ? wc_get_checkout_url()
 			</div>
 			<div class="footer-bottom-tagline">
 				<span><i class="fas fa-sparkles text-gold"></i> <?php esc_html_e( '100% Pure Silk & Egyptian Cotton', 'aiman-collection' ); ?></span>
+				<a href="<?php echo esc_url( home_url( '/merchant/' ) ); ?>" class="footer-admin-link" title="<?php esc_attr_e( 'Merchant / Admin Portal (Password: 7860)', 'aiman-collection' ); ?>" style="margin-left: 1rem; color: var(--color-gold-light); font-size: 0.82rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;">
+					<i class="fas fa-lock text-gold"></i> <?php esc_html_e( 'Merchant Access', 'aiman-collection' ); ?>
+				</a>
 			</div>
 		</div>
 	</div>

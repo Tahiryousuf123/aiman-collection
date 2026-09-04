@@ -1419,6 +1419,12 @@ import { apiEngine } from './apps/api/src/api.js';
 
     const bottomNav = document.querySelector('.mobile-bottom-nav');
     if (bottomNav) bottomNav.style.display = '';
+
+    if (window.location.hash === '#admin' || window.location.hash === '#adminPanel') {
+      try {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      } catch (e) {}
+    }
   }
 
   function toggleAdminMobileMenu() {
@@ -3501,6 +3507,24 @@ import { apiEngine } from './apps/api/src/api.js';
     initListeners();
     setLanguage(currentLanguage);
     checkMongoAtlasHealth();
+
+    function checkAdminHash() {
+      const hash = window.location.hash || '';
+      const isSearchAdmin = window.location.search && window.location.search.includes('admin=true');
+      if (hash.startsWith('#admin') || isSearchAdmin) {
+        openAdmin();
+        if (hash === '#admin-sales') switchAdminTab('sales');
+        else if (hash === '#admin-expenses') switchAdminTab('expenses');
+        else if (hash === '#admin-products') switchAdminTab('products');
+        else if (hash === '#admin-frontend-editor') switchAdminTab('frontend-editor');
+        else if (hash === '#admin-orders') switchAdminTab('orders');
+        else if (hash === '#admin-ai-assistant') switchAdminTab('ai-assistant');
+        else if (hash === '#admin-reviews') switchAdminTab('reviews');
+        else if (hash === '#admin' || hash === '#admin-dashboard') switchAdminTab('dashboard');
+      }
+    }
+    checkAdminHash();
+    window.addEventListener('hashchange', checkAdminHash);
 
     apiEngine.subscribe(({ event, payload }) => {
       console.log(`[Aiman Engine Event]: ${event}`, payload);

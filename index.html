@@ -1577,9 +1577,9 @@
           </div>
 
           <div class="wp-topbar-right">
-            <div class="mongo-sync-status-pill" id="adminTopMongoStatus" title="MongoDB Atlas Live Database" style="display:inline-flex; align-items:center; gap:0.45rem; background:rgba(37,211,102,0.12); border:1px solid #25D366; color:#25D366; font-size:0.75rem; font-weight:800; padding:0.3rem 0.75rem; border-radius:20px;">
-              <span class="pulse-green-dot" style="width:8px; height:8px; background:#25D366; border-radius:50%; display:inline-block;"></span>
-              <span id="adminMongoStatusText"><i class="fas fa-database"></i> MongoDB Atlas</span>
+            <div class="mongo-sync-status-pill" id="adminTopMongoStatus" title="MongoDB Atlas Live Database">
+              <span class="pulse-green-dot"></span>
+              <span id="adminMongoStatusText"><i class="fas fa-database"></i> <span class="mongo-status-label">MongoDB Atlas</span></span>
             </div>
             <div class="cloud-sync-status-pill" id="adminTopCloudStatus" title="Real-Time Cloud Synchronized">
               <span class="pulse-green-dot"></span>
@@ -1614,7 +1614,7 @@
         </div>
 
         <!-- Stat Cards -->
-        <div class="admin-metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+        <div class="admin-metrics-grid">
           <div class="metric-card">
             <div>
               <p>Total Revenue (PKR)</p>
@@ -1744,12 +1744,12 @@
       <!-- Tab 2: Products Manager -->
       <div class="admin-tab-pane" id="adminTab_products">
         <!-- Quick Action Nav Pills -->
-        <div style="display: flex; gap: 0.6rem; margin-bottom: 1.2rem; flex-wrap: wrap;">
-          <a href="#adminAddProductCard" class="btn btn-primary btn-sm" style="flex: 1; min-width: 140px; text-align: center; justify-content: center; display: inline-flex; align-items: center; gap: 0.4rem;">
-            <i class="fas fa-plus-circle"></i> ➕ Add New Product
+        <div class="admin-quick-pills">
+          <a href="#adminAddProductCard" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus-circle"></i> Add New Product
           </a>
-          <a href="#adminProductCatalogCard" class="btn btn-secondary btn-sm" style="flex: 1; min-width: 140px; text-align: center; justify-content: center; display: inline-flex; align-items: center; gap: 0.4rem;">
-            <i class="fas fa-boxes"></i> 📋 View Stock & Status
+          <a href="#adminProductCatalogCard" class="btn btn-secondary btn-sm">
+            <i class="fas fa-boxes"></i> View Stock & Status
           </a>
         </div>
 
@@ -1824,9 +1824,9 @@
               </div>
               <div class="form-group">
                 <label>Image URL / Upload</label>
-                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                  <input type="text" name="prod_image" id="add_prod_image" value="images/luxury_rida.png" placeholder="images/luxury_rida.png" style="flex: 1;" oninput="const prev = document.getElementById('addProdPreviewImg'); if(prev) prev.src = this.value;">
-                  <img id="addProdPreviewImg" src="images/luxury_rida.png" alt="Preview" style="width: 38px; height: 38px; object-fit: cover; border-radius: 4px; border: 1px solid var(--color-border);">
+                <div class="admin-img-upload-group">
+                  <input type="text" name="prod_image" id="add_prod_image" value="images/luxury_rida.png" placeholder="images/luxury_rida.png" oninput="const prev = document.getElementById('addProdPreviewImg'); if(prev) prev.src = this.value;">
+                  <img id="addProdPreviewImg" src="images/luxury_rida.png" alt="Preview" class="admin-img-preview-thumb">
                 </div>
                 <div style="margin-top: 0.35rem;">
                   <input type="file" accept="image/*" style="font-size: 0.75rem;" onchange="window.AimanStore.handleImageUploadToInput(this, 'add_prod_image', 'addProdPreviewImg')">
@@ -1940,7 +1940,7 @@
 
             <!-- Section 2: Categories Showcase Cards (Screenshot 2) -->
             <h4 style="color: var(--color-gold-light); margin-bottom: 1rem;">2. Categories Showcase Cards (Screenshot 2: Discover Your Signature Look)</h4>
-            <div class="admin-form-grid" style="grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+            <div class="admin-categories-grid">
               
               <!-- Card 1 -->
               <div style="background: var(--color-bg-elevated); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--color-border);">
@@ -2075,7 +2075,7 @@
 
             <!-- Section 4: Bachat Super Deals & Festive Combos Editor (Hyderi Style) -->
             <h4 style="color: var(--color-gold-light); margin-bottom: 1rem;">4. Bachat Super Deals &amp; Festive Combos Editor</h4>
-            <div class="admin-form-grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem; margin-bottom: 1.5rem;">
+            <div class="admin-deals-grid">
               <!-- Deal 1 Editor -->
               <div style="background: var(--color-bg-elevated); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--color-border);">
                 <strong style="color: var(--color-gold-light); font-size: 0.88rem; display: block; margin-bottom: 0.6rem;">Deal 1: Bridal Royale</strong>
@@ -2243,7 +2243,7 @@
 
       <!-- Tab 4: Log Sales & Profit Accounting -->
       <div class="admin-tab-pane" id="adminTab_sales">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <div class="admin-sales-grid">
           <div class="admin-table-card">
             <div class="admin-table-header">
               <h4>Log A New Transaction</h4>
@@ -2256,7 +2256,7 @@
                   <!-- Injected dynamically -->
                 </select>
               </div>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+              <div class="admin-form-row-2">
                 <div class="form-group">
                   <label>Quantity Sold *</label>
                   <input type="number" id="logSaleQty" min="1" value="1" required oninput="window.AimanStore.updateSaleFormPrices()">
@@ -2266,7 +2266,7 @@
                   <input type="date" id="logSaleDate" required>
                 </div>
               </div>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+              <div class="admin-form-row-2">
                 <div class="form-group">
                   <label>Cost Price (Per Item - Rs.)</label>
                   <input type="number" id="logSaleCost" required oninput="window.AimanStore.updateSaleFormPrices()">
@@ -2278,7 +2278,7 @@
               </div>
 
               <!-- Estimated Profit Banner -->
-              <div style="background: rgba(37,211,102,0.12); border: 1px solid rgba(37,211,102,0.35); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1.2rem; display: flex; justify-content: space-between; font-weight: 700;">
+              <div class="admin-profit-banner">
                 <span>Estimated Profit: <strong id="logSaleProfitDisplay" style="color: var(--color-accent-whatsapp);">Rs. 0</strong></span>
                 <span>Margin: <strong id="logSaleMarginDisplay" style="color: var(--color-accent-whatsapp);">0%</strong></span>
               </div>
@@ -2313,7 +2313,7 @@
 
       <!-- Tab: Operating Expenses Manager -->
       <div class="admin-tab-pane" id="adminTab_expenses">
-        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem;">
+        <div class="admin-expenses-grid">
           <div class="admin-table-card">
             <div class="admin-table-header">
               <h4>Log Business Expense</h4>
@@ -2338,7 +2338,7 @@
                 <input type="text" id="logExpTitle" required placeholder="e.g. 5 Yards Silk Roll Purchase">
               </div>
 
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+              <div class="admin-form-row-2">
                 <div class="form-group">
                   <label>Amount (PKR) *</label>
                   <input type="number" id="logExpAmount" required min="1" placeholder="4500">
@@ -2495,7 +2495,7 @@
             <span class="badge badge-warning" id="waPairStatusBadge">🟡 Ready to Scan</span>
           </div>
 
-          <div style="padding: 2rem; display: grid; grid-template-columns: 280px 1fr; gap: 2.5rem; align-items: center;">
+          <div class="admin-qr-pair-grid">
             <!-- QR Code Display Box -->
             <div style="text-align: center;">
               <div id="waQrCodeBox" style="background: var(--color-bg-elevated); padding: 1.2rem; border-radius: var(--radius-md); border: 2px dashed var(--color-border); display: inline-block;">
@@ -2536,7 +2536,7 @@
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1.1fr 1.2fr; gap: 2rem;">
+        <div class="admin-ai-gateway-grid">
           
           <!-- Column 1: Owner WhatsApp & Meta Cloud API Setup -->
           <div class="admin-table-card">
@@ -2707,7 +2707,7 @@
 
       <form id="adminReviewForm" onsubmit="window.AimanStore.saveAdminReviewForm(event)">
         <input type="hidden" id="admin_rev_id" name="rev_id">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div class="admin-modal-row-2">
           <div class="form-group">
             <label>Customer Name *</label>
             <input type="text" id="admin_rev_name" required placeholder="e.g. Fatima Bai">
@@ -2718,7 +2718,7 @@
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div class="admin-modal-row-2">
           <div class="form-group">
             <label>Product *</label>
             <select id="admin_rev_product" required></select>
@@ -2735,7 +2735,7 @@
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div class="admin-modal-row-2">
           <div class="form-group">
             <label>Headline *</label>
             <input type="text" id="admin_rev_headline" required placeholder="e.g. Breathtaking Pardi drape!">
@@ -2796,7 +2796,7 @@
           <input type="text" id="edit_sale_prod_name" required>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div class="admin-modal-row-2">
           <div class="form-group">
             <label>Quantity *</label>
             <input type="number" id="edit_sale_qty" required min="1">
@@ -2807,7 +2807,7 @@
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+        <div class="admin-modal-row-2">
           <div class="form-group">
             <label>Cost / Purchase Price (Rs.) *</label>
             <input type="number" id="edit_sale_cost" required min="0">
@@ -2876,7 +2876,7 @@
 
       <form id="adminEditLeadForm" onsubmit="window.AimanStore.saveAdminLeadForm(event)">
         <input type="hidden" id="edit_lead_id">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div class="admin-modal-row-2">
           <div class="form-group">
             <label>Customer Name *</label>
             <input type="text" id="edit_lead_name" required>
@@ -2887,7 +2887,7 @@
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div class="admin-modal-row-2">
           <div class="form-group">
             <label>Lead Status</label>
             <select id="edit_lead_status">
@@ -2938,7 +2938,7 @@
           </label>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div class="admin-modal-row-2">
           <div class="form-group">
             <label>Original Price (Rs.)</label>
             <input type="text" id="sale_original_price_display" readonly style="opacity: 0.7; background: #101318;">
@@ -2982,7 +2982,7 @@
           <input type="text" id="edit_prod_name" required placeholder="e.g. Royal Crimson Heavy Zardozi Bridal Silk Rida">
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div class="admin-modal-row-2">
           <div class="form-group">
             <label>Category *</label>
             <select id="edit_prod_category" required>
@@ -3004,7 +3004,7 @@
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div class="admin-modal-row-3">
           <div class="form-group">
             <label>Selling Price (Rs.) *</label>
             <input type="number" id="edit_prod_price" required min="0" placeholder="18500">
@@ -3019,7 +3019,7 @@
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div class="admin-modal-row-2">
           <div class="form-group">
             <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: 700; color: #FFF; margin-top: 1.8rem;">
               <input type="checkbox" id="edit_prod_is_new" style="width: 18px; height: 18px; accent-color: var(--color-gold-primary);">
