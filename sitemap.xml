@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <!-- Homepage / Main Storefront -->
   <url>
     <loc>https://aimancollection.store/</loc>
     <lastmod>2026-09-04</lastmod>
     <changefreq>daily</changefreq>
-    <priority>1.0</priority>
+    <priority>1.00</priority>
     <image:image>
       <image:loc>https://aimancollection.store/images/aiman_logo.png</image:loc>
       <image:title>Aiman Collection - Luxury Dawoodi Bohra Haute Couture</image:title>
@@ -16,5 +17,118 @@
       <image:title>Royal Crimson Heavy Zardozi Bridal Silk Rida - Aiman Collection</image:title>
       <image:caption>Handcrafted Dawoodi Bohra ceremonial bridal rida in Karachi Atelier with pure raw silk base and intricate gold zardozi needlework.</image:caption>
     </image:image>
+  </url>
+
+  <!-- Product Catalog -->
+  <url>
+    <loc>https://aimancollection.store/#catalog</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.95</priority>
+    <image:image>
+      <image:loc>https://aimancollection.store/images/luxury_rida.png</image:loc>
+      <image:title>Emerald Velvet Boti Festive Milad Rida</image:title>
+      <image:caption>Micro silk chiffon with rich velvet borders, delicate crystal lace, and graceful pardi drape.</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://aimancollection.store/images/lavender_rida.png</image:loc>
+      <image:title>Pastel Lavender Cotton Everyday Pret Rida</image:title>
+      <image:caption>Pure Egyptian mercerized cotton summer rida with floral scalloped lace finish.</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Heavy Bridal Ridas Category -->
+  <url>
+    <loc>https://aimancollection.store/?category=heavy-rida#catalog</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.90</priority>
+    <image:image>
+      <image:loc>https://aimancollection.store/images/luxury_rida.png</image:loc>
+      <image:title>Dawoodi Bohra Heavy Bridal Ridas Collection</image:title>
+      <image:caption>Ceremonial bridal raw silk ridas with authentic metallic gold zardozi and cutwork border paneling.</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Silk & Formal Ridas -->
+  <url>
+    <loc>https://aimancollection.store/?category=silk-ridas#catalog</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.90</priority>
+  </url>
+
+  <!-- Cotton Daily Pret Ridas -->
+  <url>
+    <loc>https://aimancollection.store/?category=cotton-ridas#catalog</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Bohra Batwas & Handbags -->
+  <url>
+    <loc>https://aimancollection.store/?category=bags#catalog</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+    <image:image>
+      <image:loc>https://aimancollection.store/images/designer_handbag.png</image:loc>
+      <image:title>Handcrafted Gold Zardozi Matching Bridal Batwa</image:title>
+      <image:caption>Raw silk with velvet lining, gold zardozi embroidery, and handcrafted silk tassels.</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Cosmetic & Topi Vanity Pouches -->
+  <url>
+    <loc>https://aimancollection.store/?category=cosmetics#catalog</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.80</priority>
+    <image:image>
+      <image:loc>https://aimancollection.store/images/cosmetic_bag.png</image:loc>
+      <image:title>Luxury Quilted Velvet Topi and Cosmetic Vanity Pouch</image:title>
+      <image:caption>Quilted royal velvet pouch with gold emblem, satin lining, and custom zipper pull.</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Super Deals & Combos -->
+  <url>
+    <loc>https://aimancollection.store/#superDealsSection</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.90</priority>
+  </url>
+
+  <!-- Categories Explorer -->
+  <url>
+    <loc>https://aimancollection.store/#categories</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Custom Tailoring & Measurements -->
+  <url>
+    <loc>https://aimancollection.store/#custom-stitching</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Customer Reviews & Client Love -->
+  <url>
+    <loc>https://aimancollection.store/#reviews</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- Fashion Journal & Styling Blog -->
+  <url>
+    <loc>https://aimancollection.store/#blog</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
   </url>
 </urlset>

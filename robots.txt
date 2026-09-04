@@ -1,5 +1,33 @@
+# Aiman Collection (https://aimancollection.store/)
+# Crawler Rules for Search Engines & Social Media Previewers
+
 User-agent: *
 Allow: /
 
-# Sitemap Index for Google Search Console
+# Dedicated directives for Google Search & Images
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /images/
+
+# Microsoft Bing
+User-agent: Bingbot
+Allow: /
+
+# Apple Spotlight & Siri
+User-agent: Applebot
+Allow: /
+
+# WhatsApp & Social Link Previews
+User-agent: WhatsApp
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+# XML Sitemap Index for Google Search Console & Bing Webmaster
 Sitemap: https://aimancollection.store/sitemap.xml
