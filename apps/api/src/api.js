@@ -156,8 +156,18 @@ class AimanApiEngine {
 
   getApiBase() {
     if (typeof window === 'undefined') return '';
+    // If already running on port 5050 (server itself), use relative paths
     if (window.location.port === '5050') return '';
-    return window.location.protocol + '//' + window.location.hostname + ':5050';
+    // If a deployed backend URL is configured, use it
+    if (window.AIMAN_API_URL) return window.AIMAN_API_URL;
+    // In local development (localhost), connect to local backend
+    const host = window.location.hostname;
+    if (host === 'localhost' || host === '127.0.0.1') {
+      return 'http://localhost:5050';
+    }
+    // In production (no local backend), return empty to disable mongo sync
+    // Set window.AIMAN_API_URL in index.html once you have a deployed backend URL
+    return '';
   }
 
   /* --------------------------------------------------------------------------
@@ -238,6 +248,12 @@ class AimanApiEngine {
 
     try {
       const base = this.getApiBase();
+      // If no backend URL configured (production), skip MongoDB sync entirely
+      // Firebase Firestore handles cloud sync in production
+      if (!base) {
+        console.log('[AimanApi] No local backend — using Firebase for cloud sync.');
+        return;
+      }
       const res = await fetch(`${base}/api/health`).catch(() => null);
       if (!res || !res.ok) return;
       const ct = res.headers.get('content-type') || '';
