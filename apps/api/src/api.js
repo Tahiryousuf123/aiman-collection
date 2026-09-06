@@ -25,7 +25,10 @@ const STORAGE_KEYS = {
   EMAILS: 'aiman_dispatched_emails_v2',
   TRANSACTIONS: 'aiman_transactions_db_v2',
   EXPENSES: 'aiman_expenses_db_v2',
-  HERO_IMAGE: 'aiman_hero_image'
+  HERO_IMAGE: 'aiman_hero_image',
+  DELETED_PRODUCTS: 'aiman_deleted_product_ids_v1',
+  DELETED_SALES: 'aiman_deleted_sale_ids_v1',
+  DELETED_EXPENSES: 'aiman_deleted_expense_ids_v1'
 };
 
 class AimanApiEngine {
@@ -43,41 +46,24 @@ class AimanApiEngine {
      1. Database Initialization & Local Persistence
      -------------------------------------------------------------------------- */
   initDatabase() {
-    const DATA_VERSION_KEY = 'aiman_data_version_v20_zero_financial_mock';
-    const currentVersion = typeof localStorage !== 'undefined' ? localStorage.getItem(DATA_VERSION_KEY) : null;
-    if (!currentVersion || currentVersion !== '20.0') {
-      if (typeof localStorage !== 'undefined') {
-        localStorage.clear();
-        localStorage.setItem(DATA_VERSION_KEY, '20.0');
-      }
-      this.products = [...INITIAL_PRODUCTS];
-      this.sales = [...INITIAL_SALES];
-      this.reviews = [...INITIAL_REVIEWS];
-      this.orders = [...INITIAL_ORDERS];
-      this.botRules = [...INITIAL_BOT_RULES];
-      this.expenses = [...INITIAL_EXPENSES];
-      this.leads = [];
-      this.emails = [];
-      this.transactions = [];
+    this.deletedProductIds = new Set(this.load(STORAGE_KEYS.DELETED_PRODUCTS, []));
+    this.deletedSaleIds = new Set(this.load(STORAGE_KEYS.DELETED_SALES, []));
+    this.deletedExpenseIds = new Set(this.load(STORAGE_KEYS.DELETED_EXPENSES, []));
 
-      this.save(STORAGE_KEYS.PRODUCTS, this.products);
-      this.save(STORAGE_KEYS.SALES, this.sales);
-      this.save(STORAGE_KEYS.REVIEWS, this.reviews);
-      this.save(STORAGE_KEYS.ORDERS, this.orders);
-      this.save(STORAGE_KEYS.BOT_RULES, this.botRules);
-      this.save(STORAGE_KEYS.EXPENSES, this.expenses);
-      return;
-    }
-
-    this.products = this.load(STORAGE_KEYS.PRODUCTS, INITIAL_PRODUCTS);
-    this.sales = this.load(STORAGE_KEYS.SALES, INITIAL_SALES);
+    this.products = (this.load(STORAGE_KEYS.PRODUCTS, INITIAL_PRODUCTS) || []).filter(p => !this.deletedProductIds.has(String(p.id)));
+    this.sales = (this.load(STORAGE_KEYS.SALES, INITIAL_SALES) || []).filter(s => !this.deletedSaleIds.has(String(s.id)));
     this.reviews = this.load(STORAGE_KEYS.REVIEWS, INITIAL_REVIEWS);
     this.orders = this.load(STORAGE_KEYS.ORDERS, INITIAL_ORDERS);
     this.leads = this.load(STORAGE_KEYS.LEADS, []);
     this.botRules = this.load(STORAGE_KEYS.BOT_RULES, INITIAL_BOT_RULES);
     this.emails = this.load(STORAGE_KEYS.EMAILS, []);
     this.transactions = this.load(STORAGE_KEYS.TRANSACTIONS, []);
-    this.expenses = this.load(STORAGE_KEYS.EXPENSES, INITIAL_EXPENSES);
+    this.expenses = (this.load(STORAGE_KEYS.EXPENSES, INITIAL_EXPENSES) || []).filter(e => !this.deletedExpenseIds.has(String(e.id)));
+
+    // Ensure storage has initial defaults if first time
+    if (!localStorage.getItem(STORAGE_KEYS.PRODUCTS)) this.save(STORAGE_KEYS.PRODUCTS, this.products);
+    if (!localStorage.getItem(STORAGE_KEYS.SALES)) this.save(STORAGE_KEYS.SALES, this.sales);
+    if (!localStorage.getItem(STORAGE_KEYS.EXPENSES)) this.save(STORAGE_KEYS.EXPENSES, this.expenses);
   }
 
   load(key, fallback) {
@@ -168,6 +154,12 @@ class AimanApiEngine {
     };
   }
 
+  getApiBase() {
+    if (typeof window === 'undefined') return '';
+    if (window.location.port === '5050') return '';
+    return window.location.protocol + '//' + window.location.hostname + ':5050';
+  }
+
   /* --------------------------------------------------------------------------
      2. Firebase Firestore Real-Time Cloud Synchronization
      -------------------------------------------------------------------------- */
@@ -180,57 +172,56 @@ class AimanApiEngine {
       this.db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
       this.isFirebaseActive = true;
 
-      // Unconditionally purge any leftover mock products and mock sales from Firestore
-      this.db.collection('products').get().then(snap => {
-        const mockDocs = snap.docs.filter(d => d.id.startsWith('prod-') || d.data().slug === 'tea-time-safra' || d.data().name === 'Tea time safra');
-        if (mockDocs.length > 0) {
-          console.log('[AimanApi] Purging old mock products from Firestore cloud...');
-          const b = this.db.batch();
-          mockDocs.forEach(d => b.delete(d.ref));
-          b.commit().catch(console.error);
-        }
-      }).catch(console.error);
-
-      this.db.collection('sales').get().then(snap => {
-        const mockSales = snap.docs.filter(d => d.id.startsWith('sale-') && parseInt(d.id.replace('sale-', '')) <= 25);
-        if (mockSales.length > 0) {
-          console.log('[AimanApi] Purging old mock sales from Firestore cloud...');
-          const b = this.db.batch();
-          mockSales.forEach(d => b.delete(d.ref));
-          b.commit().catch(console.error);
-        }
-      }).catch(console.error);
-
-      // Subscribe to real-time products collection (ignoring any legacy mock docs)
+      // Real-time products collection sync without destructive deletion
       this.db.collection('products').onSnapshot(snapshot => {
-        const cloudProducts = [];
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          if (!doc.id.startsWith('prod-') && data.name !== 'Tea time safra' && data.name !== 'Cusmetic organizer') {
-            cloudProducts.push({ ...data, id: doc.id });
+        if (!snapshot.empty) {
+          const cloudProducts = [];
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            if (data && data.name && !this.deletedProductIds.has(String(doc.id))) {
+              cloudProducts.push({ ...data, id: doc.id });
+            }
+          });
+          if (cloudProducts.length > 0) {
+            const merged = cloudProducts.filter(p => !this.deletedProductIds.has(String(p.id)));
+            this.products.forEach(localP => {
+              if (!this.deletedProductIds.has(String(localP.id)) && !merged.find(m => m.id === localP.id)) {
+                merged.push(localP);
+              }
+            });
+            this.products = merged;
+            this.save(STORAGE_KEYS.PRODUCTS, this.products);
+            this.notify('PRODUCTS_SYNCED', this.products);
           }
-        });
-        this.products = cloudProducts;
-        this.save(STORAGE_KEYS.PRODUCTS, this.products);
-        this.notify('PRODUCTS_SYNCED', this.products);
+        }
       }, err => {
-        console.warn('Firestore Products Sync fallback:', err);
+        console.warn('Firestore Products Sync notice:', err);
       });
 
-      // Subscribe to real-time sales collection
+      // Real-time sales collection sync
       this.db.collection('sales').onSnapshot(snapshot => {
-        const cloudSales = [];
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          if (doc.id.length > 10 || isNaN(parseInt(doc.id.replace('sale-', '')))) {
-            cloudSales.push({ ...data, id: doc.id });
+        if (!snapshot.empty) {
+          const cloudSales = [];
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            if (data && !this.deletedSaleIds.has(String(doc.id))) {
+              cloudSales.push({ ...data, id: doc.id });
+            }
+          });
+          if (cloudSales.length > 0) {
+            const merged = cloudSales.filter(s => !this.deletedSaleIds.has(String(s.id)));
+            this.sales.forEach(localS => {
+              if (!this.deletedSaleIds.has(String(localS.id)) && !merged.find(m => m.id === localS.id)) {
+                merged.push(localS);
+              }
+            });
+            this.sales = merged.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+            this.save(STORAGE_KEYS.SALES, this.sales);
+            this.notify('SALES_SYNCED', this.sales);
           }
-        });
-        this.sales = cloudSales.sort((a, b) => new Date(a.date) - new Date(b.date));
-        this.save(STORAGE_KEYS.SALES, this.sales);
-        this.notify('SALES_SYNCED', this.sales);
+        }
       }, err => {
-        console.warn('Firestore Sales Sync fallback:', err);
+        console.warn('Firestore Sales Sync notice:', err);
       });
 
     } catch (err) {
@@ -246,96 +237,108 @@ class AimanApiEngine {
     if (typeof window === 'undefined' || typeof fetch === 'undefined') return;
 
     try {
-      const res = await fetch('/api/health');
-      if (!res.ok) return;
+      const base = this.getApiBase();
+      const res = await fetch(`${base}/api/health`).catch(() => null);
+      if (!res || !res.ok) return;
       const ct = res.headers.get('content-type') || '';
       if (!ct.includes('application/json')) return;
       const data = await res.json();
-      if (data && data.mongo && data.mongo.isConnected) {
-        this.isMongoActive = true;
-        console.log(`✨ [AimanApi] MongoDB Atlas Cloud sync active (${data.mongo.type})`);
 
-        // Sync products
-        fetch('/api/products')
-          .then(r => r.json())
-          .then(res => {
-            if (res.success && res.data && res.data.length > 0) {
-              this.products = res.data;
-              this.save(STORAGE_KEYS.PRODUCTS, this.products);
-              this.notify('PRODUCTS_SYNCED', this.products);
-            }
-          }).catch(console.warn);
+      this.isMongoActive = true;
+      console.log(`✨ [AimanApi] MongoDB Atlas Cloud sync active`);
+      const mongoStatusEl = document.getElementById('adminTopMongoStatus');
+      if (mongoStatusEl) mongoStatusEl.style.display = 'inline-flex';
 
-        // Sync orders
-        fetch('/api/orders')
-          .then(r => r.json())
-          .then(res => {
-            if (res.success && res.data && res.data.length > 0) {
-              this.orders = res.data;
-              this.save(STORAGE_KEYS.ORDERS, this.orders);
-              this.notify('ORDERS_SYNCED', this.orders);
-            }
-          }).catch(console.warn);
+      // Sync products from MongoDB
+      fetch(`${base}/api/products`)
+        .then(r => r.json())
+        .then(res => {
+          if (res.success && res.data && res.data.length > 0) {
+            const merged = res.data.filter(p => !this.deletedProductIds.has(String(p.id)));
+            this.products.forEach(p => {
+              if (!this.deletedProductIds.has(String(p.id)) && !merged.find(m => m.id === p.id)) {
+                merged.push(p);
+                // Also upload local to mongo
+                this.syncToMongo('/api/products', 'POST', p);
+              }
+            });
+            this.products = merged;
+            this.save(STORAGE_KEYS.PRODUCTS, this.products);
+            this.notify('PRODUCTS_SYNCED', this.products);
+          }
+        }).catch(console.warn);
 
-        // Sync sales
-        fetch('/api/sales')
-          .then(r => r.json())
-          .then(res => {
-            if (res.success && res.data && res.data.length > 0) {
-              this.sales = res.data;
-              this.save(STORAGE_KEYS.SALES, this.sales);
-              this.notify('SALES_SYNCED', this.sales);
-            }
-          }).catch(console.warn);
+      // Sync sales from MongoDB
+      fetch(`${base}/api/sales`)
+        .then(r => r.json())
+        .then(res => {
+          if (res.success && res.data && res.data.length > 0) {
+            const merged = res.data.filter(s => !this.deletedSaleIds.has(String(s.id)));
+            this.sales.forEach(s => {
+              if (!this.deletedSaleIds.has(String(s.id)) && !merged.find(m => m.id === s.id)) {
+                merged.push(s);
+                this.syncToMongo('/api/sales', 'POST', s);
+              }
+            });
+            this.sales = merged.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+            this.save(STORAGE_KEYS.SALES, this.sales);
+            this.notify('SALES_SYNCED', this.sales);
+          }
+        }).catch(console.warn);
 
-        // Sync expenses
-        fetch('/api/expenses')
-          .then(r => r.json())
-          .then(res => {
-            if (res.success && res.data && res.data.length > 0) {
-              this.expenses = res.data;
-              this.save(STORAGE_KEYS.EXPENSES, this.expenses);
-              this.notify('EXPENSES_SYNCED', this.expenses);
-            }
-          }).catch(console.warn);
+      // Sync expenses from MongoDB
+      fetch(`${base}/api/expenses`)
+        .then(r => r.json())
+        .then(res => {
+          if (res.success && res.data && res.data.length > 0) {
+            this.expenses = res.data.filter(e => !this.deletedExpenseIds.has(String(e.id)));
+            this.save(STORAGE_KEYS.EXPENSES, this.expenses);
+            this.notify('EXPENSES_SYNCED', this.expenses);
+          }
+        }).catch(console.warn);
 
-        // Sync reviews
-        fetch('/api/reviews')
-          .then(r => r.json())
-          .then(res => {
-            if (res.success && res.data && res.data.length > 0) {
-              this.reviews = res.data;
-              this.save(STORAGE_KEYS.REVIEWS, this.reviews);
-              this.notify('REVIEWS_SYNCED', this.reviews);
-            }
-          }).catch(console.warn);
+      // Sync orders from MongoDB
+      fetch(`${base}/api/orders`)
+        .then(r => r.json())
+        .then(res => {
+          if (res.success && res.data && res.data.length > 0) {
+            this.orders = res.data;
+            this.save(STORAGE_KEYS.ORDERS, this.orders);
+            this.notify('ORDERS_SYNCED', this.orders);
+          }
+        }).catch(console.warn);
 
-        // Sync bot rules
-        fetch('/api/bot-rules')
-          .then(r => r.json())
-          .then(res => {
-            if (res.success && res.data && res.data.length > 0) {
-              this.botRules = res.data;
-              this.save(STORAGE_KEYS.BOT_RULES, this.botRules);
-              this.notify('BOT_RULES_SYNCED', this.botRules);
-            }
-          }).catch(console.warn);
-      }
+      // Sync reviews from MongoDB
+      fetch(`${base}/api/reviews`)
+        .then(r => r.json())
+        .then(res => {
+          if (res.success && res.data && res.data.length > 0) {
+            this.reviews = res.data;
+            this.save(STORAGE_KEYS.REVIEWS, this.reviews);
+            this.notify('REVIEWS_SYNCED', this.reviews);
+          }
+        }).catch(console.warn);
+
     } catch (e) {
-      console.log('[AimanApi] MongoDB server offline or running in standalone static mode.');
+      console.log('[AimanApi] MongoDB sync running in offline / local fallback mode.');
     }
   }
 
   async syncToMongo(endpoint, method = 'POST', payload = null) {
-    if (!this.isMongoActive || typeof window === 'undefined' || typeof fetch === 'undefined') return;
+    if (typeof window === 'undefined' || typeof fetch === 'undefined') return;
     try {
+      const base = this.getApiBase();
+      const url = endpoint.startsWith('http') ? endpoint : `${base}${endpoint}`;
       const opts = {
         method,
         headers: { 'Content-Type': 'application/json' }
       };
       if (payload) opts.body = JSON.stringify(payload);
-      const res = await fetch(endpoint, opts);
-      return await res.json();
+      const res = await fetch(url, opts);
+      if (res && res.ok) {
+        this.isMongoActive = true;
+        return await res.json();
+      }
     } catch (e) {
       // Graceful offline fallback
     }
@@ -476,6 +479,11 @@ class AimanApiEngine {
     this.save(STORAGE_KEYS.PRODUCTS, this.products);
     this.notify('PRODUCT_UPDATED', p);
     return { success: true, product: p };
+  }
+
+  saveProduct(p) {
+    if (!p || !p.id) return { success: false, error: 'Invalid product' };
+    return this.updateProduct(p.id, p);
   }
 
   toggleProductNewArrival(id) {
@@ -635,13 +643,17 @@ class AimanApiEngine {
   }
 
   deleteProduct(id) {
+    const idStr = String(id);
+    this.deletedProductIds.add(idStr);
+    this.save(STORAGE_KEYS.DELETED_PRODUCTS, Array.from(this.deletedProductIds));
+
     if (this.isFirebaseActive && this.db) {
-      this.db.collection('products').doc(id).delete().catch(console.error);
+      this.db.collection('products').doc(idStr).delete().catch(console.error);
     }
-    this.syncToMongo(`/api/products/${id}`, 'DELETE');
-    this.products = this.products.filter(p => p.id !== id);
+    this.syncToMongo(`/api/products/${idStr}`, 'DELETE');
+    this.products = this.products.filter(p => String(p.id) !== idStr);
     this.save(STORAGE_KEYS.PRODUCTS, this.products);
-    this.notify('PRODUCT_DELETED', { id });
+    this.notify('PRODUCT_DELETED', { id: idStr });
     return { success: true };
   }
 
@@ -672,8 +684,8 @@ class AimanApiEngine {
 
     this.syncToMongo('/api/sales', 'POST', newSale);
 
-    this.sales.push(newSale);
-    this.sales.sort((a, b) => new Date(a.date) - new Date(b.date));
+    this.sales.unshift(newSale);
+    this.sales.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
     this.save(STORAGE_KEYS.SALES, this.sales);
     this.notify('SALE_LOGGED', newSale);
     return { success: true, sale: newSale };
@@ -709,13 +721,17 @@ class AimanApiEngine {
   }
 
   deleteSale(id) {
+    const idStr = String(id);
+    this.deletedSaleIds.add(idStr);
+    this.save(STORAGE_KEYS.DELETED_SALES, Array.from(this.deletedSaleIds));
+
     if (this.isFirebaseActive && this.db) {
-      this.db.collection('sales').doc(id).delete().catch(console.error);
+      this.db.collection('sales').doc(idStr).delete().catch(console.error);
     }
-    this.syncToMongo(`/api/sales/${id}`, 'DELETE');
-    this.sales = this.sales.filter(s => s.id !== id);
+    this.syncToMongo(`/api/sales/${idStr}`, 'DELETE');
+    this.sales = this.sales.filter(s => String(s.id) !== idStr);
     this.save(STORAGE_KEYS.SALES, this.sales);
-    this.notify('SALE_DELETED', { id });
+    this.notify('SALE_DELETED', { id: idStr });
     return { success: true };
   }
 
@@ -738,10 +754,14 @@ class AimanApiEngine {
   }
 
   deleteExpense(id) {
-    this.syncToMongo(`/api/expenses/${id}`, 'DELETE');
-    this.expenses = this.expenses.filter(e => e.id !== id);
+    const idStr = String(id);
+    this.deletedExpenseIds.add(idStr);
+    this.save(STORAGE_KEYS.DELETED_EXPENSES, Array.from(this.deletedExpenseIds));
+
+    this.syncToMongo(`/api/expenses/${idStr}`, 'DELETE');
+    this.expenses = this.expenses.filter(e => String(e.id) !== idStr);
     this.save(STORAGE_KEYS.EXPENSES, this.expenses);
-    this.notify('EXPENSE_DELETED', { id });
+    this.notify('EXPENSE_DELETED', { id: idStr });
     return { success: true };
   }
 
@@ -749,14 +769,42 @@ class AimanApiEngine {
     let totalRev = 0;
     let totalCost = 0;
 
-    this.sales.forEach(s => {
-      totalRev += s.sellingPrice * s.quantity;
-      totalCost += s.costPrice * s.quantity;
+    (this.sales || []).forEach(s => {
+      if (!s) return;
+      const qty = Math.max(1, Number(s.quantity) || 1);
+
+      let price = 0;
+      if (s.sellingPrice !== undefined && !isNaN(Number(s.sellingPrice))) {
+        price = Number(s.sellingPrice);
+      } else if (s.unitPrice !== undefined && !isNaN(Number(s.unitPrice))) {
+        price = Number(s.unitPrice);
+      } else if (s.price !== undefined && !isNaN(Number(s.price))) {
+        price = Number(s.price);
+      } else if (s.totalRevenue !== undefined && !isNaN(Number(s.totalRevenue))) {
+        price = Number(s.totalRevenue) / qty;
+      }
+
+      let cost = 0;
+      if (s.costPrice !== undefined && !isNaN(Number(s.costPrice))) {
+        cost = Number(s.costPrice);
+      } else if (s.unitCost !== undefined && !isNaN(Number(s.unitCost))) {
+        cost = Number(s.unitCost);
+      } else if (s.totalCost !== undefined && !isNaN(Number(s.totalCost))) {
+        cost = Number(s.totalCost) / qty;
+      }
+
+      const rev = Number(s.totalRevenue) || (price * qty);
+      const c = Number(s.totalCost) || (cost * qty);
+
+      totalRev += (isNaN(rev) ? 0 : rev);
+      totalCost += (isNaN(c) ? 0 : c);
     });
 
     let totalExpenses = 0;
     (this.expenses || []).forEach(e => {
-      totalExpenses += parseFloat(e.amount) || 0;
+      if (!e) return;
+      const amt = Number(e.amount) || 0;
+      totalExpenses += (isNaN(amt) ? 0 : amt);
     });
 
     const grossProfit = totalRev - totalCost;
@@ -764,12 +812,12 @@ class AimanApiEngine {
     const margin = totalRev > 0 ? ((netProfit / totalRev) * 100).toFixed(1) : 0;
 
     return {
-      totalRevenue: totalRev,
-      totalCost,
-      totalExpenses,
-      grossProfit,
-      netProfit,
-      margin
+      totalRevenue: isNaN(totalRev) ? 0 : Math.round(totalRev),
+      totalCost: isNaN(totalCost) ? 0 : Math.round(totalCost),
+      totalExpenses: isNaN(totalExpenses) ? 0 : Math.round(totalExpenses),
+      grossProfit: isNaN(grossProfit) ? 0 : Math.round(grossProfit),
+      netProfit: isNaN(netProfit) ? 0 : Math.round(netProfit),
+      margin: isNaN(Number(margin)) ? 0 : margin
     };
   }
 
@@ -1370,18 +1418,27 @@ class AimanApiEngine {
      -------------------------------------------------------------------------- */
   getAnalytics() {
     const financials = this.calculateFinancials();
+    const lowStockCount = (this.products || []).filter(p => {
+      const stock = p.stockQuantity !== undefined ? Number(p.stockQuantity) : 25;
+      return stock < 5;
+    }).length;
+
     return {
       totalRevenue: financials.totalRevenue,
       totalCost: financials.totalCost,
+      totalExpenses: financials.totalExpenses,
+      grossProfit: financials.grossProfit,
       netProfit: financials.netProfit,
       margin: financials.margin,
-      totalOrders: this.orders.length,
-      totalSalesCount: this.sales.length,
-      totalReviews: this.reviews.length,
-      photoReviews: this.reviews.filter(r => r.photos && r.photos.length > 0).length,
-      totalProducts: this.products.length,
-      emailsSent: this.emails.length,
-      isFirebaseActive: this.isFirebaseActive
+      lowStockCount,
+      totalOrders: (this.orders || []).length,
+      totalSalesCount: (this.sales || []).length,
+      totalReviews: (this.reviews || []).length,
+      photoReviews: (this.reviews || []).filter(r => r.photos && r.photos.length > 0).length,
+      totalProducts: (this.products || []).length,
+      emailsSent: (this.emails || []).length,
+      isFirebaseActive: this.isFirebaseActive,
+      isMongoActive: this.isMongoActive
     };
   }
 }

@@ -1159,14 +1159,18 @@ ul, ol {
   background-color: #0d0f14;
 }
 
-.product-image {
+.product-image,
+.product-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center top;
+  display: block;
   transition: transform var(--transition-smooth);
 }
 
-.product-card:hover .product-image {
+.product-card:hover .product-image,
+.product-card:hover .product-img {
   transform: scale(1.06);
 }
 
@@ -3415,13 +3419,14 @@ body.admin-open {
   position: fixed;
   top: 1.5rem;
   right: 1.5rem;
-  z-index: 100010;
+  z-index: 999999;
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
   pointer-events: none;
 }
 
+.toast,
 .toast-item {
   background: #161A22;
   border: 1px solid var(--color-border);
@@ -3429,12 +3434,13 @@ body.admin-open {
   padding: 1rem 1.4rem;
   border-radius: var(--radius-md);
   color: #FFF;
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   display: flex;
   align-items: center;
   gap: 0.8rem;
   pointer-events: all;
-  min-width: 300px;
+  min-width: 320px;
+  max-width: 440px;
   animation: slide-toast 0.3s ease-out;
 }
 
@@ -3443,9 +3449,13 @@ body.admin-open {
   to { opacity: 1; transform: translateX(0); }
 }
 
-.toast-item.success i { color: var(--color-accent-whatsapp); }
-.toast-item.info i { color: var(--color-gold-primary); }
-.toast-item.error i { color: #EF4444; }
+.toast i, .toast-item i { font-size: 1.1rem; }
+.toast.toast-success, .toast-item.success { border-color: rgba(37,211,102,0.4); background: #0E1F15; }
+.toast.toast-success i, .toast-item.success i { color: var(--color-accent-whatsapp); }
+.toast.toast-error, .toast-item.error { border-color: rgba(239,68,68,0.4); background: #260E0E; }
+.toast.toast-error i, .toast-item.error i { color: #EF4444; }
+.toast.toast-info, .toast-item.info { border-color: rgba(197,168,128,0.4); background: #1F1B14; }
+.toast.toast-info i, .toast-item.info i { color: var(--color-gold-primary); }
 
 /* --------------------------------------------------------------------------
    16. Footer
@@ -5782,15 +5792,22 @@ div[style*="position: fixed"][style*="bottom: 16px"] {
 
 @media (max-width: 576px) {
   .admin-metrics-grid {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.6rem !important;
   }
   
   .metric-card {
-    padding: 1rem 1.1rem !important;
+    padding: 0.85rem 0.9rem !important;
+    border-radius: 8px !important;
   }
   
   .metric-card h3 {
-    font-size: 1.4rem !important;
+    font-size: 1.15rem !important;
+    margin-top: 0.25rem !important;
+  }
+
+  .metric-card p {
+    font-size: 0.72rem !important;
   }
 
   .wp-topbar {
@@ -5804,6 +5821,62 @@ div[style*="position: fixed"][style*="bottom: 16px"] {
   .wp-topbar-add-btn {
     padding: 0.45rem 0.65rem !important;
   }
+
+  .admin-quick-pills {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.4rem !important;
+  }
+
+  .admin-quick-pills .btn {
+    flex: 1 1 calc(50% - 0.4rem) !important;
+    font-size: 0.75rem !important;
+    padding: 0.45rem 0.5rem !important;
+    text-align: center !important;
+  }
+}
+
+.admin-table-responsive {
+  width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  margin-bottom: 1rem !important;
+  border-radius: 8px;
+}
+
+.admin-table {
+  width: 100% !important;
+  min-width: 740px !important;
+  border-collapse: collapse !important;
+  font-size: 0.82rem !important;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 0.7rem 0.8rem !important;
+}
+
+.admin-table td strong {
+  color: #FAF9F6;
+}
+
+.btn-whatsapp {
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%) !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35) !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.btn-whatsapp:hover, .btn-whatsapp:active {
+  background: linear-gradient(135deg, #2be871 0%, #0e7266 100%) !important;
+  box-shadow: 0 6px 18px rgba(37, 211, 102, 0.5) !important;
+  transform: translateY(-1px);
 }
 
 /* ==========================================================================
@@ -5824,9 +5897,11 @@ html, body {
 }
 
 .product-img {
-  max-width: 100%;
-  height: auto;
-  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+  display: block !important;
 }
 
 @media (max-width: 768px) {

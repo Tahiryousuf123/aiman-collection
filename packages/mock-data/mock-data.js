@@ -5,8 +5,8 @@
  */
 
 export const CONTACT_CONFIG = {
-  whatsappNumber: '923452439196',
-  whatsappDisplay: '+92 345 2439196',
+  whatsappNumber: '923452439195',
+  whatsappDisplay: '+92 345 2439195',
   easypaisaNumber: '03428301490',
   easypaisaDisplay: '0342-8301490',
   jazzcashNumber: '03252005028',
@@ -30,7 +30,7 @@ export const BANK_DETAILS = {
   branch: 'Clifton / Saddar Branch, Karachi',
   easypaisa: '03428301490 (Title: Tahir)',
   jazzcash: '03252005028 (Title: Tahir)',
-  raastId: '03452439196'
+  raastId: '03452439195'
 };
 
 export const INITIAL_PRODUCTS = [

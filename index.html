@@ -77,7 +77,7 @@
         },
         "image": "https://aimancollection.store/images/aiman_logo.png",
         "description": "Pakistan's premier luxury haute couture, handcrafted Dawoodi Bohra ridas, designer leather handbags, batwas, and festive pret wear.",
-        "telephone": "+923452439196",
+        "telephone": "+923452439195",
         "priceRange": "₨₨",
         "currenciesAccepted": "PKR, USD, AED, GBP, SAR",
         "paymentAccepted": "Cash on Delivery, EasyPaisa, JazzCash, Meezan Bank Transfer, Raast, Credit Card",
@@ -103,7 +103,7 @@
           }
         ],
         "sameAs": [
-          "https://wa.me/923452439196"
+          "https://wa.me/923452439195"
         ]
       },
       {
@@ -345,11 +345,15 @@
   <!-- Canvas Confetti for Celebration & Order Placed -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
+  <!-- jsPDF & AutoTable for Instant Client-Side PDF Reports -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
   <!-- Firebase Compat SDKs (App & Firestore) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-  <link rel="stylesheet" href="styles.css?v=15.0">
+  <link rel="stylesheet" href="styles.css?v=26.0">
 </head>
 <body>
 
@@ -417,14 +421,11 @@
             <span class="badge-count" id="wishlistBadge" style="display: none;">0</span>
           </button>
 
-          <!-- Cart Drawer Icon with Price Summary -->
-          <button class="action-btn daraz-cart-btn" onclick="window.AimanStore.openCart()" aria-label="View Shopping Bag" title="Shopping Bag">
-            <div class="cart-icon-wrap">
-              <i class="fas fa-shopping-cart"></i>
-              <span class="badge-count" id="cartBadge" style="display: none;">0</span>
-            </div>
-            <span class="daraz-cart-label" id="darazCartTotalLabel">Rs. 0</span>
-          </button>
+          <!-- Direct WhatsApp Contact & Order Button -->
+          <a href="https://wa.me/923452439195?text=Assalam-o-Alaikum%20Aiman%20Collection!%20I%20want%20to%20inquire%20or%20order." target="_blank" class="btn btn-whatsapp header-wa-direct-btn" style="text-decoration:none; display:flex; align-items:center; gap:0.5rem; padding:0.55rem 1rem; border-radius:50px; font-weight:700; font-size:0.88rem;" title="WhatsApp Direct: 03452439195">
+            <i class="fab fa-whatsapp" style="font-size:1.15rem;"></i>
+            <span>03452439195</span>
+          </a>
         </div>
       </div>
 
@@ -604,9 +605,9 @@
                 <span style="font-size: 0.95rem; text-decoration: line-through; color: var(--color-text-muted);">Rs. 12,500</span>
                 <span style="background: rgba(37,211,102,0.15); color: #25D366; font-size: 0.75rem; font-weight: 800; padding: 2px 6px; border-radius: 4px;">20% OFF</span>
               </div>
-              <button class="btn btn-primary" style="width: 100%;" onclick="window.AimanStore.addComboDealToCart('deal-bridal')">
-                <i class="fas fa-cart-plus"></i> <span data-i18n="add_deal_btn">Grab Combo Deal</span>
-              </button>
+              <a href="https://wa.me/923452439195?text=Assalam-o-Alaikum!%20I%20want%20to%20order%20Deal%201:%20Bohra%20Bridal%20Royale%20Combo%20for%20Rs.%209,999." target="_blank" class="btn btn-whatsapp" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <i class="fab fa-whatsapp"></i> <span>Order Deal on WhatsApp</span>
+              </a>
             </div>
           </div>
         </div>
@@ -633,9 +634,9 @@
                 <span style="font-size: 0.95rem; text-decoration: line-through; color: var(--color-text-muted);">Rs. 8,800</span>
                 <span style="background: rgba(37,211,102,0.15); color: #25D366; font-size: 0.75rem; font-weight: 800; padding: 2px 6px; border-radius: 4px;">18% OFF</span>
               </div>
-              <button class="btn btn-primary" style="width: 100%;" onclick="window.AimanStore.addComboDealToCart('deal-twin')">
-                <i class="fas fa-cart-plus"></i> <span data-i18n="add_deal_btn">Grab Combo Deal</span>
-              </button>
+              <a href="https://wa.me/923452439195?text=Assalam-o-Alaikum!%20I%20want%20to%20order%20Deal%202:%20Twin%20Festive%20Silk%20Rida%20Duo%20for%20Rs.%207,200." target="_blank" class="btn btn-whatsapp" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <i class="fab fa-whatsapp"></i> <span>Order Deal on WhatsApp</span>
+              </a>
             </div>
           </div>
         </div>
@@ -662,9 +663,9 @@
                 <span style="font-size: 0.95rem; text-decoration: line-through; color: var(--color-text-muted);">Rs. 3,300</span>
                 <span style="background: rgba(37,211,102,0.15); color: #25D366; font-size: 0.75rem; font-weight: 800; padding: 2px 6px; border-radius: 4px;">25% OFF</span>
               </div>
-              <button class="btn btn-primary" style="width: 100%;" onclick="window.AimanStore.addComboDealToCart('deal-vanity')">
-                <i class="fas fa-cart-plus"></i> <span data-i18n="add_deal_btn">Grab Combo Deal</span>
-              </button>
+              <a href="https://wa.me/923452439195?text=Assalam-o-Alaikum!%20I%20want%20to%20order%20Deal%203:%20Dawoodi%20Bohra%20Vanity%20Trio%20for%20Rs.%202,499." target="_blank" class="btn btn-whatsapp" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <i class="fab fa-whatsapp"></i> <span>Order Deal on WhatsApp</span>
+              </a>
             </div>
           </div>
         </div>
@@ -1006,7 +1007,7 @@
             Karachi's bespoke destination for handcrafted luxury ridas, designer handbags, festive pret, and personalized made-to-measure couture.
           </p>
           <div class="footer-social-links">
-            <a href="https://wa.me/923452439196" target="_blank" class="footer-social-btn" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+            <a href="https://wa.me/923452439195" target="_blank" class="footer-social-btn" title="WhatsApp: 03452439195"><i class="fab fa-whatsapp"></i></a>
             <a href="#" class="footer-social-btn" title="Instagram"><i class="fab fa-instagram"></i></a>
             <a href="#" class="footer-social-btn" title="Facebook"><i class="fab fa-facebook-f"></i></a>
             <a href="#" class="footer-social-btn" title="TikTok"><i class="fab fa-tiktok"></i></a>
@@ -1090,12 +1091,13 @@
       <i class="fab fa-whatsapp" style="color: var(--color-accent-whatsapp);"></i>
       <span>Bohra AI</span>
     </a>
-    <a href="javascript:void(0)" onclick="window.AimanStore.openCart()" class="mobile-nav-item">
-      <div style="position: relative; display: inline-block;">
-        <i class="fas fa-shopping-cart"></i>
-        <span class="badge-count" id="mobileCartBadge" style="display: none;">0</span>
-      </div>
-      <span>Cart</span>
+    <a href="https://wa.me/923452439195?text=Assalam-o-Alaikum%20Aiman%20Collection!%20I%20want%20to%20order." target="_blank" class="mobile-nav-item">
+      <i class="fab fa-whatsapp" style="color: #25D366; font-size: 1.25rem;"></i>
+      <span>WhatsApp</span>
+    </a>
+    <a href="javascript:void(0)" onclick="window.AimanStore.openAdminLoginModal()" class="mobile-nav-item">
+      <i class="fas fa-user-shield" style="color: var(--color-gold-primary); font-size: 1.15rem;"></i>
+      <span>Admin</span>
     </a>
     <a href="javascript:void(0)" onclick="window.AimanStore.openWishlist()" class="mobile-nav-item">
       <div style="position: relative; display: inline-block;">
@@ -1111,7 +1113,7 @@
        ========================================================================= -->
   <div class="drawer-backdrop" id="drawerBackdrop" onclick="window.AimanStore.closeDrawers()"></div>
 
-  <div class="side-drawer" id="cartDrawer">
+  <div class="side-drawer" id="cartDrawer" style="display: none !important;">
     <div class="drawer-header">
       <h3><i class="fas fa-shopping-bag text-gold"></i> Your Shopping Bag</h3>
       <button class="drawer-close-btn" onclick="window.AimanStore.closeCart()" aria-label="Close Shopping Bag">
@@ -1264,7 +1266,7 @@
   <!-- =========================================================================
        14. MULTI-GATEWAY SECURE CHECKOUT MODAL
        ========================================================================= -->
-  <div class="modal-wrapper" id="checkoutModal">
+  <div class="modal-wrapper" id="checkoutModal" style="display: none !important;">
     <div class="modal-card" style="max-width: 780px; padding: 2.5rem;">
       <button class="modal-close-icon" onclick="window.AimanStore.closeModal('checkoutModal')" aria-label="Close Checkout">
         <i class="fas fa-times"></i>
@@ -1977,9 +1979,10 @@
               <span style="font-size: 0.78rem; color: var(--color-text-muted);">Real-time P&L Analytics & Reports</span>
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              <button class="btn btn-primary btn-sm" onclick="window.AimanStore.exportSalesCSV()"><i class="fas fa-file-csv"></i> CSV Sales</button>
-              <button class="btn btn-primary btn-sm" onclick="window.AimanStore.exportExpensesCSV()"><i class="fas fa-file-csv"></i> CSV Expenses</button>
-              <button class="btn btn-primary btn-sm" onclick="window.AimanStore.exportInventoryCSV()"><i class="fas fa-file-csv"></i> CSV Stock</button>
+              <button class="btn btn-primary btn-sm" onclick="window.AimanStore.downloadFinancialReportPDF()"><i class="fas fa-file-pdf"></i> Download PDF Report</button>
+              <button class="btn btn-secondary btn-sm" onclick="window.AimanStore.exportSalesCSV()"><i class="fas fa-file-csv"></i> CSV Sales</button>
+              <button class="btn btn-secondary btn-sm" onclick="window.AimanStore.exportExpensesCSV()"><i class="fas fa-file-csv"></i> CSV Expenses</button>
+              <button class="btn btn-secondary btn-sm" onclick="window.AimanStore.exportInventoryCSV()"><i class="fas fa-file-csv"></i> CSV Stock</button>
               <button class="btn btn-secondary btn-sm active" id="chartPeriodDaily" onclick="window.AimanStore.renderSalesChart('daily', this)">Daily</button>
               <button class="btn btn-secondary btn-sm" id="chartPeriodWeekly" onclick="window.AimanStore.renderSalesChart('weekly', this)">Weekly</button>
               <button class="btn btn-secondary btn-sm" id="chartPeriodMonthly" onclick="window.AimanStore.renderSalesChart('monthly', this)">Monthly</button>
@@ -2160,9 +2163,14 @@
               <h4>Current Product Catalog (Real-Time Cloud Synced)</h4>
               <span style="font-size: 0.82rem; color: var(--color-text-muted);">Manage stock, Booked / Sold Out status, and Rida discounts</span>
             </div>
-            <button class="btn btn-secondary btn-sm" onclick="window.AimanStore.exportInventoryCSV()">
-              <i class="fas fa-file-csv"></i> Export Inventory CSV
-            </button>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button class="btn btn-primary btn-sm" onclick="window.AimanStore.downloadInventoryReportPDF()">
+                <i class="fas fa-file-pdf"></i> Download Inventory PDF
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="window.AimanStore.exportInventoryCSV()">
+                <i class="fas fa-file-csv"></i> Export Inventory CSV
+              </button>
+            </div>
           </div>
           <div class="admin-table-responsive">
             <table class="admin-table">
@@ -2561,6 +2569,10 @@
                   <!-- Injected dynamically -->
                 </select>
               </div>
+              <div class="form-group" id="logSaleCustomNameWrap" style="margin-bottom: 1rem; display: none;">
+                <label>Custom Product Title / Order Details *</label>
+                <input type="text" id="logSaleCustomName" placeholder="e.g. Bespoke Bridal Rida / Direct Walk-in Sale">
+              </div>
               <div class="admin-form-row-2">
                 <div class="form-group">
                   <label>Quantity Sold *</label>
@@ -2676,9 +2688,14 @@
                 <h4>Business Operating Expenses Ledger</h4>
                 <span style="font-size: 0.82rem; color: var(--color-text-muted);">Real-time overhead cost tracking</span>
               </div>
-              <button class="btn btn-secondary btn-sm" onclick="window.AimanStore.exportExpensesCSV()">
-                <i class="fas fa-file-csv"></i> Export CSV
-              </button>
+              <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                <button class="btn btn-primary btn-sm" onclick="window.AimanStore.downloadExpensesPDF()">
+                  <i class="fas fa-file-pdf"></i> Download Expenses PDF
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="window.AimanStore.exportExpensesCSV()">
+                  <i class="fas fa-file-csv"></i> Export CSV
+                </button>
+              </div>
             </div>
             <div class="admin-table-responsive">
               <table class="admin-table">
@@ -2855,7 +2872,7 @@
             <form onsubmit="window.AimanStore.saveBotSettings(event)" style="padding: 1.5rem;">
               <div class="form-group" style="margin-bottom: 1rem;">
                 <label>Website Owner Official WhatsApp Number (with Country Code) *</label>
-                <input type="text" id="set_phone" name="set_phone" value="923452439196" required placeholder="e.g. 923452439196">
+                <input type="text" id="set_phone" name="set_phone" value="923452439195" required placeholder="e.g. 923452439195">
                 <small style="color: var(--color-text-muted); font-size: 0.75rem;">Customer messages will be routed to and from this number.</small>
               </div>
 
@@ -3415,14 +3432,45 @@
           <h4 style="color: var(--color-gold-light); font-size: 1.1rem; margin-bottom: 0.2rem;">Want to customize any design from this lookbook?</h4>
           <p style="color: var(--color-text-muted); font-size: 0.85rem; margin: 0;">Our master Bohra tailors offer complete bespoke made-to-measure stitching.</p>
         </div>
-        <a href="https://wa.me/923452439196?text=Hello%20Aiman%20Collection!%20I%20saw%20your%20Festive%20Lookbook%20and%20want%20to%20order%20a%20custom%20stitched%20rida." target="_blank" class="btn btn-whatsapp btn-lg">
+        <a href="https://wa.me/923452439195?text=Hello%20Aiman%20Collection!%20I%20saw%20your%20Festive%20Lookbook%20and%20want%20to%20order%20a%20custom%20stitched%20rida." target="_blank" class="btn btn-whatsapp btn-lg">
           <i class="fab fa-whatsapp"></i> Order Custom Stitching
         </a>
+      </div>
+    </div>
+  <!-- ACTION SUCCESS POPUP MODAL -->
+  <div class="modal-wrapper" id="actionSuccessModal" style="z-index: 100050;">
+    <div class="modal-card" style="max-width: 480px; padding: 2.2rem; text-align: center; border-radius: 16px; border: 1px solid rgba(37,211,102,0.3); background: #0E131B; box-shadow: 0 20px 60px rgba(0,0,0,0.8);">
+      <div style="width: 72px; height: 72px; margin: 0 auto 1.2rem; border-radius: 50%; background: rgba(37,211,102,0.15); display: flex; align-items: center; justify-content: center; border: 2px solid #25D366;">
+        <i id="actionSuccessIcon" class="fas fa-check" style="font-size: 2rem; color: #25D366;"></i>
+      </div>
+      <h3 id="actionSuccessTitle" style="color: #FFF; font-family: var(--font-heading); margin-bottom: 0.6rem; font-size: 1.4rem;">Success!</h3>
+      <p id="actionSuccessMessage" style="color: var(--color-text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.8rem;">Action completed successfully.</p>
+      <button class="btn btn-primary btn-block" style="padding: 0.75rem 1.5rem; font-weight: 700; border-radius: 8px; width: 100%;" onclick="window.AimanStore.closeModal('actionSuccessModal')">
+        <i class="fas fa-check-circle"></i> Theek Hai (Done)
+      </button>
+    </div>
+  </div>
+
+  <!-- ACTION CONFIRM DELETE MODAL -->
+  <div class="modal-wrapper" id="actionConfirmModal" style="z-index: 100050;">
+    <div class="modal-card" style="max-width: 460px; padding: 2.2rem; text-align: center; border-radius: 16px; border: 1px solid rgba(239,68,68,0.3); background: #0E131B; box-shadow: 0 20px 60px rgba(0,0,0,0.8);">
+      <div style="width: 72px; height: 72px; margin: 0 auto 1.2rem; border-radius: 50%; background: rgba(239,68,68,0.15); display: flex; align-items: center; justify-content: center; border: 2px solid #EF4444;">
+        <i class="fas fa-trash-alt" style="font-size: 2rem; color: #EF4444;"></i>
+      </div>
+      <h3 id="actionConfirmTitle" style="color: #FFF; font-family: var(--font-heading); margin-bottom: 0.6rem; font-size: 1.4rem;">Confirm Deletion</h3>
+      <p id="actionConfirmMessage" style="color: var(--color-text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.8rem;">Are you sure you want to delete this? This action cannot be undone.</p>
+      <div style="display: flex; gap: 0.8rem; justify-content: center;">
+        <button class="btn btn-secondary" style="flex: 1; padding: 0.75rem 1rem; border-radius: 8px;" onclick="window.AimanStore.closeModal('actionConfirmModal')">
+          Cancel
+        </button>
+        <button id="actionConfirmBtn" class="btn btn-danger" style="flex: 1; padding: 0.75rem 1rem; border-radius: 8px; font-weight: 700;">
+          <i class="fas fa-trash-alt"></i> Yes, Delete
+        </button>
       </div>
     </div>
   </div>
 
   <!-- JavaScript -->
-  <script type="module" src="app.js?v=22.0"></script>
+  <script type="module" src="app.js?v=27.0"></script>
 </body>
 </html>

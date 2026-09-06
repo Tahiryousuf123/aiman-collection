@@ -75,17 +75,20 @@ const SaleSchema = new mongoose.Schema({
   productName: { type: String, required: true },
   category: { type: String, default: 'Ridas' },
   quantity: { type: Number, default: 1 },
+  costPrice: { type: Number, default: 0 },
+  sellingPrice: { type: Number, default: 0 },
+  profit: { type: Number, default: 0 },
   unitCost: { type: Number, default: 0 },
-  unitPrice: { type: Number, required: true },
+  unitPrice: { type: Number, default: 0 },
   discount: { type: Number, default: 0 },
-  totalRevenue: { type: Number, required: true },
+  totalRevenue: { type: Number, default: 0 },
   totalCost: { type: Number, default: 0 },
-  netProfit: { type: Number, required: true },
+  netProfit: { type: Number, default: 0 },
   profitMargin: { type: Number, default: 0 },
   paymentMethod: { type: String, default: 'CASH_ON_DELIVERY' },
   status: { type: String, default: 'Delivered' },
   notes: { type: String, default: '' }
-}, { timestamps: true });
+}, { timestamps: true, strict: false });
 
 // 4. EXPENSE SCHEMA
 const ExpenseSchema = new mongoose.Schema({

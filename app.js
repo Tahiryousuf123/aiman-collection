@@ -12,7 +12,7 @@ import { apiEngine } from './apps/api/src/api.js';
   /* ==========================================================================
      1. GLOBAL APPLICATION STATE & ENGINE CONNECTION
      ========================================================================== */
-  let WHATSAPP_NUMBER = '923452439196';
+  let WHATSAPP_NUMBER = '923452439195';
 
   const AppState = {
     currency: 'PKR',
@@ -117,6 +117,45 @@ import { apiEngine } from './apps/api/src/api.js';
     }, duration);
   }
 
+  function showSuccessPopup(title, message, icon = 'fas fa-check-circle') {
+    // Dynamic overlay guaranteed to display on any device, modal, or viewport
+    const prev = document.getElementById('actionSuccessPopupDynamic');
+    if (prev) prev.remove();
+
+    const popup = document.createElement('div');
+    popup.id = 'actionSuccessPopupDynamic';
+    popup.style.cssText = 'position:fixed; inset:0; width:100vw; height:100vh; background:rgba(0,0,0,0.82); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:99999999; display:flex; align-items:center; justify-content:center; padding:1.5rem;';
+
+    popup.innerHTML = `
+      <div style="background:#111622; border:1px solid rgba(197,168,128,0.5); box-shadow:0 25px 60px rgba(0,0,0,0.95), 0 0 35px rgba(37,211,102,0.2); border-radius:16px; padding:2.2rem 2rem; max-width:440px; width:100%; text-align:center;">
+        <div style="width:70px; height:70px; margin:0 auto 1.2rem; border-radius:50%; background:rgba(37,211,102,0.15); border:2px solid #25D366; display:flex; align-items:center; justify-content:center;">
+          <i class="${icon}" style="font-size:2.2rem; color:#25D366;"></i>
+        </div>
+        <h3 style="color:#FFF; font-family:'Playfair Display',serif; font-size:1.4rem; margin-bottom:0.6rem; font-weight:700;">
+          ${escapeHtml(title)}
+        </h3>
+        <p style="color:#A0AEC0; font-size:0.94rem; line-height:1.5; margin-bottom:1.8rem;">
+          ${escapeHtml(message)}
+        </p>
+        <button id="closeActionPopupBtn" class="btn btn-primary" style="width:100%; padding:0.85rem; font-weight:700; font-size:1rem; border-radius:8px; background:linear-gradient(135deg,#C5A880,#9E8057); color:#0B0D11; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.5rem;">
+          <i class="fas fa-check-circle"></i> Theek Hai (Done)
+        </button>
+      </div>
+    `;
+
+    document.body.appendChild(popup);
+
+    const closeBtn = popup.querySelector('#closeActionPopupBtn');
+    if (closeBtn) closeBtn.onclick = () => popup.remove();
+    popup.onclick = (e) => {
+      if (e.target === popup) popup.remove();
+    };
+
+    setTimeout(() => {
+      if (document.body.contains(popup)) popup.remove();
+    }, 4500);
+  }
+
   /* ==========================================================================
      3. PRODUCT CATALOG RENDERING & FILTERING
      ========================================================================== */
@@ -145,7 +184,7 @@ import { apiEngine } from './apps/api/src/api.js';
           <h3 style="font-family: var(--font-heading); color: var(--color-gold-light); font-size: 1.8rem; margin-bottom: 0.6rem;">New Collection Coming Soon</h3>
           <p style="color: var(--color-text-muted); max-width: 540px; margin: 0 auto 1.8rem auto; line-height: 1.6;">Our artisans are curating exclusive Dawoodi Bohra Haute Couture Ridas, bespoke matching batwas, and luxury vanity pouches.</p>
           <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-            <a href="https://wa.me/923452439196?text=Hello%20Aiman%20Collection!%20I%20would%20like%20to%20inquire%20about%20custom%20rida%20stitching%20and%20catalogue." target="_blank" class="btn btn-whatsapp btn-lg">
+            <a href="https://wa.me/923452439195?text=Hello%20Aiman%20Collection!%20I%20would%20like%20to%20inquire%20about%20custom%20rida%20stitching%20and%20catalogue." target="_blank" class="btn btn-whatsapp btn-lg">
               <i class="fab fa-whatsapp"></i> Inquire on WhatsApp
             </a>
             <button class="btn btn-secondary btn-lg" onclick="window.AimanStore.openAdminLoginModal()">
@@ -207,11 +246,8 @@ import { apiEngine } from './apps/api/src/api.js';
 
         actionsHTML = `
           <div class="product-card-actions">
-            <button class="btn btn-primary btn-sm" onclick="window.AimanStore.addToCart('${prod.id}')">
-              <i class="fas fa-shopping-bag"></i> Add to Bag
-            </button>
-            <button class="btn btn-whatsapp btn-sm" onclick="window.AimanStore.orderOnWhatsAppDirect('${prod.id}')" title="1-Click WhatsApp Order">
-              <i class="fab fa-whatsapp"></i> Buy Now
+            <button class="btn btn-whatsapp btn-sm btn-block" style="width: 100%; justify-content: center; gap: 8px; font-weight: 700; padding: 9px 12px; font-size: 0.85rem;" onclick="window.AimanStore.orderOnWhatsAppDirect('${prod.id}')" title="Order on WhatsApp">
+              <i class="fab fa-whatsapp" style="font-size: 1.15rem;"></i> Order on WhatsApp
             </button>
           </div>
         `;
@@ -221,7 +257,7 @@ import { apiEngine } from './apps/api/src/api.js';
         <article class="product-card" data-category="${prod.category}" data-product-id="${prod.id}">
           <div class="${imgWrapClass}">
             ${badgeTag}
-            <img src="${prod.image}" alt="${escapeHtml(prod.name)}" loading="lazy" class="product-img">
+            <img src="${prod.image}" alt="${escapeHtml(prod.name)}" loading="lazy" class="product-img" onerror="this.onerror=null; this.src='images/luxury_rida.png';">
             
             <div class="product-overlay-actions">
               <button class="action-circle-btn ${inWishlist ? 'active' : ''}" onclick="window.AimanStore.toggleWishlist('${prod.id}')" title="Save to Wishlist">
@@ -747,13 +783,21 @@ import { apiEngine } from './apps/api/src/api.js';
     }
   }
 
-  /* WhatsApp 1-Click Order Direct for Single Product */
-  function orderOnWhatsAppDirect(productId) {
-    const product = apiEngine.getProductById(productId);
-    if (!product) return;
+  /* WhatsApp 1-Click Order Direct for Single Product or Custom Inquiry */
+  function orderOnWhatsAppDirect(productId, customNote, customSize) {
+    const product = productId ? apiEngine.getProductById(productId) : null;
+    if (!product) {
+      const note = customNote || 'Inquiry regarding Luxury Ridas & Libas Collection';
+      const text = `Assalam-o-Alaikum Aiman Collection! ✨\n\n${note}\n\nPlease share design catalog and details.`;
+      const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+      window.open(waUrl, '_blank');
+      return;
+    }
     const isNew = Boolean(product.isNewArrival) || product.badgeClass === 'new' || (product.badge && product.badge.toLowerCase().includes('new'));
     const dropTag = isNew ? `\n🌟 *Collection:* ✨ NEW ARRIVAL DROP` : '';
-    const text = `Assalam-o-Alaikum Aiman Collection! ✨\n\nI want to place an order for:\n💎 *Item:* ${product.name}${dropTag}\n💰 *Price:* ${formatPrice(product.price)}\n🧵 *Fabric:* ${product.fabric || 'Standard Fine Fabric'}\n\nPlease confirm availability and delivery to my city.`;
+    const sizeTag = customSize ? `\n📏 *Size / Measurement:* ${customSize}` : '';
+    const noteTag = customNote ? `\n📝 *Special Request:* ${customNote}` : '';
+    const text = `Assalam-o-Alaikum Aiman Collection! ✨\n\nI want to place an order for:\n💎 *Item:* ${product.name}${dropTag}\n💰 *Price:* ${formatPrice(product.price)}\n🧵 *Fabric:* ${product.fabric || 'Standard Fine Fabric'}${sizeTag}${noteTag}\n\nPlease confirm availability and delivery to my city.`;
     const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
     window.open(waUrl, '_blank');
   }
@@ -1042,14 +1086,10 @@ import { apiEngine } from './apps/api/src/api.js';
           </button>
         </div>
       `;
-    } else {
       quickViewActions = `
-        <div style="display: flex; gap: 0.8rem;">
-          <button class="btn btn-primary btn-lg" style="flex: 1;" onclick="window.AimanStore.addToCart('${product.id}', document.getElementById('qv_size_select').value); window.AimanStore.closeModal('quickViewModal');">
-            <i class="fas fa-shopping-bag"></i> Add to Bag
-          </button>
-          <button class="btn btn-whatsapp btn-lg" onclick="window.AimanStore.orderOnWhatsAppDirect('${product.id}')">
-            <i class="fab fa-whatsapp"></i> Buy on WhatsApp
+        <div style="display: flex; flex-direction: column; gap: 0.8rem; width: 100%;">
+          <button class="btn btn-whatsapp btn-lg" style="width: 100%; justify-content: center; font-size: 1.05rem; font-weight: 700; padding: 14px 20px; gap: 10px;" onclick="window.AimanStore.orderOnWhatsAppDirect('${product.id}', '', document.getElementById('qv_size_select') ? document.getElementById('qv_size_select').value : ''); window.AimanStore.closeModal('quickViewModal');">
+            <i class="fab fa-whatsapp" style="font-size: 1.35rem;"></i> Order Directly on WhatsApp
           </button>
         </div>
       `;
@@ -1581,7 +1621,7 @@ import { apiEngine } from './apps/api/src/api.js';
     // Payment Accounts
     const paySettings = JSON.parse(localStorage.getItem('aiman_payment_settings') || '{}');
     if (document.getElementById('admin_whatsapp_num')) {
-      document.getElementById('admin_whatsapp_num').value = paySettings.whatsapp || '03452439196';
+      document.getElementById('admin_whatsapp_num').value = paySettings.whatsapp || '03452439195';
     }
     if (document.getElementById('admin_easypaisa_num')) {
       document.getElementById('admin_easypaisa_num').value = paySettings.easypaisa || '03428301490';
@@ -1590,7 +1630,7 @@ import { apiEngine } from './apps/api/src/api.js';
       document.getElementById('admin_jazzcash_num').value = paySettings.jazzcash || '03252005028';
     }
     if (document.getElementById('admin_raast_num')) {
-      document.getElementById('admin_raast_num').value = paySettings.raast || '03452439196';
+      document.getElementById('admin_raast_num').value = paySettings.raast || '03452439195';
     }
     if (document.getElementById('admin_account_title')) {
       document.getElementById('admin_account_title').value = paySettings.title || 'Tahir';
@@ -1598,7 +1638,7 @@ import { apiEngine } from './apps/api/src/api.js';
 
     // WhatsApp AI Bot & Gateway Settings
     const botSettings = JSON.parse(localStorage.getItem('aiman_bot_settings') || '{}');
-    if (document.getElementById('set_phone')) document.getElementById('set_phone').value = botSettings.phone || '923452439196';
+    if (document.getElementById('set_phone')) document.getElementById('set_phone').value = botSettings.phone || '923452439195';
     if (document.getElementById('set_botname')) document.getElementById('set_botname').value = botSettings.botName || 'Aiman AI Stylist';
     if (document.getElementById('set_meta_phone_id')) document.getElementById('set_meta_phone_id').value = botSettings.phoneId || '';
     if (document.getElementById('set_meta_token')) document.getElementById('set_meta_token').value = botSettings.token || '';
@@ -1888,22 +1928,39 @@ import { apiEngine } from './apps/api/src/api.js';
   }
 
   function renderAdminMetrics() {
-    const metrics = apiEngine.getAnalytics();
-    document.getElementById('adminMetricRevenue').textContent = 'Rs. ' + metrics.totalRevenue.toLocaleString();
-    document.getElementById('adminMetricCost').textContent = 'Rs. ' + metrics.totalCost.toLocaleString();
-    document.getElementById('adminMetricProfit').textContent = 'Rs. ' + metrics.netProfit.toLocaleString();
-    document.getElementById('adminMetricMargin').textContent = metrics.margin + '%';
-    document.getElementById('summaryActiveProducts').textContent = metrics.totalProducts + ' Products';
+    const metrics = apiEngine.getAnalytics() || { totalRevenue: 0, totalCost: 0, totalExpenses: 0, netProfit: 0, margin: 0, lowStockCount: 0, totalProducts: 0 };
+    const revEl = document.getElementById('adminMetricRevenue');
+    const costEl = document.getElementById('adminMetricCost');
+    const expEl = document.getElementById('adminMetricExpenses');
+    const profEl = document.getElementById('adminMetricProfit');
+    const margEl = document.getElementById('adminMetricMargin');
+    const lowStockEl = document.getElementById('adminMetricLowStock');
+    const prodEl = document.getElementById('summaryActiveProducts');
+
+    if (revEl) revEl.textContent = 'Rs. ' + (Number(metrics.totalRevenue) || 0).toLocaleString();
+    if (costEl) costEl.textContent = 'Rs. ' + (Number(metrics.totalCost) || 0).toLocaleString();
+    if (expEl) expEl.textContent = 'Rs. ' + (Number(metrics.totalExpenses) || 0).toLocaleString();
+    if (profEl) profEl.textContent = 'Rs. ' + (Number(metrics.netProfit) || 0).toLocaleString();
+    if (margEl) margEl.textContent = (metrics.margin || 0) + '%';
+    if (lowStockEl) lowStockEl.textContent = (metrics.lowStockCount || 0) + ' Items';
+    if (prodEl) prodEl.textContent = (metrics.totalProducts || 0) + ' Products';
 
     const todayDate = new Date().toISOString().split('T')[0];
-    const todaySales = apiEngine.sales.filter(s => s.date === todayDate);
-    const todayItems = todaySales.reduce((sum, s) => sum + s.quantity, 0);
-    const todayProfit = todaySales.reduce((sum, s) => sum + s.profit, 0);
+    const salesList = Array.isArray(apiEngine.sales) ? apiEngine.sales : [];
+    const todaySales = salesList.filter(s => s && (s.date === todayDate || (s.createdAt && String(s.createdAt).startsWith(todayDate))));
+    const todayItems = todaySales.reduce((sum, s) => sum + (Number(s.quantity) || 0), 0);
+    const todayProfit = todaySales.reduce((sum, s) => {
+      const price = Number(s.sellingPrice ?? s.unitPrice ?? s.price ?? 0);
+      const cost = Number(s.costPrice ?? s.unitCost ?? 0);
+      const qty = Number(s.quantity || 1);
+      const prof = Number(s.profit ?? s.netProfit ?? ((price - cost) * qty));
+      return sum + (isNaN(prof) ? 0 : prof);
+    }, 0);
 
     const itemsEl = document.getElementById('summaryTodayItems');
-    const profEl = document.getElementById('summaryTodayProfit');
+    const todayProfEl = document.getElementById('summaryTodayProfit');
     if (itemsEl) itemsEl.textContent = todayItems + ' Items';
-    if (profEl) profEl.textContent = 'Rs. ' + todayProfit.toLocaleString();
+    if (todayProfEl) todayProfEl.textContent = 'Rs. ' + todayProfit.toLocaleString();
 
     const badge = document.getElementById('firebase-connection-badge');
     if (badge) {
@@ -1921,28 +1978,45 @@ import { apiEngine } from './apps/api/src/api.js';
     const tbody = document.getElementById('adminSalesTbody');
     if (!tbody) return;
 
-    const salesDesc = [...apiEngine.sales].reverse();
-    tbody.innerHTML = salesDesc.map(s => `
-      <tr>
-        <td>${s.date}</td>
-        <td><strong>${escapeHtml(s.productName)}</strong></td>
-        <td><span class="badge badge-primary">${s.category}</span></td>
-        <td>${s.quantity}</td>
-        <td>Rs. ${s.costPrice.toLocaleString()}</td>
-        <td>Rs. ${s.sellingPrice.toLocaleString()}</td>
-        <td style="color:var(--color-accent-whatsapp); font-weight:700;">Rs. ${s.profit.toLocaleString()}</td>
-        <td>
-          <div style="display:flex; gap:0.4rem;">
-            <button class="btn btn-primary btn-sm" onclick="window.AimanStore.openAdminEditSaleModal('${s.id}')" title="Edit Sale Record">
-              <i class="fas fa-edit"></i> Edit
-            </button>
-            <button class="btn btn-danger btn-sm" onclick="window.AimanStore.deleteSale('${s.id}')" title="Delete Sale">
-              <i class="fas fa-trash-alt"></i>
-            </button>
-          </div>
-        </td>
-      </tr>
-    `).join('');
+    const salesList = Array.isArray(apiEngine.sales) ? apiEngine.sales : [];
+    const salesDesc = [...salesList].reverse();
+
+    if (salesDesc.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:2rem; color:var(--color-text-muted);"><i class="fas fa-receipt" style="font-size:1.5rem; margin-bottom:0.5rem; display:block; opacity:0.4;"></i>No sales recorded yet. Log your first sale transaction above.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = salesDesc.map(s => {
+      const cost = Number(s.costPrice !== undefined ? s.costPrice : (s.unitCost !== undefined ? s.unitCost : 0)) || 0;
+      const price = Number(s.sellingPrice !== undefined ? s.sellingPrice : (s.unitPrice !== undefined ? s.unitPrice : (s.price !== undefined ? s.price : (s.totalRevenue ? s.totalRevenue / (s.quantity || 1) : 0)))) || 0;
+      const qty = Number(s.quantity || 1);
+      const profit = Number(s.profit !== undefined ? s.profit : (s.netProfit !== undefined ? s.netProfit : ((price - cost) * qty))) || 0;
+      const date = s.date || (s.createdAt ? String(s.createdAt).split('T')[0] : '2026-09-06');
+      const cat = s.category || 'ridas';
+      const name = s.productName || 'Direct Sale';
+
+      return `
+        <tr>
+          <td>${date}</td>
+          <td><strong>${escapeHtml(name)}</strong></td>
+          <td><span class="badge badge-primary">${cat}</span></td>
+          <td>${qty}</td>
+          <td>Rs. ${cost.toLocaleString()}</td>
+          <td>Rs. ${price.toLocaleString()}</td>
+          <td style="color:${profit >= 0 ? 'var(--color-accent-whatsapp)' : '#FF4D4D'}; font-weight:700;">Rs. ${profit.toLocaleString()}</td>
+          <td>
+            <div style="display:flex; gap:0.4rem;">
+              <button class="btn btn-primary btn-sm" onclick="window.AimanStore.openAdminEditSaleModal('${s.id}')" title="Edit Sale Record">
+                <i class="fas fa-edit"></i> Edit
+              </button>
+              <button class="btn btn-danger btn-sm" onclick="window.AimanStore.deleteSale('${s.id}')" title="Delete Sale">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
   }
 
   function openAdminEditSaleModal(saleId) {
@@ -1979,8 +2053,10 @@ import { apiEngine } from './apps/api/src/api.js';
     });
 
     closeModal('adminEditSaleModal');
+    renderAdminMetrics();
     renderAdminSales();
     renderSalesChart(AppState.activeChartPeriod);
+    showSuccessPopup('Sale Updated! ✨', `Sale record for "${productName}" updated and financials recalculated.`);
     showToast('✨ Sales record updated & profit recalculated!', 'success');
   }
 
@@ -1988,12 +2064,16 @@ import { apiEngine } from './apps/api/src/api.js';
     const select = document.getElementById('logSaleProductSelect');
     if (!select) return;
 
-    select.innerHTML = `<option value="" disabled selected>Choose product...</option>` +
+    select.innerHTML = `
+      <option value="" disabled selected>Choose product or custom sale...</option>
+      <option value="custom" data-cost="0" data-price="0" data-category="custom">✏️ Direct Custom Sale / Bespoke Walk-in Order</option>
+      <optgroup label="Catalog Products">
+      ` +
       apiEngine.products.map(p => `
         <option value="${p.id}" data-cost="${p.costPrice || (p.price * 0.5)}" data-price="${p.price}" data-category="${p.category}">
           ${p.name} (Selling: Rs. ${p.price.toLocaleString()} | Cost: Rs. ${(p.costPrice || p.price * 0.5).toLocaleString()})
         </option>
-      `).join('');
+      `).join('') + `</optgroup>`;
 
     const dateInput = document.getElementById('logSaleDate');
     if (dateInput && !dateInput.value) {
@@ -2006,16 +2086,32 @@ import { apiEngine } from './apps/api/src/api.js';
     const costInput = document.getElementById('logSaleCost');
     const priceInput = document.getElementById('logSalePrice');
     const qtyInput = document.getElementById('logSaleQty');
+    const customWrap = document.getElementById('logSaleCustomNameWrap');
 
     if (select && select.selectedOptions[0]) {
       const opt = select.selectedOptions[0];
-      if (opt.dataset.cost && (!costInput.value || costInput.dataset.auto === 'true')) {
-        costInput.value = opt.dataset.cost;
-        costInput.dataset.auto = 'true';
-      }
-      if (opt.dataset.price && (!priceInput.value || priceInput.dataset.auto === 'true')) {
-        priceInput.value = opt.dataset.price;
-        priceInput.dataset.auto = 'true';
+      if (opt.value === 'custom') {
+        if (customWrap) customWrap.style.display = 'block';
+        if (costInput && (!costInput.value || costInput.dataset.auto === 'true')) {
+          costInput.value = '';
+          costInput.placeholder = 'e.g. 2500';
+          costInput.dataset.auto = 'true';
+        }
+        if (priceInput && (!priceInput.value || priceInput.dataset.auto === 'true')) {
+          priceInput.value = '';
+          priceInput.placeholder = 'e.g. 5000';
+          priceInput.dataset.auto = 'true';
+        }
+      } else {
+        if (customWrap) customWrap.style.display = 'none';
+        if (opt.dataset.cost && (!costInput.value || costInput.dataset.auto === 'true')) {
+          costInput.value = opt.dataset.cost;
+          costInput.dataset.auto = 'true';
+        }
+        if (opt.dataset.price && (!priceInput.value || priceInput.dataset.auto === 'true')) {
+          priceInput.value = opt.dataset.price;
+          priceInput.dataset.auto = 'true';
+        }
       }
     }
 
@@ -2032,38 +2128,70 @@ import { apiEngine } from './apps/api/src/api.js';
   }
 
   function handleManualSaleLog(event) {
-    event.preventDefault();
+    if (event && event.preventDefault) event.preventDefault();
     const select = document.getElementById('logSaleProductSelect');
-    const opt = select.selectedOptions[0];
-    const qty = parseInt(document.getElementById('logSaleQty').value) || 1;
-    const date = document.getElementById('logSaleDate').value;
-    const cost = parseFloat(document.getElementById('logSaleCost').value);
-    const price = parseFloat(document.getElementById('logSalePrice').value);
+    const opt = select ? select.selectedOptions[0] : null;
+    const qty = parseInt(document.getElementById('logSaleQty')?.value) || 1;
+    const date = document.getElementById('logSaleDate')?.value || new Date().toISOString().split('T')[0];
+    const cost = parseFloat(document.getElementById('logSaleCost')?.value) || 0;
+    const price = parseFloat(document.getElementById('logSalePrice')?.value) || 0;
+    const customName = document.getElementById('logSaleCustomName')?.value?.trim();
+
+    if (!select || !select.value) {
+      showToast('⚠️ Please select a product or custom sale!', 'error');
+      return;
+    }
+
+    const isCustom = select.value === 'custom';
+    const productName = isCustom ? (customName || 'Custom Walk-in Sale') : (opt ? opt.text.split(' (')[0] : 'Direct Sale');
+    const category = isCustom ? 'custom' : (opt?.dataset?.category || 'ridas');
+    const productId = isCustom ? ('custom-' + Date.now()) : select.value;
 
     apiEngine.logSale({
-      productId: select.value,
-      productName: opt ? opt.text.split(' (')[0] : 'Direct Sale',
-      category: opt ? opt.dataset.category : 'ridas',
+      productId,
+      productName,
+      category,
       quantity: qty,
       costPrice: cost,
       sellingPrice: price,
       date
     });
 
+    // If catalog product, deduct stock by qty
+    if (!isCustom && select.value) {
+      const prod = apiEngine.getProductById(select.value);
+      if (prod && typeof prod.stockQuantity === 'number') {
+        prod.stockQuantity = Math.max(0, prod.stockQuantity - qty);
+        if (prod.stockQuantity === 0) prod.isSoldOut = true;
+        apiEngine.updateProduct(prod.id, { stockQuantity: prod.stockQuantity, isSoldOut: prod.isSoldOut, inStock: prod.stockQuantity > 0 });
+        renderAdminProducts();
+        renderProductsCatalog();
+      }
+    }
+
+    // Reset inputs
+    if (document.getElementById('logSaleCost')) document.getElementById('logSaleCost').value = '';
+    if (document.getElementById('logSalePrice')) document.getElementById('logSalePrice').value = '';
+    if (document.getElementById('logSaleCustomName')) document.getElementById('logSaleCustomName').value = '';
+    if (select) select.selectedIndex = 0;
+    const customWrap = document.getElementById('logSaleCustomNameWrap');
+    if (customWrap) customWrap.style.display = 'none';
+
     renderAdminMetrics();
     renderAdminSales();
     renderSalesChart(AppState.activeChartPeriod);
-    showToast('✨ Sale transaction recorded and financials updated!', 'success');
+    showSuccessPopup('Sale Record Completed! 💰', `Sale transaction for "${productName}" (Qty: ${qty}, Amount: Rs. ${(price * qty).toLocaleString()}) has been recorded and financial profit updated.`);
+    showToast(`✨ Sale recorded for "${productName}" and profit updated!`, 'success');
   }
 
   function deleteSale(id) {
-    if (confirm('Delete this transaction record?')) {
-      apiEngine.deleteSale(id);
-      renderAdminMetrics();
-      renderAdminSales();
-      renderSalesChart(AppState.activeChartPeriod);
-      showToast('Sale record deleted.', 'info');
-    }
+    if (!id) return;
+    apiEngine.deleteSale(id);
+    renderAdminMetrics();
+    renderAdminSales();
+    renderSalesChart(AppState.activeChartPeriod);
+    showSuccessPopup('Sale Record Deleted! 🗑️', 'Transaction record has been permanently removed from accounting ledger.');
+    showToast('Sale record deleted.', 'info');
   }
 
   function renderAdminOrders() {
@@ -2134,7 +2262,9 @@ import { apiEngine } from './apps/api/src/api.js';
     if (!tbody) return;
 
     tbody.innerHTML = apiEngine.products.map(p => {
-      const cost = p.costPrice || (p.price * 0.5);
+      const price = Number(p.price) || 0;
+      const cost = Number(p.costPrice !== undefined ? p.costPrice : (price * 0.5)) || 0;
+      const salePrice = p.salePrice ? Number(p.salePrice) : null;
       const stock = p.stockQuantity !== undefined ? p.stockQuantity : 25;
       const isLowStock = stock < 5;
 
@@ -2171,12 +2301,12 @@ import { apiEngine } from './apps/api/src/api.js';
       `;
 
       const saleBtn = p.onSale ? 
-        `<button class="btn btn-secondary btn-sm" style="background:#661826; color:#FFF; border:1px solid #FF4D4D;" onclick="window.AimanStore.openSaleModal('${p.id}')"><i class="fas fa-fire text-gold"></i> ${p.salePrice ? ('Rs. ' + p.salePrice.toLocaleString()) : 'ON SALE'}</button>` :
+        `<button class="btn btn-secondary btn-sm" style="background:#661826; color:#FFF; border:1px solid #FF4D4D;" onclick="window.AimanStore.openSaleModal('${p.id}')"><i class="fas fa-fire text-gold"></i> ${salePrice ? ('Rs. ' + salePrice.toLocaleString()) : 'ON SALE'}</button>` :
         `<button class="btn btn-secondary btn-sm" onclick="window.AimanStore.openSaleModal('${p.id}')"><i class="fas fa-percent"></i> Put on Sale</button>`;
 
-      const priceDisplay = (p.onSale && p.salePrice) ? 
-        `<div><span style="text-decoration:line-through; color:var(--color-text-muted); font-size:0.8rem;">Rs. ${p.price.toLocaleString()}</span> <strong style="color:#FF4D4D;">Rs. ${p.salePrice.toLocaleString()}</strong><br><span style="font-size:0.75rem; color:var(--color-text-muted);">Cost: Rs. ${cost.toLocaleString()}</span></div>` :
-        `<div><strong>Rs. ${p.price.toLocaleString()}</strong><br><span style="font-size:0.75rem; color:var(--color-text-muted);">Cost: Rs. ${cost.toLocaleString()}</span></div>`;
+      const priceDisplay = (p.onSale && salePrice) ? 
+        `<div><span style="text-decoration:line-through; color:var(--color-text-muted); font-size:0.8rem;">Rs. ${price.toLocaleString()}</span> <strong style="color:#FF4D4D;">Rs. ${salePrice.toLocaleString()}</strong><br><span style="font-size:0.75rem; color:var(--color-text-muted);">Cost: Rs. ${cost.toLocaleString()}</span></div>` :
+        `<div><strong>Rs. ${price.toLocaleString()}</strong><br><span style="font-size:0.75rem; color:var(--color-text-muted);">Cost: Rs. ${cost.toLocaleString()}</span></div>`;
 
       return `
         <tr>
@@ -2203,7 +2333,7 @@ import { apiEngine } from './apps/api/src/api.js';
               <button class="btn btn-primary btn-sm" onclick="window.AimanStore.openAdminEditProductModal('${p.id}')" title="Edit Product">
                 <i class="fas fa-edit"></i>
               </button>
-              <button class="btn btn-danger btn-sm" onclick="window.AimanStore.deleteProduct('${p.id}')" title="Delete Product">
+              <button class="btn btn-danger btn-sm" onclick="window.AimanStore.deleteProduct('${p.id}', '${escapeHtml(p.name).replace(/'/g, "\\'")}')" title="Delete Product">
                 <i class="fas fa-trash-alt"></i>
               </button>
             </div>
@@ -2282,6 +2412,7 @@ import { apiEngine } from './apps/api/src/api.js';
       renderProductsCatalog();
       renderAdminMetrics();
       populateLogSaleProductDropdown();
+      showSuccessPopup('Product Added Successfully! ✨', `"${name}" has been published and saved to cloud database with ${stockQuantity} units in stock.`);
       showToast(`✨ "${name}" successfully published to catalog!`, 'success');
     }
   }
@@ -2295,15 +2426,15 @@ import { apiEngine } from './apps/api/src/api.js';
     }
   }
 
-  function deleteProduct(id) {
-    if (confirm('Delete this product from catalog?')) {
-      apiEngine.deleteProduct(id);
-      renderAdminProducts();
-      renderProductsCatalog();
-      renderAdminMetrics();
-      populateLogSaleProductDropdown();
-      showToast('Product deleted from catalog.', 'info');
-    }
+  function deleteProduct(id, name = '') {
+    if (!id) return;
+    apiEngine.deleteProduct(id);
+    renderAdminProducts();
+    renderProductsCatalog();
+    renderAdminMetrics();
+    populateLogSaleProductDropdown();
+    showSuccessPopup('Product Deleted! 🗑️', `Product ${name ? '"' + name + '" ' : ''}has been permanently removed from catalog and database.`);
+    showToast('Product deleted from catalog.', 'info');
   }
 
   function setProductStatus(productId, status) {
@@ -2407,6 +2538,12 @@ import { apiEngine } from './apps/api/src/api.js';
     const notes = document.getElementById('logExpNotes').value;
 
     apiEngine.logExpense({ category, title, amount, date, vendor, notes });
+    
+    // Reset inputs
+    if (document.getElementById('logExpTitle')) document.getElementById('logExpTitle').value = '';
+    if (document.getElementById('logExpAmount')) document.getElementById('logExpAmount').value = '';
+    if (document.getElementById('logExpNotes')) document.getElementById('logExpNotes').value = '';
+
     renderAdminExpenses();
     renderAdminMetrics();
     renderSalesChart(AppState.activeChartPeriod);
@@ -2414,13 +2551,13 @@ import { apiEngine } from './apps/api/src/api.js';
   }
 
   function deleteExpense(id) {
-    if (confirm('Delete this expense record?')) {
-      apiEngine.deleteExpense(id);
-      renderAdminExpenses();
-      renderAdminMetrics();
-      renderSalesChart(AppState.activeChartPeriod);
-      showToast('Expense record deleted.', 'info');
-    }
+    if (!id) return;
+    apiEngine.deleteExpense(id);
+    renderAdminExpenses();
+    renderAdminMetrics();
+    renderSalesChart(AppState.activeChartPeriod);
+    showSuccessPopup('Expense Deleted! 🗑️', 'Expense record has been permanently removed from ledger.');
+    showToast('Expense record deleted.', 'info');
   }
 
   function openAdminEditProductModal(productId) {
@@ -2511,6 +2648,8 @@ import { apiEngine } from './apps/api/src/api.js';
     renderAdminProducts();
     populateLogSaleProductDropdown();
     renderProductsCatalog();
+    renderAdminMetrics();
+    showSuccessPopup('Product Updated! ✨', `Product "${name}" details have been updated successfully.`);
     showToast('✨ Product updated live across website & admin!', 'success');
   }
 
@@ -2729,7 +2868,7 @@ import { apiEngine } from './apps/api/src/api.js';
 
   function saveBotSettings(event) {
     event.preventDefault();
-    const phone = document.getElementById('set_phone')?.value.trim() || '923452439196';
+    const phone = document.getElementById('set_phone')?.value.trim() || '923452439195';
     const botName = document.getElementById('set_botname')?.value.trim() || 'Aiman AI Stylist';
     const phoneId = document.getElementById('set_meta_phone_id')?.value.trim() || '';
     const token = document.getElementById('set_meta_token')?.value.trim() || '';
@@ -3434,57 +3573,23 @@ import { apiEngine } from './apps/api/src/api.js';
   }
 
   function addComboDealToCart(dealType) {
-    let dealProduct = null;
-    if (dealType === 'deal-bridal') {
-      dealProduct = {
-        id: 'deal-bridal-combo',
-        name: 'Bohra Bridal Royale Combo (3-Pc)',
-        price: 9999,
-        originalPrice: 12500,
-        image: 'images/luxury_rida.png',
-        fabric: 'Zardozi Silk Rida + Suede Handbag + Batwa',
-        badge: 'Super Combo',
-        badgeClass: 'bestseller'
-      };
-    } else if (dealType === 'deal-twin') {
-      dealProduct = {
-        id: 'deal-twin-silk',
-        name: 'Twin Festive Silk Rida Duo (2-Pc)',
-        price: 7200,
-        originalPrice: 8800,
-        image: 'images/lavender_rida.png',
-        fabric: 'Emerald Silk Rida + Pastel Lavender Rida',
-        badge: 'Festive Duo',
-        badgeClass: 'bestseller'
-      };
-    } else {
-      dealProduct = {
-        id: 'deal-vanity-trio',
-        name: 'Dawoodi Bohra Vanity Trio (3-Pc)',
-        price: 2499,
-        originalPrice: 3300,
-        image: 'images/cosmetic_bag.png',
-        fabric: 'Tea Safra + Cosmetic Organizer + Velvet Batwa',
-        badge: 'Vanity Bundle',
-        badgeClass: 'bestseller'
-      };
+    let dealName = 'Bohra Bridal Royale Combo (3-Pc)';
+    let dealPrice = 'Rs. 9,999 (Offer Price)';
+    let dealIncludes = 'Heavy Zardozi Bridal Silk Rida + Designer Suede Handbag + Velvet Batwa';
+
+    if (dealType === 'deal-twin') {
+      dealName = 'Twin Festive Silk Rida Duo (2-Pc)';
+      dealPrice = 'Rs. 7,200 (Offer Price)';
+      dealIncludes = 'Emerald Luxury Silk Rida + Pastel Lavender Cotton Rida with gold lace';
+    } else if (dealType === 'deal-vanity' || dealType === 'deal3') {
+      dealName = 'Dawoodi Bohra Vanity Trio (3-Pc)';
+      dealPrice = 'Rs. 2,499 (Offer Price)';
+      dealIncludes = 'Tea Safra + Dual-Deck Vanity Organizer + Velvet Batwa';
     }
 
-    addToCart(dealProduct.id, 'Standard', dealProduct);
-    openCart();
-
-        // Trigger Celebration Confetti (disabled on mobile or reduced motion)
-    if (!window.matchMedia('(max-width: 480px), (prefers-reduced-motion: reduce)').matches) {
-      if (typeof confetti === 'function') {
-        confetti({
-          particleCount: 75,
-          spread: 60,
-          origin: { y: 0.7 }
-        });
-      }
-    }
-
-    showToast(`🎉 ${dealProduct.name} added to your bag with combo savings!`, 'success');
+    const text = `Assalam-o-Alaikum Aiman Collection! ✨\n\nI want to order this exclusive Super Deal:\n🔥 *Deal:* ${dealName}\n💰 *Price:* ${dealPrice}\n🎁 *Included:* ${dealIncludes}\n\nPlease confirm availability and delivery time.`;
+    const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+    window.open(waUrl, '_blank');
   }
 
   function openLookbookModal() {
@@ -3529,16 +3634,16 @@ import { apiEngine } from './apps/api/src/api.js';
     apiEngine.subscribe(({ event, payload }) => {
       console.log(`[Aiman Engine Event]: ${event}`, payload);
       renderAdminMetrics();
-      if (event === 'PRODUCTS_SYNCED') {
+      if (event === 'PRODUCTS_SYNCED' || event === 'PRODUCT_DELETED' || event === 'PRODUCT_CREATED' || event === 'PRODUCT_UPDATED') {
         renderProductsCatalog();
         renderAdminProducts();
         populateLogSaleProductDropdown();
       }
-      if (event === 'SALES_SYNCED') {
+      if (event === 'SALES_SYNCED' || event === 'SALE_DELETED' || event === 'SALE_LOGGED' || event === 'SALE_UPDATED') {
         renderAdminSales();
         renderSalesChart(AppState.activeChartPeriod);
       }
-      if (event === 'EXPENSES_SYNCED') {
+      if (event === 'EXPENSES_SYNCED' || event === 'EXPENSE_DELETED' || event === 'EXPENSE_LOGGED') {
         renderAdminExpenses();
       }
       if (event === 'REVIEWS_SYNCED') {
@@ -3604,6 +3709,509 @@ import { apiEngine } from './apps/api/src/api.js';
       populateLogSaleProductDropdown();
       showToast('✨ Store database reloaded with your Real Business Ledger!', 'success');
     }
+  }
+
+  /* ==========================================================================
+     PDF REPORT GENERATION SUITE (Financials, Inventory, Expenses, Invoices)
+     ========================================================================== */
+  function getJsPDFInstance(orientation = 'p') {
+    try {
+      if (window.jspdf && window.jspdf.jsPDF) {
+        return new window.jspdf.jsPDF({ orientation, unit: 'mm', format: 'a4' });
+      }
+      if (typeof window.jsPDF === 'function') {
+        return new window.jsPDF({ orientation, unit: 'mm', format: 'a4' });
+      }
+    } catch (e) {
+      console.warn('jsPDF instantiation failed:', e);
+    }
+    return null;
+  }
+
+  function downloadFinancialReportPDF() {
+    const doc = getJsPDFInstance('p');
+    const metrics = apiEngine.getAnalytics();
+    const sales = apiEngine.sales || [];
+    const expenses = apiEngine.expenses || [];
+    const totalExp = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+    const netOperatingProfit = metrics.netProfit - totalExp;
+
+    if (!doc || typeof doc.autoTable !== 'function') {
+      fallbackPrintReport('Financial Report & Profit/Loss Statement', `
+        <h2>Aiman Collection — Financial Profit & Loss Statement</h2>
+        <p><strong>Generated Date:</strong> ${new Date().toLocaleDateString()} | <strong>Official Contact:</strong> +92 345 2439195</p>
+        <hr/>
+        <h3>Financial Summary</h3>
+        <ul>
+          <li><strong>Gross Revenue:</strong> Rs. ${metrics.totalRevenue.toLocaleString()}</li>
+          <li><strong>Cost of Goods Sold (COGS):</strong> Rs. ${metrics.totalCost.toLocaleString()}</li>
+          <li><strong>Gross Trading Profit:</strong> Rs. ${metrics.netProfit.toLocaleString()}</li>
+          <li><strong>Operating Expenses:</strong> Rs. ${totalExp.toLocaleString()}</li>
+          <li><strong>Net Operating Profit:</strong> Rs. ${netOperatingProfit.toLocaleString()}</li>
+          <li><strong>Gross Profit Margin:</strong> ${metrics.margin}%</li>
+        </ul>
+        <h3>Sales Transactions (${sales.length})</h3>
+        <table border="1" cellpadding="6" style="border-collapse: collapse; width: 100%;">
+          <thead>
+            <tr style="background: #eee;">
+              <th>Date</th><th>Product / Item</th><th>Qty</th><th>Cost (PKR)</th><th>Price (PKR)</th><th>Profit (PKR)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${sales.map(s => `<tr><td>${s.date}</td><td>${escapeHtml(s.productName)}</td><td>${s.quantity}</td><td>${s.costPrice.toLocaleString()}</td><td>${s.sellingPrice.toLocaleString()}</td><td>${s.profit.toLocaleString()}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      `);
+      return;
+    }
+
+    // Header styling
+    doc.setFillColor(11, 13, 17); // Dark luxury background
+    doc.rect(0, 0, 210, 38, 'F');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor(197, 168, 128); // Gold
+    doc.text('AIMAN COLLECTION', 14, 16);
+
+    doc.setFontSize(9);
+    doc.setTextColor(245, 245, 245);
+    doc.setFont('helvetica', 'normal');
+    doc.text('LUXURY HAUTE COUTURE & DAWOODI BOHRA LIBAS', 14, 22);
+    doc.text('Business Financial Statement & Profit & Loss Ledger', 14, 28);
+
+    doc.setFontSize(8);
+    doc.setTextColor(180, 180, 180);
+    doc.text(`Generated: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`, 135, 16);
+    doc.text(`Helpline: +92 345 2439195`, 135, 22);
+    doc.text(`WhatsApp: 03452439195`, 135, 28);
+
+    // Summary Metric Cards
+    doc.setDrawColor(197, 168, 128);
+    doc.setLineWidth(0.5);
+
+    // Box 1: Revenue
+    doc.setFillColor(248, 248, 248);
+    doc.roundedRect(14, 44, 42, 22, 2, 2, 'FD');
+    doc.setFontSize(7.5);
+    doc.setTextColor(100, 100, 100);
+    doc.text('TOTAL REVENUE', 18, 50);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(20, 20, 20);
+    doc.text(`Rs. ${metrics.totalRevenue.toLocaleString()}`, 18, 60);
+
+    // Box 2: Total Cost
+    doc.roundedRect(60, 44, 42, 22, 2, 2, 'FD');
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 100, 100);
+    doc.text('COST OF GOODS', 64, 50);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(220, 38, 38);
+    doc.text(`Rs. ${metrics.totalCost.toLocaleString()}`, 64, 60);
+
+    // Box 3: Expenses
+    doc.roundedRect(106, 44, 42, 22, 2, 2, 'FD');
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 100, 100);
+    doc.text('TOTAL EXPENSES', 110, 50);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(217, 119, 6);
+    doc.text(`Rs. ${totalExp.toLocaleString()}`, 110, 60);
+
+    // Box 4: Net Profit
+    doc.setFillColor(240, 253, 244);
+    doc.roundedRect(152, 44, 44, 22, 2, 2, 'FD');
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(22, 101, 52);
+    doc.text(`NET PROFIT (${metrics.margin}%)`, 156, 50);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(22, 101, 52);
+    doc.text(`Rs. ${netOperatingProfit.toLocaleString()}`, 156, 60);
+
+    // Table of Sales
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(20, 20, 20);
+    doc.text('Sales Ledger Records', 14, 74);
+
+    const salesRows = sales.map(s => [
+      s.date || '',
+      s.productName || 'Direct Sale',
+      (s.category || 'ridas').toUpperCase(),
+      String(s.quantity || 1),
+      'Rs. ' + (s.costPrice || 0).toLocaleString(),
+      'Rs. ' + (s.sellingPrice || 0).toLocaleString(),
+      'Rs. ' + (s.profit || 0).toLocaleString()
+    ]);
+
+    doc.autoTable({
+      startY: 78,
+      head: [['Date', 'Product / Item Description', 'Category', 'Qty', 'Unit Cost', 'Selling Price', 'Net Profit']],
+      body: salesRows.length > 0 ? salesRows : [['-', 'No transactions recorded', '-', '-', '-', '-', '-']],
+      theme: 'grid',
+      headStyles: {
+        fillColor: [17, 24, 39],
+        textColor: [197, 168, 128],
+        fontSize: 8,
+        fontStyle: 'bold'
+      },
+      bodyStyles: {
+        fontSize: 7.5,
+        textColor: [40, 40, 40]
+      },
+      alternateRowStyles: {
+        fillColor: [250, 250, 250]
+      },
+      margin: { left: 14, right: 14 }
+    });
+
+    const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : 150;
+
+    if (expenses.length > 0 && finalY < 230) {
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(20, 20, 20);
+      doc.text('Operating Expenses Breakdown', 14, finalY);
+
+      const expRows = expenses.map(e => [
+        e.date || '',
+        e.title || 'General Expense',
+        (e.category || 'General').toUpperCase(),
+        e.vendor || 'Atelier',
+        'Rs. ' + (parseFloat(e.amount) || 0).toLocaleString()
+      ]);
+
+      doc.autoTable({
+        startY: finalY + 4,
+        head: [['Date', 'Expense Description', 'Category', 'Vendor / Recipient', 'Amount']],
+        body: expRows,
+        theme: 'grid',
+        headStyles: {
+          fillColor: [55, 65, 81],
+          textColor: [255, 255, 255],
+          fontSize: 8
+        },
+        bodyStyles: { fontSize: 7.5 },
+        margin: { left: 14, right: 14 }
+      });
+    }
+
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(7.5);
+      doc.setTextColor(140, 140, 140);
+      doc.text(`Aiman Collection Merchant Ledger • Page ${i} of ${pageCount} • Confidential`, 14, 290);
+      doc.text(`Official WhatsApp: +92 345 2439195`, 148, 290);
+    }
+
+    doc.save(`Aiman_Collection_Financial_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
+    showToast('📄 Financial & Profit Report PDF downloaded successfully!', 'success');
+  }
+
+  function downloadInventoryReportPDF() {
+    const doc = getJsPDFInstance('p');
+    const products = apiEngine.products || [];
+    const totalItems = products.reduce((s, p) => s + (p.stockQuantity !== undefined ? p.stockQuantity : 25), 0);
+    const totalValCost = products.reduce((s, p) => s + ((p.costPrice || (p.price * 0.5)) * (p.stockQuantity !== undefined ? p.stockQuantity : 25)), 0);
+    const totalValRetail = products.reduce((s, p) => s + (p.price * (p.stockQuantity !== undefined ? p.stockQuantity : 25)), 0);
+
+    if (!doc || typeof doc.autoTable !== 'function') {
+      fallbackPrintReport('Stock & Inventory Valuation Report', `
+        <h2>Aiman Collection — Stock & Inventory Report</h2>
+        <p><strong>Total Catalog SKUs:</strong> ${products.length} | <strong>Total Units:</strong> ${totalItems} | <strong>Wholesale Value:</strong> Rs. ${totalValCost.toLocaleString()}</p>
+        <hr/>
+        <table border="1" cellpadding="6" style="border-collapse: collapse; width: 100%;">
+          <thead><tr style="background:#eee;"><th>SKU ID</th><th>Product Title</th><th>Category</th><th>Stock</th><th>Cost</th><th>Retail Price</th><th>Status</th></tr></thead>
+          <tbody>
+            ${products.map(p => `<tr><td>${p.id}</td><td>${escapeHtml(p.name)}</td><td>${p.category}</td><td>${p.stockQuantity || 25}</td><td>Rs. ${(p.costPrice || p.price*0.5).toLocaleString()}</td><td>Rs. ${p.price.toLocaleString()}</td><td>${p.isSoldOut ? 'SOLD OUT' : (p.isBooked ? 'BOOKED' : 'IN STOCK')}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      `);
+      return;
+    }
+
+    doc.setFillColor(11, 13, 17);
+    doc.rect(0, 0, 210, 38, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor(197, 168, 128);
+    doc.text('AIMAN COLLECTION', 14, 16);
+
+    doc.setFontSize(9);
+    doc.setTextColor(245, 245, 245);
+    doc.setFont('helvetica', 'normal');
+    doc.text('STOCK & INVENTORY VALUATION AUDIT REPORT', 14, 22);
+    doc.text(`Catalog Assets & Physical Warehouse Count • ${products.length} SKUs`, 14, 28);
+
+    doc.setFontSize(8);
+    doc.setTextColor(180, 180, 180);
+    doc.text(`Date: ${new Date().toLocaleDateString()}`, 145, 16);
+    doc.text(`Total Units: ${totalItems.toLocaleString()} pcs`, 145, 22);
+    doc.text(`Cost Value: Rs. ${totalValCost.toLocaleString()}`, 145, 28);
+
+    const rows = products.map(p => {
+      const stock = p.stockQuantity !== undefined ? p.stockQuantity : 25;
+      const cost = p.costPrice || (p.price * 0.5);
+      const status = p.isSoldOut ? 'SOLD OUT' : (p.isBooked ? 'BOOKED' : 'AVAILABLE');
+      return [
+        p.id,
+        p.name,
+        (p.category || 'ridas').toUpperCase(),
+        p.fabric || 'Standard Fine',
+        String(stock),
+        'Rs. ' + Math.round(cost).toLocaleString(),
+        'Rs. ' + p.price.toLocaleString(),
+        status
+      ];
+    });
+
+    doc.autoTable({
+      startY: 44,
+      head: [['SKU ID', 'Item Name', 'Category', 'Fabric', 'Stock', 'Unit Cost', 'Retail Price', 'Status']],
+      body: rows,
+      theme: 'grid',
+      headStyles: {
+        fillColor: [17, 24, 39],
+        textColor: [197, 168, 128],
+        fontSize: 8,
+        fontStyle: 'bold'
+      },
+      bodyStyles: { fontSize: 7.5 },
+      alternateRowStyles: { fillColor: [250, 250, 250] },
+      margin: { left: 14, right: 14 }
+    });
+
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(7.5);
+      doc.setTextColor(140, 140, 140);
+      doc.text(`Aiman Collection Inventory Valuation • Page ${i} of ${pageCount}`, 14, 290);
+      doc.text(`Retail Asset Valuation: Rs. ${totalValRetail.toLocaleString()}`, 130, 290);
+    }
+
+    doc.save(`Aiman_Collection_Inventory_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
+    showToast('📦 Stock & Inventory Valuation Report PDF downloaded!', 'success');
+  }
+
+  function downloadExpensesPDF() {
+    const doc = getJsPDFInstance('p');
+    const expenses = apiEngine.expenses || [];
+    const totalExp = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+
+    if (!doc || typeof doc.autoTable !== 'function') {
+      fallbackPrintReport('Operating Expenses Report', `
+        <h2>Aiman Collection — Operating Expenses Ledger</h2>
+        <p><strong>Total Operating Expenditure:</strong> Rs. ${totalExp.toLocaleString()}</p>
+        <hr/>
+        <table border="1" cellpadding="6" style="border-collapse: collapse; width: 100%;">
+          <thead><tr style="background:#eee;"><th>Date</th><th>Expense Title</th><th>Category</th><th>Vendor</th><th>Amount (PKR)</th></tr></thead>
+          <tbody>
+            ${expenses.map(e => `<tr><td>${e.date}</td><td>${escapeHtml(e.title)}</td><td>${e.category}</td><td>${e.vendor || '-'}</td><td>Rs. ${parseFloat(e.amount).toLocaleString()}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      `);
+      return;
+    }
+
+    doc.setFillColor(11, 13, 17);
+    doc.rect(0, 0, 210, 38, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor(197, 168, 128);
+    doc.text('AIMAN COLLECTION', 14, 16);
+
+    doc.setFontSize(9);
+    doc.setTextColor(245, 245, 245);
+    doc.setFont('helvetica', 'normal');
+    doc.text('OPERATING EXPENSES & COGS AUDIT RECORD', 14, 22);
+    doc.text(`Total Logged Business Overhead: Rs. ${totalExp.toLocaleString()}`, 14, 28);
+
+    const rows = expenses.map(e => [
+      e.date || '',
+      e.title || 'Expense',
+      (e.category || 'General').toUpperCase(),
+      e.vendor || 'Atelier Direct',
+      e.notes || '-',
+      'Rs. ' + (parseFloat(e.amount) || 0).toLocaleString()
+    ]);
+
+    doc.autoTable({
+      startY: 44,
+      head: [['Date', 'Expense Description', 'Category', 'Vendor / Source', 'Notes', 'Amount']],
+      body: rows.length > 0 ? rows : [['-', 'No expenses logged', '-', '-', '-', 'Rs. 0']],
+      theme: 'grid',
+      headStyles: {
+        fillColor: [17, 24, 39],
+        textColor: [197, 168, 128],
+        fontSize: 8,
+        fontStyle: 'bold'
+      },
+      bodyStyles: { fontSize: 7.5 },
+      margin: { left: 14, right: 14 }
+    });
+
+    doc.save(`Aiman_Collection_Expenses_Ledger_${new Date().toISOString().slice(0, 10)}.pdf`);
+    showToast('💳 Operating Expenses Ledger PDF downloaded!', 'success');
+  }
+
+  function downloadOrderInvoicePDF(orderId) {
+    const order = (apiEngine.orders || []).find(o => String(o.id) === String(orderId) || String(o.orderNumber) === String(orderId)) || (apiEngine.orders && apiEngine.orders[0]);
+    if (!order) {
+      showToast('No order found to generate invoice.', 'error');
+      return;
+    }
+
+    const doc = getJsPDFInstance('p');
+    if (!doc || typeof doc.autoTable !== 'function') {
+      previewOrderEmailById(order.id);
+      return;
+    }
+
+    doc.setFillColor(11, 13, 17);
+    doc.rect(0, 0, 210, 42, 'F');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor(197, 168, 128);
+    doc.text('AIMAN COLLECTION', 14, 16);
+
+    doc.setFontSize(8.5);
+    doc.setTextColor(240, 240, 240);
+    doc.setFont('helvetica', 'normal');
+    doc.text('LUXURY HAUTE COUTURE & DAWOODI BOHRA LIBAS', 14, 22);
+    doc.text('Official Sales Invoice & Delivery Memo', 14, 28);
+    doc.text('WhatsApp Order Support: +92 345 2439195', 14, 34);
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(197, 168, 128);
+    doc.text(`INVOICE: ${order.orderNumber || order.id}`, 135, 16);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(200, 200, 200);
+    doc.text(`Date: ${order.date || new Date().toLocaleDateString()}`, 135, 22);
+    doc.text(`Status: ${(order.orderStatus || 'DELIVERED').toUpperCase()}`, 135, 28);
+    doc.text(`Courier: ${order.tcsTracking || order.courier || 'TCS Express'}`, 135, 34);
+
+    // Customer Info Card
+    doc.setFillColor(248, 249, 250);
+    doc.setDrawColor(220, 220, 220);
+    doc.roundedRect(14, 48, 182, 28, 2, 2, 'FD');
+
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 30, 30);
+    doc.text('BILL TO / RECIPIENT:', 18, 55);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(60, 60, 60);
+    doc.text(`Client Name: ${order.customerName || order.name || 'Client'}`, 18, 62);
+    doc.text(`Phone / WhatsApp: ${order.phone || order.whatsapp || '+92 345 2439195'}`, 18, 67);
+    doc.text(`Email: ${order.customerEmail || order.email || 'customer@aiman.com'}`, 18, 72);
+
+    doc.text(`Delivery City: ${order.city || 'Karachi, Pakistan'}`, 110, 62);
+    doc.text(`Address: ${(order.address || 'Standard Delivery').substring(0, 42)}`, 110, 67);
+    doc.text(`Payment: ${(order.paymentMethod || 'CASH_ON_DELIVERY').replace(/_/g, ' ')} (${order.paymentStatus || 'PAID'})`, 110, 72);
+
+    // Order Items Table
+    const items = order.items && order.items.length > 0 ? order.items : [
+      { name: order.productName || 'Luxury Bohra Libas Piece', quantity: order.quantity || 1, price: order.total || order.totalAmount || 5200, size: 'Standard' }
+    ];
+
+    const itemRows = items.map((it, idx) => [
+      String(idx + 1),
+      it.name || 'Bohra Libas Design',
+      it.size || 'Standard',
+      String(it.quantity || 1),
+      'Rs. ' + (it.price || 0).toLocaleString(),
+      'Rs. ' + ((it.price || 0) * (it.quantity || 1)).toLocaleString()
+    ]);
+
+    doc.autoTable({
+      startY: 82,
+      head: [['#', 'Item Description', 'Size', 'Qty', 'Unit Price', 'Line Total']],
+      body: itemRows,
+      theme: 'grid',
+      headStyles: {
+        fillColor: [17, 24, 39],
+        textColor: [197, 168, 128],
+        fontSize: 8,
+        fontStyle: 'bold'
+      },
+      bodyStyles: { fontSize: 8 },
+      margin: { left: 14, right: 14 }
+    });
+
+    const finalY = (doc.lastAutoTable ? doc.lastAutoTable.finalY : 120) + 8;
+    const totalVal = Number(order.total !== undefined ? order.total : (order.totalAmount !== undefined ? order.totalAmount : 0));
+
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(80, 80, 80);
+    doc.text('Subtotal:', 140, finalY);
+    doc.text('Rs. ' + totalVal.toLocaleString(), 175, finalY);
+
+    doc.text('Delivery & TCS:', 140, finalY + 6);
+    doc.text('FREE (Included)', 170, finalY + 6);
+
+    doc.setDrawColor(197, 168, 128);
+    doc.line(140, finalY + 9, 196, finalY + 9);
+
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(20, 20, 20);
+    doc.text('TOTAL AMOUNT:', 125, finalY + 16);
+    doc.setTextColor(197, 168, 128);
+    doc.text('Rs. ' + totalVal.toLocaleString(), 168, finalY + 16);
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(120, 120, 120);
+    doc.text('Thank you for choosing Aiman Collection. May you wear it in joy and prosperity!', 14, 275);
+    doc.text('Official Care & Customer Helpline: WhatsApp +92 345 2439195', 14, 280);
+
+    doc.save(`Invoice_${order.orderNumber || order.id}.pdf`);
+    showToast(`📄 Invoice PDF for ${order.orderNumber || order.id} downloaded!`, 'success');
+  }
+
+  function fallbackPrintReport(title, htmlContent) {
+    const win = window.open('', '_blank');
+    if (!win) {
+      window.print();
+      return;
+    }
+    win.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>${title} — Aiman Collection</title>
+        <style>
+          body { font-family: 'Segoe UI', Arial, sans-serif; padding: 25px; color: #222; }
+          h2 { color: #C5A880; }
+          table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+          th { background: #12151B; color: #C5A880; padding: 8px; text-align: left; }
+          td { padding: 8px; border-bottom: 1px solid #ddd; font-size: 13px; }
+          @media print { button { display: none; } }
+        </style>
+      </head>
+      <body>
+        ${htmlContent}
+        <br/><br/>
+        <button onclick="window.print()" style="padding: 10px 20px; background: #12151B; color: #C5A880; border: none; cursor: pointer; border-radius: 4px;">Print Document</button>
+      </body>
+      </html>
+    `);
+    win.document.close();
   }
 
   // Export public store API
@@ -3673,10 +4281,15 @@ import { apiEngine } from './apps/api/src/api.js';
     openAdminEditProductModal,
     saveAdminProductForm,
     deleteProduct,
+    showSuccessPopup,
     openAdminEditSaleModal,
     saveAdminSaleForm,
     updateOrderStatus,
-    printInvoice,
+    printInvoice: downloadOrderInvoicePDF,
+    downloadFinancialReportPDF,
+    downloadInventoryReportPDF,
+    downloadExpensesPDF,
+    downloadOrderInvoicePDF,
     updateHeroBanner,
     handleBannerUpload,
     exportBackupJSON,

@@ -1,8 +1,14 @@
+import dns from 'dns';
+try {
+  dns.setServers(['8.8.8.8', '1.1.1.1', '8.8.4.4']);
+} catch (e) {}
+
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 import { connectMongoDB, getMongoStatus } from './db/mongodb.js';
 import {
   Product,
@@ -180,7 +186,13 @@ app.put('/api/products/:id', async (req, res) => {
 app.delete('/api/products/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    await Product.findOneAndDelete({ id });
+    const filter = {
+      $or: [
+        { id: String(id) },
+        { _id: mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : null }
+      ].filter(f => Object.values(f)[0] !== null)
+    };
+    await Product.findOneAndDelete(filter);
     res.json({ success: true, message: `Product ${id} deleted` });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -260,7 +272,13 @@ app.put('/api/orders/:id', async (req, res) => {
 app.delete('/api/orders/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    await Order.findOneAndDelete({ id });
+    const filter = {
+      $or: [
+        { id: String(id) },
+        { _id: mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : null }
+      ].filter(f => Object.values(f)[0] !== null)
+    };
+    await Order.findOneAndDelete(filter);
     res.json({ success: true, message: `Order ${id} deleted` });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -283,6 +301,22 @@ app.post('/api/sales', async (req, res) => {
   try {
     const payload = req.body;
     if (!payload.id) payload.id = 'sale-' + Date.now();
+    const qty = Math.max(1, Number(payload.quantity) || 1);
+    const sellPrice = Number(payload.sellingPrice ?? payload.unitPrice ?? payload.price) || 0;
+    const costPrice = Number(payload.costPrice ?? payload.unitCost) || 0;
+    payload.sellingPrice = sellPrice;
+    payload.unitPrice = sellPrice;
+    payload.costPrice = costPrice;
+    payload.unitCost = costPrice;
+    payload.quantity = qty;
+    payload.totalRevenue = Number(payload.totalRevenue) || (sellPrice * qty);
+    payload.totalCost = Number(payload.totalCost) || (costPrice * qty);
+    payload.netProfit = Number(payload.netProfit ?? payload.profit) || (payload.totalRevenue - payload.totalCost);
+    payload.profit = payload.netProfit;
+    if (payload.totalRevenue > 0) {
+      payload.profitMargin = Number(((payload.netProfit / payload.totalRevenue) * 100).toFixed(1));
+    }
+
     const sale = await Sale.findOneAndUpdate({ id: payload.id }, payload, {
       upsert: true,
       new: true,
@@ -297,7 +331,13 @@ app.post('/api/sales', async (req, res) => {
 app.delete('/api/sales/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    await Sale.findOneAndDelete({ id });
+    const filter = {
+      $or: [
+        { id: String(id) },
+        { _id: mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : null }
+      ].filter(f => Object.values(f)[0] !== null)
+    };
+    await Sale.findOneAndDelete(filter);
     res.json({ success: true, message: `Sale ${id} deleted` });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -334,7 +374,13 @@ app.post('/api/expenses', async (req, res) => {
 app.delete('/api/expenses/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    await Expense.findOneAndDelete({ id });
+    const filter = {
+      $or: [
+        { id: String(id) },
+        { _id: mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : null }
+      ].filter(f => Object.values(f)[0] !== null)
+    };
+    await Expense.findOneAndDelete(filter);
     res.json({ success: true, message: `Expense ${id} deleted` });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -525,25 +571,24 @@ app.use((req, res) => {
    13. Start Server & Connect Database
    -------------------------------------------------------------------------- */
 async function startServer() {
-  try {
-    await connectMongoDB();
-    await autoSeedDatabase();
+  const server = app.listen(PORT, () => {
+    console.log(`\n========================================================`);
+    console.log(`🚀 AIMAN COLLECTION — Server Running on Port ${PORT}`);
+    console.log(`🌐 Storefront: http://localhost:${PORT}`);
+    console.log(`📊 API Health: http://localhost:${PORT}/api/health`);
+    console.log(`========================================================\n`);
+  });
 
-    app.listen(PORT, () => {
-      console.log(`\n========================================================`);
-      console.log(`🚀 AIMAN COLLECTION — Server Running on Port ${PORT}`);
-      console.log(`🌐 Storefront: http://localhost:${PORT}`);
-      console.log(`📊 API Health: http://localhost:${PORT}/api/health`);
-      console.log(`🟢 Database: MongoDB Atlas Connected & Seeded`);
-      console.log(`========================================================\n`);
+  // Connect MongoDB Atlas in background
+  connectMongoDB()
+    .then(async () => {
+      console.log(`🟢 [Database] MongoDB Atlas Connected successfully!`);
+      await autoSeedDatabase();
+    })
+    .catch((err) => {
+      console.warn('⚠️ [Database] MongoDB connection error:', err.message);
+      console.log(`ℹ️ [Database] App running with Local Storage and Firebase fallback.`);
     });
-  } catch (err) {
-    console.error('❌ Failed to connect to MongoDB on startup:', err.message);
-    // Still start server in fallback mode
-    app.listen(PORT, () => {
-      console.log(`⚠️ Server running on port ${PORT} in local fallback mode`);
-    });
-  }
 }
 
 startServer();
