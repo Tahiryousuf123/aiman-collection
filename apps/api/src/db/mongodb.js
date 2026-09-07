@@ -15,7 +15,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '../../../../.env') });
 
-const PRIMARY_URI = process.env.MONGODB_URI;
+const PRIMARY_URI = process.env.MONGODB_URI || 'mongodb+srv://aimanyousuf78_db_user:RP1ejc8Hy54nJ7Mg@cluster0.llqvcmf.mongodb.net/aiman_collection?retryWrites=true&w=majority&appName=Cluster0';
 const LOCAL_URI = 'mongodb://127.0.0.1:27017/aiman_collection';
 
 let isConnected = false;

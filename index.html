@@ -899,6 +899,31 @@
               </div>
             </form>
           </div>
+
+          <!-- SECTION 3: SHOP BY CATEGORY — MOVING CARDS PICTURES EDITOR -->
+          <div class="admin-section-box" style="border-left: 4px solid #0f766e; margin-top:24px;">
+            <div class="admin-section-header">
+              <div>
+                <h3><i class="fas fa-sliders" style="color:#0f766e;"></i> Shop By Category — Moving Cards Pictures Editor</h3>
+                <span style="font-size:0.82rem; color:#64748b;">Website ke 'Shop By Category' section mein jo 7 cards slide ho rahe hain, unki pictures yahan se badlein:</span>
+              </div>
+            </div>
+
+            <form onsubmit="window.AimanStore.saveCategoryCards(event)">
+              <div id="adminCategoryCardsList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 20px;">
+                <!-- Injected dynamically via renderAdminCategoryCards() -->
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; padding-top:16px; border-top:1px solid #e2e8f0; flex-wrap:wrap; gap:10px;">
+                <button type="button" class="admin-btn" style="background:#f1f5f9; color:#475569;" onclick="window.AimanStore.resetCategoryCardsToDefault()">
+                  <i class="fas fa-rotate-left"></i> Reset to Default Category Pictures
+                </button>
+                <button type="submit" class="admin-btn admin-btn-success" style="padding:10px 24px; font-weight:700;">
+                  <i class="fas fa-floppy-disk"></i> Save &amp; Publish Category Pictures
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
 
       </div>

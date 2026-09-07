@@ -3,15 +3,19 @@ import mongoose from 'mongoose';
 // 1. PRODUCT SCHEMA
 const ProductSchema = new mongoose.Schema({
   id: { type: String, required: true, unique: true, index: true },
-  slug: { type: String, unique: true, index: true },
+  slug: { type: String, index: true },
   name: { type: String, required: true },
+  title: { type: String },
   category: { type: String, required: true, index: true },
   price: { type: Number, required: true },
   costPrice: { type: Number, default: 0 },
+  regularPrice: { type: Number },
   originalPrice: { type: Number },
+  discount: { type: Number, default: 0 },
   onSale: { type: Boolean, default: false },
   salePrice: { type: Number },
   image: { type: String, required: true },
+  gallery: { type: [String], default: [] },
   galleryImages: { type: [String], default: [] },
   badge: { type: String },
   badgeClass: { type: String, default: 'new' },
@@ -22,10 +26,14 @@ const ProductSchema = new mongoose.Schema({
   sizes: { type: [String], default: ['Standard'] },
   inStock: { type: Boolean, default: true },
   stockQuantity: { type: Number, default: 50 },
+  stockStatus: { type: String, default: 'in-stock' },
+  status: { type: String, default: 'available' },
+  isNew: { type: Boolean, default: false },
+  isSale: { type: Boolean, default: false },
   isNewArrival: { type: Boolean, default: false },
   isFeatured: { type: Boolean, default: false },
-  status: { type: String, default: 'available', enum: ['available', 'booked', 'soldout'] }
-}, { timestamps: true });
+  bestSeller: { type: Boolean, default: false }
+}, { timestamps: true, strict: false });
 
 // 2. ORDER SCHEMA
 const OrderItemSchema = new mongoose.Schema({

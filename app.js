@@ -226,12 +226,70 @@
     }
   ];
 
+  // Default Category Slides (7 Bohra Fashion Categories)
+  const defaultCategoryCards = [
+    { id: 'heavy-rida', name: '👑 Heavy Rida / Bridal', image: 'images/black_formal.jpg', style: '' },
+    { id: 'silk-rida', name: '🥻 Silk Rida', image: 'images/silk_rida.jpg', style: '' },
+    { id: 'new-arrivals', name: '✨ New Arrivals', image: 'images/summer_collection.jpg', style: '' },
+    { id: 'cotton-pret', name: '🌸 Cotton Pret', image: 'images/mauve_pret.jpg', style: '' },
+    { id: 'boski-fabric', name: '🧵 Boski Fabric', image: 'images/boski_fabric.jpg', style: '' },
+    { id: 'bags-batwas', name: '👜 Bags & Batwas', image: 'images/summer_collection.jpg', style: 'filter: hue-rotate(330deg);' },
+    { id: 'pouches', name: '💄 Vanity & Topi Pouches', image: 'images/mauve_pret.jpg', style: 'filter: hue-rotate(270deg);' }
+  ];
+
   // Load from LocalStorage
   let products = JSON.parse(localStorage.getItem('aiman_products')) || initialProducts;
   let salesLedger = JSON.parse(localStorage.getItem('aiman_sales')) || initialSales;
   let heroSettings = JSON.parse(localStorage.getItem('aiman_hero_settings')) || null;
+  let categoryCards = JSON.parse(localStorage.getItem('aiman_category_cards')) || defaultCategoryCards;
   let cartItems = JSON.parse(localStorage.getItem('aiman_cart')) || [];
   let productReviews = JSON.parse(localStorage.getItem('aiman_reviews')) || {};
+
+  // High-performance Canvas Image Compressor for Mobile Phone Cameras
+  function compressImageFile(file, maxWidth = 1000, quality = 0.78) {
+    return new Promise((resolve, reject) => {
+      if (!file || !file.type.startsWith('image/')) {
+        return reject(new Error('Invalid image file'));
+      }
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.onload = function (e) {
+        const img = new Image();
+        img.onerror = () => reject(new Error('Failed to load image'));
+        img.onload = function () {
+          let width = img.naturalWidth || img.width;
+          let height = img.naturalHeight || img.height;
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+          resolve(compressedBase64);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Universal Category Normalizer for MongoDB Atlas Sync across all devices
+  function normalizeCategory(cat) {
+    if (!cat) return 'heavy-rida';
+    const c = String(cat).toLowerCase().trim();
+    if (c === 'ridas' || c === 'rida' || c === 'bridal' || c.includes('heavy') || c.includes('bridal')) return 'heavy-rida';
+    if (c.includes('silk')) return 'silk-rida';
+    if (c.includes('arrival') || c.includes('new')) return 'new-arrivals';
+    if (c.includes('pret') || c.includes('cotton') || c === 'dresses') return 'cotton-pret';
+    if (c.includes('boski') || c.includes('fabric')) return 'boski-fabric';
+    if (c.includes('bag') || c.includes('batwa')) return 'bags-batwas';
+    if (c.includes('pouch') || c.includes('vanity') || c.includes('topi')) return 'pouches';
+    return 'heavy-rida';
+  }
 
   let currentCategory = 'all';
   let currentSort = 'featured';
@@ -754,6 +812,57 @@
         </div>
       `;
     }).join('');
+  }
+
+  /* --------------------------------------------------------------------------
+     5c. CATEGORY MARQUEE SLIDES & ADMIN CATEGORY PICTURES EDITOR
+     -------------------------------------------------------------------------- */
+  function renderCategoryCards() {
+    const track = document.getElementById('categoryMarqueeTrack');
+    if (!track) return;
+
+    const cards = (categoryCards && categoryCards.length > 0) ? categoryCards : defaultCategoryCards;
+
+    const generateCardsHtml = (setNum) => cards.map(c => `
+      <div class="kashaf-cat-card" onclick="window.AimanStore.filterCategory('${c.id}')">
+        <img src="${c.image}" style="${c.style || ''}" alt="${c.name}" loading="${setNum === 1 ? 'eager' : 'lazy'}" onerror="this.onerror=null; this.src='images/black_formal.jpg';">
+        <div class="kashaf-cat-overlay">
+          <span class="kashaf-cat-name">${c.name}</span>
+          <span class="kashaf-cat-arrow">↗</span>
+        </div>
+      </div>
+    `).join('');
+
+    // Render Set 1 and Set 2 (cloned for seamless infinite loop marquee animation)
+    track.innerHTML = generateCardsHtml(1) + generateCardsHtml(2);
+  }
+
+  function renderAdminCategoryCards() {
+    const listEl = document.getElementById('adminCategoryCardsList');
+    if (!listEl) return;
+
+    const cards = (categoryCards && categoryCards.length > 0) ? categoryCards : defaultCategoryCards;
+
+    listEl.innerHTML = cards.map((c, idx) => `
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; display:flex; gap:12px; align-items:center;">
+        <div style="width:75px; height:85px; flex-shrink:0; border-radius:6px; overflow:hidden; border:1px solid #cbd5e1; background:#000;">
+          <img id="catCardPreview_${idx}" src="${c.image}" style="width:100%; height:100%; object-fit:cover; ${c.style || ''}" onerror="this.onerror=null; this.src='images/black_formal.jpg';">
+        </div>
+        <div style="flex:1; min-width:0;">
+          <span style="display:block; font-size:0.85rem; font-weight:700; color:#1e293b; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+            ${c.name}
+          </span>
+          <div style="display:flex; gap:6px; align-items:center; margin-bottom:6px;">
+            <input type="file" id="catCardFileInput_${idx}" accept="image/*" style="display:none;" onchange="window.AimanStore.handleCategoryCardUpload(${idx}, event)">
+            <button type="button" class="admin-btn" onclick="document.getElementById('catCardFileInput_${idx}').click()" style="background:#0f766e; color:#fff; padding:5px 10px; font-size:0.75rem; border:none; border-radius:4px; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">
+              <i class="fas fa-camera"></i> Change Picture
+            </button>
+            <span id="catCardFileName_${idx}" style="font-size:0.72rem; color:#64748b; font-style:italic; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:110px;">Select file</span>
+          </div>
+          <input type="text" id="catCardImgInput_${idx}" value="${c.image}" placeholder="Image URL / Path" style="width:100%; font-size:0.75rem; padding:5px 8px; border:1px solid #cbd5e1; border-radius:4px;" oninput="window.AimanStore.previewCategoryCard(${idx})">
+        </div>
+      </div>
+    `).join('');
   }
 
   /* --------------------------------------------------------------------------
@@ -1553,6 +1662,7 @@
           updateSalesDashboard();
           renderAdminProducts();
           renderAdminHeroSlides();
+          renderAdminCategoryCards();
         }
       } else {
         const authModal = document.getElementById('adminAuthModal');
@@ -1584,6 +1694,7 @@
           updateSalesDashboard();
           renderAdminProducts();
           renderAdminHeroSlides();
+          renderAdminCategoryCards();
         }
       } else {
         if (err) {
@@ -1629,6 +1740,7 @@
         document.getElementById('tabBtnHero').classList.add('active');
         document.getElementById('adminTabHero').style.display = 'block';
         renderAdminHeroSlides();
+        renderAdminCategoryCards();
       }
     },
 
@@ -1754,37 +1866,39 @@
       document.body.removeChild(link);
     },
 
-    // Laptop Image File Upload
-    handleProductImageUpload: function (e) {
+    // Laptop & Mobile Camera Image File Upload (Auto-compressed for mobile phones)
+    handleProductImageUpload: async function (e) {
       const file = e.target.files && e.target.files[0];
       if (!file) return;
 
       const nameLabel = document.getElementById('prodUploadFileName');
       if (nameLabel) nameLabel.textContent = file.name;
 
-      const reader = new FileReader();
-      reader.onload = function (evt) {
-        const base64Data = evt.target.result;
-        const preview = document.getElementById('prodImagePreview');
-        const wrap = document.getElementById('prodImagePreviewWrap');
-        const input = document.getElementById('prodImageInput');
-        const status = document.getElementById('prodUploadStatus');
+      const preview = document.getElementById('prodImagePreview');
+      const wrap = document.getElementById('prodImagePreviewWrap');
+      const input = document.getElementById('prodImageInput');
+      const status = document.getElementById('prodUploadStatus');
 
-        if (preview) preview.src = base64Data;
-        if (wrap) wrap.style.display = 'flex';
-        if (input) input.value = base64Data;
-        if (status) status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving image to atelier disk storage...';
+      if (wrap) wrap.style.display = 'flex';
+      if (status) status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Optimizing mobile camera image...';
+
+      try {
+        const compressedBase64 = await compressImageFile(file, 1000, 0.78);
+
+        if (preview) preview.src = compressedBase64;
+        if (input) input.value = compressedBase64;
+        if (status) status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving image to atelier cloud & disk...';
 
         fetch(`${API_BASE}/api/upload`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: base64Data, filename: file.name })
+          body: JSON.stringify({ image: compressedBase64, filename: file.name })
         })
         .then(res => res.json())
         .then(data => {
           if (data && data.success && data.url) {
             if (input) input.value = data.url;
-            if (status) status.innerHTML = `<i class="fas fa-circle-check" style="color:#0f766e;"></i> Stored permanently on disk (${data.url})`;
+            if (status) status.innerHTML = `<i class="fas fa-circle-check" style="color:#0f766e;"></i> Stored permanently (${data.url})`;
           } else {
             if (status) status.innerHTML = `<i class="fas fa-check" style="color:#0f766e;"></i> Image ready to save with product`;
           }
@@ -1792,30 +1906,32 @@
         .catch(() => {
           if (status) status.innerHTML = `<i class="fas fa-check" style="color:#0f766e;"></i> Image ready to save`;
         });
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.error('Image compression error:', err);
+        if (status) status.innerHTML = `<span style="color:#dc2626;">Error loading photo: ${err.message}</span>`;
+      }
     },
 
     // Laptop / Mobile Gallery Image Upload (Angles 2, 3, 4)
-    handleGalleryImageUpload: function (e, slotNum) {
+    handleGalleryImageUpload: async function (e, slotNum) {
       const file = e.target.files && e.target.files[0];
       if (!file) return;
 
-      const reader = new FileReader();
-      reader.onload = function (evt) {
-        const base64Data = evt.target.result;
-        const preview = document.getElementById(`galPreview${slotNum}`);
-        const wrap = document.getElementById(`galPreviewWrap${slotNum}`);
-        const input = document.getElementById(`galInput${slotNum}`);
+      const preview = document.getElementById(`galPreview${slotNum}`);
+      const wrap = document.getElementById(`galPreviewWrap${slotNum}`);
+      const input = document.getElementById(`galInput${slotNum}`);
 
-        if (preview) preview.src = base64Data;
+      try {
+        const compressedBase64 = await compressImageFile(file, 900, 0.78);
+
+        if (preview) preview.src = compressedBase64;
         if (wrap) wrap.style.display = 'block';
-        if (input) input.value = base64Data;
+        if (input) input.value = compressedBase64;
 
         fetch(`${API_BASE}/api/upload`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: base64Data, filename: `angle_${slotNum}_` + file.name })
+          body: JSON.stringify({ image: compressedBase64, filename: `angle_${slotNum}_` + file.name })
         })
         .then(res => res.json())
         .then(data => {
@@ -1825,8 +1941,9 @@
           }
         })
         .catch(err => console.log('Offline gallery upload:', err.message));
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.error('Gallery image error:', err);
+      }
     },
 
     previewGallerySlot: function (slotNum) {
@@ -1855,75 +1972,106 @@
       if (fileInput) fileInput.value = '';
     },
 
-    // Product Management
-    saveProduct: function (e) {
+    // Product Management (Syncs to MongoDB Atlas Cloud & local disk)
+    saveProduct: async function (e) {
       e.preventDefault();
-      const editId = document.getElementById('editProductId').value;
-      const title = document.getElementById('prodTitleInput').value.trim();
-      const category = document.getElementById('prodCategorySelect').value;
-      const stockStatus = document.getElementById('prodStockStatusSelect') ? document.getElementById('prodStockStatusSelect').value : 'in-stock';
-      const price = Number(document.getElementById('prodPriceInput').value);
-      const regPrice = Number(document.getElementById('prodRegPriceInput').value) || (price * 1.5);
-      const discount = Number(document.getElementById('prodDiscountInput').value) || Math.round(((regPrice - price) / regPrice) * 100);
-      const image = document.getElementById('prodImageInput').value.trim() || 'images/summer_collection.jpg';
-      const gal1 = document.getElementById('galInput1') ? document.getElementById('galInput1').value.trim() : '';
-      const gal2 = document.getElementById('galInput2') ? document.getElementById('galInput2').value.trim() : '';
-      const gal3 = document.getElementById('galInput3') ? document.getElementById('galInput3').value.trim() : '';
-      const gallery = [gal1, gal2, gal3].filter(Boolean);
+      const btn = document.getElementById('btnSubmitProduct');
+      const origBtnText = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving to Cloud & Catalog...';
+      }
 
-      let productPayload = null;
+      try {
+        const editId = document.getElementById('editProductId').value;
+        const title = document.getElementById('prodTitleInput').value.trim();
+        const category = document.getElementById('prodCategorySelect').value;
+        const stockStatus = document.getElementById('prodStockStatusSelect') ? document.getElementById('prodStockStatusSelect').value : 'in-stock';
+        const price = Number(document.getElementById('prodPriceInput').value);
+        const regPrice = Number(document.getElementById('prodRegPriceInput').value) || (price * 1.5);
+        const discount = Number(document.getElementById('prodDiscountInput').value) || Math.round(((regPrice - price) / regPrice) * 100);
+        const image = document.getElementById('prodImageInput').value.trim() || 'images/summer_collection.jpg';
+        const gal1 = document.getElementById('galInput1') ? document.getElementById('galInput1').value.trim() : '';
+        const gal2 = document.getElementById('galInput2') ? document.getElementById('galInput2').value.trim() : '';
+        const gal3 = document.getElementById('galInput3') ? document.getElementById('galInput3').value.trim() : '';
+        const gallery = [gal1, gal2, gal3].filter(Boolean);
 
-      if (editId) {
-        const item = products.find(x => String(x.id) === String(editId));
-        if (item) {
-          item.title = title;
-          item.name = title;
-          item.category = category;
-          item.stockStatus = stockStatus;
-          item.price = price;
-          item.regularPrice = regPrice;
-          item.discount = discount;
-          item.image = image;
-          item.gallery = gallery;
-          productPayload = { ...item };
+        let productPayload = null;
+
+        if (editId) {
+          const item = products.find(x => String(x.id) === String(editId));
+          if (item) {
+            item.title = title;
+            item.name = title;
+            item.category = category;
+            item.stockStatus = stockStatus;
+            item.price = price;
+            item.regularPrice = regPrice;
+            item.discount = discount;
+            item.image = image;
+            item.gallery = gallery;
+            productPayload = { ...item };
+          }
+        } else {
+          const newProduct = {
+            id: 'prod-' + Date.now(),
+            title: title,
+            name: title,
+            category: category,
+            stockStatus: stockStatus,
+            price: price,
+            regularPrice: regPrice,
+            discount: discount,
+            image: image,
+            gallery: gallery,
+            isNew: true,
+            isSale: true,
+            bestSeller: false
+          };
+          products.unshift(newProduct);
+          productPayload = newProduct;
         }
-        alert('✅ Product updated successfully!');
-      } else {
-        const newProduct = {
-          id: 'prod-' + Date.now(),
-          title: title,
-          name: title,
-          category: category,
-          stockStatus: stockStatus,
-          price: price,
-          regularPrice: regPrice,
-          discount: discount,
-          image: image,
-          gallery: gallery,
-          isNew: true,
-          isSale: true,
-          bestSeller: false
-        };
-        products.unshift(newProduct);
-        productPayload = newProduct;
-        alert('🎉 New product added to website catalog!');
+
+        try {
+          localStorage.setItem('aiman_products', JSON.stringify(products));
+        } catch (storageErr) {
+          console.warn('localStorage quota warning:', storageErr);
+        }
+
+        // Dual-layer backend persistence (MongoDB Atlas Cloud + Disk db_store.json)
+        if (productPayload) {
+          try {
+            const res = await fetch(`${API_BASE}/api/products`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(productPayload)
+            });
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data.data && data.data.id) {
+                productPayload.id = data.data.id;
+              }
+            }
+          } catch (netErr) {
+            console.log('Offline product persist note:', netErr.message);
+          }
+        }
+
+        window.AimanStore.resetProductForm();
+        renderProducts();
+        renderAdminProducts();
+        updateSalesDashboard();
+
+        alert(editId ? '✅ Product updated successfully on all devices!' : '🎉 New product added successfully! Amma ke mobile aur laptop sab par live ho gaya.');
+      } catch (err) {
+        console.error('Save product error:', err);
+        alert('Product save karte waqt masla: ' + err.message);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = origBtnText;
+        }
       }
-
-      localStorage.setItem('aiman_products', JSON.stringify(products));
-
-      // Dual-layer backend persistence (Disk db_store.json + MongoDB Atlas)
-      if (productPayload) {
-        fetch(`${API_BASE}/api/products`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(productPayload)
-        }).catch(err => console.log('Offline product persist:', err.message));
-      }
-
-      window.AimanStore.resetProductForm();
-      renderProducts();
-      renderAdminProducts();
-      updateSalesDashboard();
     },
 
     editProduct: function (id) {
@@ -2044,29 +2192,29 @@
       if (preview) preview.src = desktopUrl;
     },
 
-    handleSlideFileUpload: function (idx, e) {
+    handleSlideFileUpload: async function (idx, e) {
       const file = e.target.files && e.target.files[0];
       if (!file) return;
 
       const nameLabel = document.getElementById(`slideFileName_${idx}`);
       if (nameLabel) nameLabel.textContent = `✓ Uploaded: ${file.name}`;
 
-      const reader = new FileReader();
-      reader.onload = function (evt) {
-        const base64Data = evt.target.result;
-        const dInput = document.getElementById(`slideDesktop_${idx}`);
-        const mInput = document.getElementById(`slideMobile_${idx}`);
-        const preview = document.getElementById(`adminSlidePreview_${idx}`);
+      const dInput = document.getElementById(`slideDesktop_${idx}`);
+      const mInput = document.getElementById(`slideMobile_${idx}`);
+      const preview = document.getElementById(`adminSlidePreview_${idx}`);
 
-        if (dInput) dInput.value = base64Data;
-        if (mInput) mInput.value = base64Data;
-        if (preview) preview.src = base64Data;
+      try {
+        const compressedBase64 = await compressImageFile(file, 1600, 0.82);
+
+        if (dInput) dInput.value = compressedBase64;
+        if (mInput) mInput.value = compressedBase64;
+        if (preview) preview.src = compressedBase64;
 
         // Sync with backend upload API if available
         fetch(`${API_BASE}/api/upload`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: base64Data, filename: file.name })
+          body: JSON.stringify({ image: compressedBase64, filename: file.name })
         }).then(res => res.json()).then(data => {
           if (data && data.url) {
             if (dInput) dInput.value = data.url;
@@ -2074,8 +2222,9 @@
             if (preview) preview.src = data.url;
           }
         }).catch(err => console.log('Offline slide file upload:', err.message));
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.error('Slide upload error:', err);
+      }
     },
 
     addNewHeroBanner: function () {
@@ -2203,6 +2352,97 @@
       alert('✅ Top Red Announcement Bar updated live!');
     },
 
+    // Shop By Category — Moving Cards Pictures Management
+    handleCategoryCardUpload: async function (idx, e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      const nameLabel = document.getElementById(`catCardFileName_${idx}`);
+      if (nameLabel) nameLabel.textContent = file.name;
+
+      try {
+        const compressedBase64 = await compressImageFile(file, 900, 0.78);
+        const preview = document.getElementById(`catCardPreview_${idx}`);
+        const input = document.getElementById(`catCardImgInput_${idx}`);
+        if (preview) preview.src = compressedBase64;
+        if (input) input.value = compressedBase64;
+
+        fetch(`${API_BASE}/api/upload`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: compressedBase64, filename: `cat_${idx}_` + file.name })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.success && data.url) {
+            if (input) input.value = data.url;
+            if (preview) preview.src = data.url;
+          }
+        })
+        .catch(err => console.log('Offline category card upload:', err.message));
+      } catch (err) {
+        alert('Error reading image: ' + err.message);
+      }
+    },
+
+    previewCategoryCard: function (idx) {
+      const input = document.getElementById(`catCardImgInput_${idx}`);
+      const preview = document.getElementById(`catCardPreview_${idx}`);
+      if (input && preview) {
+        const val = input.value.trim();
+        if (val) preview.src = val;
+      }
+    },
+
+    saveCategoryCards: function (e) {
+      if (e) e.preventDefault();
+      const currentCards = (categoryCards && categoryCards.length > 0) ? categoryCards : defaultCategoryCards;
+      const updated = currentCards.map((c, idx) => {
+        const input = document.getElementById(`catCardImgInput_${idx}`);
+        return {
+          ...c,
+          image: (input && input.value.trim()) ? input.value.trim() : c.image
+        };
+      });
+
+      categoryCards = updated;
+      try {
+        localStorage.setItem('aiman_category_cards', JSON.stringify(categoryCards));
+      } catch (storageErr) {
+        console.warn('localStorage quota note:', storageErr);
+      }
+
+      // Sync with MongoDB Atlas & backend settings
+      fetch(`${API_BASE}/api/settings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: 'category_cards', value: updated })
+      }).catch(err => console.log('Offline category cards persist:', err.message));
+
+      renderCategoryCards();
+      renderAdminCategoryCards();
+      alert('🎉 Shop By Category ki pictures kamyabi se update aur publish ho gayin!');
+    },
+
+    resetCategoryCardsToDefault: function () {
+      if (confirm('Shop By Category ki pictures ko default par reset karna chahte hain?')) {
+        categoryCards = JSON.parse(JSON.stringify(defaultCategoryCards));
+        try {
+          localStorage.setItem('aiman_category_cards', JSON.stringify(categoryCards));
+        } catch (e) {}
+
+        fetch(`${API_BASE}/api/settings`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: 'category_cards', value: categoryCards })
+        }).catch(err => console.log('Offline category cards reset:', err.message));
+
+        renderCategoryCards();
+        renderAdminCategoryCards();
+        alert('✅ Category pictures default par reset ho gayin.');
+      }
+    },
+
     nextSlide: function () {
       const slides = getActiveBannerSlides();
       if (slides.length <= 1) return;
@@ -2303,7 +2543,7 @@
           products = json.data.map(p => ({
             id: p.id || p._id || ('prod-' + Date.now()),
             title: p.title || p.name || 'Bohra Libas Ensemble',
-            category: p.category || 'heavy-rida',
+            category: normalizeCategory(p.category),
             price: Number(p.price) || 0,
             regularPrice: Number(p.regularPrice || p.originalPrice) || 0,
             discount: Number(p.discount) || 0,
@@ -2315,7 +2555,11 @@
             isSale: Boolean(p.isSale ?? p.onSale),
             bestSeller: Boolean(p.bestSeller ?? p.isFeatured)
           }));
-          localStorage.setItem('aiman_products', JSON.stringify(products));
+          try {
+            localStorage.setItem('aiman_products', JSON.stringify(products));
+          } catch (storageErr) {
+            console.warn('localStorage quota note:', storageErr);
+          }
           renderProducts();
           if (document.getElementById('adminProductsTableBody')) renderAdminProducts();
         }
@@ -2339,7 +2583,11 @@
             paymentMethod: s.paymentMethod || 'Cash on Delivery (COD)',
             status: s.status || 'Delivered'
           }));
-          localStorage.setItem('aiman_sales', JSON.stringify(salesLedger));
+          try {
+            localStorage.setItem('aiman_sales', JSON.stringify(salesLedger));
+          } catch (storageErr) {
+            console.warn('localStorage quota note:', storageErr);
+          }
           updateSalesDashboard();
         }
       }
@@ -2363,8 +2611,18 @@
             updated = true;
           }
           if (updated) {
-            localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings));
+            try {
+              localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings));
+            } catch (e) {}
             applyHeroSettings();
+          }
+          if (json.data.category_cards && Array.isArray(json.data.category_cards)) {
+            categoryCards = json.data.category_cards;
+            try {
+              localStorage.setItem('aiman_category_cards', JSON.stringify(categoryCards));
+            } catch (e) {}
+            renderCategoryCards();
+            if (document.getElementById('adminCategoryCardsList')) renderAdminCategoryCards();
           }
         }
       }
@@ -2396,7 +2654,11 @@
   function initStore() {
     lockZeroHorizontalScroll();
     applyHeroSettings();
+    renderCategoryCards();
     renderProducts();
+    updateHeaderCartBadge();
+    startHeroSlider();
+    syncWithBackend();
     updateHeaderCartBadge();
     startHeroSlider();
     syncWithBackend();
