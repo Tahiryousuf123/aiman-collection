@@ -1,22 +1,6 @@
 {
   "products": [
     {
-      "id": "prod-1788786967473",
-      "title": "dbxbxb",
-      "name": "dbxbxb",
-      "category": "heavy-rida",
-      "stockStatus": "in-stock",
-      "price": 5677,
-      "regularPrice": 7999,
-      "discount": 30,
-      "image": "images/uploads/1788786958429_do_png.png",
-      "gallery": [],
-      "isNew": true,
-      "isSale": true,
-      "bestSeller": false,
-      "slug": "dbxbxb"
-    },
-    {
       "id": 1,
       "title": "Royal Crimson Heavy Zardozi Ceremonial Bridal Silk Rida",
       "category": "heavy-rida",

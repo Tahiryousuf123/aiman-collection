@@ -473,7 +473,7 @@
 
     let filtered = products.filter(p => {
       const matchCat = currentCategory === 'all' || p.category === currentCategory;
-      const matchSearch = searchQuery === '' || p.title.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchSearch = searchQuery === '' || (p.title || p.name || '').toLowerCase().includes(searchQuery.toLowerCase());
       return matchCat && matchSearch;
     });
 
@@ -504,22 +504,23 @@
     }
 
     container.innerHTML = filtered.map(p => {
+      const title = p.title || p.name || 'Bohra Libas Ensemble';
       const status = p.stockStatus || 'in-stock';
       let statusBadgeHtml = '';
       let waClass = '';
       let btnText = 'Order on WhatsApp';
-      let waMsg = `✨ *Assalam-o-Alaikum Aiman Collection!* ✨\n\nI want to order:\n👑 *Product:* ${p.title}\n💰 *Price:* Rs. ${p.price.toLocaleString()}\n\nPlease confirm availability, size naap, and delivery timeline.`;
+      let waMsg = `✨ *Assalam-o-Alaikum Aiman Collection!* ✨\n\nI want to order:\n👑 *Product:* ${title}\n💰 *Price:* Rs. ${p.price.toLocaleString()}\n\nPlease confirm availability, size naap, and delivery timeline.`;
 
       if (status === 'sold-out') {
         statusBadgeHtml = `<span class="stock-badge stock-badge-soldout"><i class="fas fa-circle-xmark"></i> Sold Out</span>`;
         waClass = 'wa-soldout';
         btnText = 'Sold Out • Inquire Restock';
-        waMsg = `✨ *Assalam-o-Alaikum Aiman Collection!* ✨\n\nI saw that *${p.title}* is currently Sold Out. Could you please inform me when this design will be restocked, or if a similar piece can be tailored?`;
+        waMsg = `✨ *Assalam-o-Alaikum Aiman Collection!* ✨\n\nI saw that *${title}* is currently Sold Out. Could you please inform me when this design will be restocked, or if a similar piece can be tailored?`;
       } else if (status === 'booked') {
         statusBadgeHtml = `<span class="stock-badge stock-badge-booked"><i class="fas fa-clock"></i> Booked</span>`;
         waClass = 'wa-booked';
         btnText = 'Booked • Custom Naap Order';
-        waMsg = `✨ *Assalam-o-Alaikum Aiman Collection!* ✨\n\nI saw that *${p.title}* is Booked. I would love to place a custom stitching naap order for this design (Rs. ${p.price.toLocaleString()}).`;
+        waMsg = `✨ *Assalam-o-Alaikum Aiman Collection!* ✨\n\nI saw that *${title}* is Booked. I would love to place a custom stitching naap order for this design (Rs. ${p.price.toLocaleString()}).`;
       } else {
         statusBadgeHtml = `<span class="stock-badge stock-badge-instock"><i class="fas fa-circle-check"></i> In Stock</span>`;
         waClass = '';
@@ -534,7 +535,7 @@
             ${p.discount > 0 ? `<span class="kashaf-sale-badge">-${p.discount}%</span>` : ''}
             <div class="product-stock-badge">${statusBadgeHtml}</div>
             <a href="javascript:void(0)" onclick="window.AimanStore.openProductPage('${p.id}')">
-              <img src="${p.image}" onerror="this.onerror=null; this.src='images/black_formal.jpg';" style="${p.imageStyle || ''}" alt="${p.title}" loading="lazy">
+              <img src="${p.image}" onerror="this.onerror=null; this.src='images/black_formal.jpg';" style="${p.imageStyle || ''}" alt="${title}" loading="lazy">
             </a>
             <button type="button" class="product-quick-view-btn" onclick="window.AimanStore.openProductPage('${p.id}')">
               <i class="fas fa-eye"></i> View Details
@@ -543,7 +544,7 @@
           <div class="product-details">
             <h3 class="product-title">
               <a href="javascript:void(0)" onclick="window.AimanStore.openProductPage('${p.id}')">
-                ${p.title}
+                ${title}
               </a>
             </h3>
             <div class="product-price-row">

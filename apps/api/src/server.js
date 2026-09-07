@@ -759,6 +759,8 @@ async function startServer() {
       console.warn('⚠️ [Database] MongoDB connection error:', err.message);
       console.log(`ℹ️ [Database] App running with Local Storage and Firebase fallback.`);
     });
+}
+
 if (!process.env.VERCEL) {
   startServer();
 } else {
