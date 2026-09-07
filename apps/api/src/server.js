@@ -6,6 +6,7 @@ try {
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
@@ -35,6 +36,32 @@ const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '../../../');
 
 dotenv.config({ path: path.join(rootDir, '.env') });
+
+// Local JSON persistent database (guarantees data survival across laptop reboots)
+const localDataDir = path.join(rootDir, 'data');
+const localDbFile = path.join(localDataDir, 'db_store.json');
+if (!fs.existsSync(localDataDir)) {
+  try { fs.mkdirSync(localDataDir, { recursive: true }); } catch (e) {}
+}
+
+export function readLocalDb() {
+  try {
+    if (fs.existsSync(localDbFile)) {
+      return JSON.parse(fs.readFileSync(localDbFile, 'utf8'));
+    }
+  } catch (e) {
+    console.warn('⚠️ Error reading local db:', e.message);
+  }
+  return { products: [], sales: [], settings: {} };
+}
+
+export function writeLocalDb(data) {
+  try {
+    fs.writeFileSync(localDbFile, JSON.stringify(data, null, 2), 'utf8');
+  } catch (e) {
+    console.warn('⚠️ Error writing local db:', e.message);
+  }
+}
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -126,47 +153,74 @@ app.post('/api/seed', async (req, res) => {
 });
 
 /* --------------------------------------------------------------------------
-   3. Products CRUD
+   3. Products CRUD (Dual-Layer: MongoDB Atlas + Disk db_store.json)
    -------------------------------------------------------------------------- */
 app.get('/api/products', async (req, res) => {
   try {
     const { category, search, status } = req.query;
     let query = {};
-
-    if (category && category !== 'all') {
-      query.category = category;
-    }
-    if (status) {
-      query.status = status;
-    }
+    if (category && category !== 'all') query.category = category;
+    if (status) query.status = status;
     if (search) {
       const regex = new RegExp(search, 'i');
       query.$or = [{ name: regex }, { description: regex }, { fabric: regex }, { badge: regex }];
     }
 
-    const products = await Product.find(query).sort({ createdAt: -1 });
+    let products = [];
+    try {
+      products = await Product.find(query).sort({ createdAt: -1 });
+    } catch (dbErr) {
+      console.warn('MongoDB query warning, using local disk db:', dbErr.message);
+    }
+
+    if (!products || products.length === 0) {
+      const localData = readLocalDb();
+      products = localData.products || [];
+      if (category && category !== 'all') {
+        products = products.filter(p => p.category === category);
+      }
+    }
+
     res.json({ success: true, count: products.length, data: products });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    const localData = readLocalDb();
+    res.json({ success: true, count: (localData.products || []).length, data: localData.products || [] });
   }
 });
 
 app.post('/api/products', async (req, res) => {
   try {
     const payload = req.body;
-    if (!payload.id) {
-      payload.id = 'prod-' + Date.now();
+    if (!payload.id) payload.id = 'prod-' + Date.now();
+    if (!payload.slug && payload.title) {
+      payload.slug = payload.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     }
-    if (!payload.slug) {
-      payload.slug = payload.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    if (!payload.name && payload.title) payload.name = payload.title;
+
+    // Save to MongoDB if available
+    let productDoc = null;
+    try {
+      productDoc = await Product.findOneAndUpdate({ id: payload.id }, payload, {
+        upsert: true,
+        new: true,
+        setDefaultsOnInsert: true
+      });
+    } catch (e) {
+      console.warn('MongoDB save warning:', e.message);
     }
 
-    const product = await Product.findOneAndUpdate({ id: payload.id }, payload, {
-      upsert: true,
-      new: true,
-      setDefaultsOnInsert: true
-    });
-    res.json({ success: true, data: product });
+    // Always save to local disk database (db_store.json)
+    const localData = readLocalDb();
+    localData.products = localData.products || [];
+    const idx = localData.products.findIndex(p => String(p.id) === String(payload.id));
+    if (idx >= 0) {
+      localData.products[idx] = { ...localData.products[idx], ...payload };
+    } else {
+      localData.products.unshift(payload);
+    }
+    writeLocalDb(localData);
+
+    res.json({ success: true, data: productDoc || payload });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -175,9 +229,20 @@ app.post('/api/products', async (req, res) => {
 app.put('/api/products/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const updated = await Product.findOneAndUpdate({ id }, req.body, { new: true });
-    if (!updated) return res.status(404).json({ success: false, error: 'Product not found' });
-    res.json({ success: true, data: updated });
+    let updated = null;
+    try {
+      updated = await Product.findOneAndUpdate({ id }, req.body, { new: true });
+    } catch (e) {}
+
+    const localData = readLocalDb();
+    localData.products = localData.products || [];
+    const idx = localData.products.findIndex(p => String(p.id) === String(id));
+    if (idx >= 0) {
+      localData.products[idx] = { ...localData.products[idx], ...req.body };
+      writeLocalDb(localData);
+    }
+
+    res.json({ success: true, data: updated || req.body });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -186,15 +251,66 @@ app.put('/api/products/:id', async (req, res) => {
 app.delete('/api/products/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const filter = {
-      $or: [
-        { id: String(id) },
-        { _id: mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : null }
-      ].filter(f => Object.values(f)[0] !== null)
-    };
-    await Product.findOneAndDelete(filter);
+    try {
+      await Product.findOneAndDelete({ id });
+    } catch (e) {}
+
+    const localData = readLocalDb();
+    localData.products = (localData.products || []).filter(p => String(p.id) !== String(id));
+    writeLocalDb(localData);
+
     res.json({ success: true, message: `Product ${id} deleted` });
   } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/* --------------------------------------------------------------------------
+   Image Upload API (Base64 -> Local Disk File)
+   -------------------------------------------------------------------------- */
+app.post('/api/upload', (req, res) => {
+  try {
+    const { image, filename } = req.body;
+    if (!image) {
+      return res.status(400).json({ success: false, error: 'No image data provided' });
+    }
+
+    const uploadsDir = path.join(rootDir, 'images', 'uploads');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
+    // Parse base64
+    let buffer;
+    let ext = 'jpg';
+    const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    if (matches && matches.length === 3) {
+      buffer = Buffer.from(matches[2], 'base64');
+      const mime = matches[1];
+      if (mime.includes('png')) ext = 'png';
+      else if (mime.includes('webp')) ext = 'webp';
+      else if (mime.includes('gif')) ext = 'gif';
+    } else {
+      buffer = Buffer.from(image, 'base64');
+    }
+
+    const cleanName = (filename || 'item')
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '_')
+      .substring(0, 25);
+    const saveName = `${Date.now()}_${cleanName}.${ext}`;
+    const filePath = path.join(uploadsDir, saveName);
+
+    fs.writeFileSync(filePath, buffer);
+    const publicUrl = `images/uploads/${saveName}`;
+
+    res.json({
+      success: true,
+      url: publicUrl,
+      message: 'Image successfully saved to atelier storage'
+    });
+  } catch (err) {
+    console.error('Upload error:', err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
@@ -286,14 +402,26 @@ app.delete('/api/orders/:id', async (req, res) => {
 });
 
 /* --------------------------------------------------------------------------
-   5. Sales Ledger CRUD
+   5. Sales Ledger CRUD (Dual-Layer: MongoDB Atlas + Disk db_store.json)
    -------------------------------------------------------------------------- */
 app.get('/api/sales', async (req, res) => {
   try {
-    const sales = await Sale.find().sort({ createdAt: -1 });
+    let sales = [];
+    try {
+      sales = await Sale.find().sort({ createdAt: -1 });
+    } catch (e) {
+      console.warn('MongoDB query warning, using local disk db for sales:', e.message);
+    }
+
+    if (!sales || sales.length === 0) {
+      const localData = readLocalDb();
+      sales = localData.sales || [];
+    }
+
     res.json({ success: true, count: sales.length, data: sales });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    const localData = readLocalDb();
+    res.json({ success: true, count: (localData.sales || []).length, data: localData.sales || [] });
   }
 });
 
@@ -302,14 +430,14 @@ app.post('/api/sales', async (req, res) => {
     const payload = req.body;
     if (!payload.id) payload.id = 'sale-' + Date.now();
     const qty = Math.max(1, Number(payload.quantity) || 1);
-    const sellPrice = Number(payload.sellingPrice ?? payload.unitPrice ?? payload.price) || 0;
+    const sellPrice = Number(payload.sellingPrice ?? payload.unitPrice ?? payload.amount ?? payload.price) || 0;
     const costPrice = Number(payload.costPrice ?? payload.unitCost) || 0;
     payload.sellingPrice = sellPrice;
     payload.unitPrice = sellPrice;
     payload.costPrice = costPrice;
     payload.unitCost = costPrice;
     payload.quantity = qty;
-    payload.totalRevenue = Number(payload.totalRevenue) || (sellPrice * qty);
+    payload.totalRevenue = Number(payload.totalRevenue ?? payload.amount) || (sellPrice * qty);
     payload.totalCost = Number(payload.totalCost) || (costPrice * qty);
     payload.netProfit = Number(payload.netProfit ?? payload.profit) || (payload.totalRevenue - payload.totalCost);
     payload.profit = payload.netProfit;
@@ -317,12 +445,29 @@ app.post('/api/sales', async (req, res) => {
       payload.profitMargin = Number(((payload.netProfit / payload.totalRevenue) * 100).toFixed(1));
     }
 
-    const sale = await Sale.findOneAndUpdate({ id: payload.id }, payload, {
-      upsert: true,
-      new: true,
-      setDefaultsOnInsert: true
-    });
-    res.json({ success: true, data: sale });
+    let saleDoc = null;
+    try {
+      saleDoc = await Sale.findOneAndUpdate({ id: payload.id }, payload, {
+        upsert: true,
+        new: true,
+        setDefaultsOnInsert: true
+      });
+    } catch (e) {
+      console.warn('MongoDB save warning for sale:', e.message);
+    }
+
+    // Always persist to local disk db_store.json
+    const localData = readLocalDb();
+    localData.sales = localData.sales || [];
+    const idx = localData.sales.findIndex(s => String(s.id) === String(payload.id));
+    if (idx >= 0) {
+      localData.sales[idx] = { ...localData.sales[idx], ...payload };
+    } else {
+      localData.sales.unshift(payload);
+    }
+    writeLocalDb(localData);
+
+    res.json({ success: true, data: saleDoc || payload });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -331,13 +476,20 @@ app.post('/api/sales', async (req, res) => {
 app.delete('/api/sales/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const filter = {
-      $or: [
-        { id: String(id) },
-        { _id: mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : null }
-      ].filter(f => Object.values(f)[0] !== null)
-    };
-    await Sale.findOneAndDelete(filter);
+    try {
+      const filter = {
+        $or: [
+          { id: String(id) },
+          { _id: mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : null }
+        ].filter(f => Object.values(f)[0] !== null)
+      };
+      await Sale.findOneAndDelete(filter);
+    } catch (e) {}
+
+    const localData = readLocalDb();
+    localData.sales = (localData.sales || []).filter(s => String(s.id) !== String(id));
+    writeLocalDb(localData);
+
     res.json({ success: true, message: `Sale ${id} deleted` });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -503,16 +655,23 @@ app.delete('/api/bot-rules/:id', async (req, res) => {
 });
 
 /* --------------------------------------------------------------------------
-   10. Settings & Frontend Customization
+   10. Settings & Frontend Customization (Dual-Layer: MongoDB Atlas + Disk db_store.json)
    -------------------------------------------------------------------------- */
 app.get('/api/settings', async (req, res) => {
   try {
-    const settings = await Setting.find();
-    const map = {};
-    settings.forEach(s => { map[s.key] = s.value; });
+    let map = {};
+    try {
+      const settings = await Setting.find();
+      settings.forEach(s => { map[s.key] = s.value; });
+    } catch (e) {}
+
+    const localData = readLocalDb();
+    map = { ...(localData.settings || {}), ...map };
+
     res.json({ success: true, data: map });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    const localData = readLocalDb();
+    res.json({ success: true, data: localData.settings || {} });
   }
 });
 
@@ -520,12 +679,23 @@ app.post('/api/settings', async (req, res) => {
   try {
     const { key, value } = req.body;
     if (!key) return res.status(400).json({ success: false, error: 'Setting key is required' });
-    const setting = await Setting.findOneAndUpdate(
-      { key },
-      { key, value },
-      { upsert: true, new: true }
-    );
-    res.json({ success: true, data: setting });
+
+    let setting = null;
+    try {
+      setting = await Setting.findOneAndUpdate(
+        { key },
+        { key, value },
+        { upsert: true, new: true }
+      );
+    } catch (e) {}
+
+    // Persist to local disk db_store.json
+    const localData = readLocalDb();
+    localData.settings = localData.settings || {};
+    localData.settings[key] = value;
+    writeLocalDb(localData);
+
+    res.json({ success: true, data: setting || { key, value } });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

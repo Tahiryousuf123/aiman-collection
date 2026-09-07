@@ -60,7 +60,8 @@ filesToCopy.forEach(file => {
 const dirsToCopy = [
   'images',
   'apps',
-  'packages'
+  'packages',
+  'data'
 ];
 
 dirsToCopy.forEach(dir => {

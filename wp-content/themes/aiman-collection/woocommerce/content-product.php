@@ -1,6 +1,7 @@
 <?php
 /**
  * The template for displaying product content within loops
+ * Styled in Kashaf.pk minimalist fashion aesthetic
  *
  * @package Aiman_Collection
  */
@@ -14,76 +15,59 @@ if ( empty( $product ) || ! $product->is_visible() ) {
 	return;
 }
 
-$product_id   = $product->get_id();
-$phone        = get_theme_mod( 'aiman_whatsapp_number', '923452439196' );
-$title        = $product->get_name();
-$price_plain  = html_entity_decode( wp_strip_all_tags( $product->get_price_html() ) );
-$product_url  = get_permalink( $product_id );
-$categories   = wc_get_product_category_list( $product_id );
+$product_id    = $product->get_id();
+$phone         = get_theme_mod( 'aiman_whatsapp_number', '923452439196' );
+$title         = $product->get_name();
+$price_html    = $product->get_price_html();
+$product_url   = get_permalink( $product_id );
 $regular_price = (float) $product->get_regular_price();
 $sale_price    = (float) $product->get_sale_price();
 $discount      = ( $product->is_on_sale() && $regular_price > 0 ) ? round( ( ( $regular_price - $sale_price ) / $regular_price ) * 100 ) : 0;
 
-$wa_msg = "✨ *Assalam-o-Alaikum Aiman Collection Atelier!* ✨\n\nI want to order this Dawoodi Bohra Libas:\n👑 *Product:* " . $title . "\n💰 *Price:* " . $price_plain . "\n🔗 *Link:* " . $product_url . "\n\nPlease confirm availability and custom stitching details.";
+$wa_msg = "✨ *Assalam-o-Alaikum Aiman Collection!* ✨\n\nI want to order this item:\n👗 *Product:* " . $title . "\n💰 *Price:* " . html_entity_decode( wp_strip_all_tags( $price_html ) ) . "\n🔗 *Link:* " . $product_url . "\n\nPlease confirm availability and delivery.";
 $wa_link = "https://wa.me/{$phone}?text=" . rawurlencode( $wa_msg );
 ?>
-<li <?php wc_product_class( 'product-card-item', $product ); ?>>
-	<div class="product-thumb-wrap">
+<li <?php wc_product_class( 'product-card', $product ); ?>>
+	<!-- Product Media Box -->
+	<div class="product-img-box">
 		<?php if ( $discount > 0 ) : ?>
-			<span class="onsale">-<?php echo esc_html( $discount ); ?>% OFF</span>
+			<span class="kashaf-sale-badge">-<?php echo esc_html( $discount ); ?>%</span>
 		<?php elseif ( $product->is_on_sale() ) : ?>
-			<span class="onsale"><?php esc_html_e( 'SALE', 'aiman-collection' ); ?></span>
+			<span class="kashaf-sale-badge"><?php esc_html_e( 'SALE', 'aiman-collection' ); ?></span>
 		<?php endif; ?>
 
-		<a href="<?php echo esc_url( $product_url ); ?>" class="woocommerce-LoopProduct-link">
+		<a href="<?php echo esc_url( $product_url ); ?>">
 			<?php
 			if ( has_post_thumbnail( $product_id ) ) {
 				echo get_the_post_thumbnail( $product_id, 'aiman-product-card' );
 			} else {
-				echo '<img src="' . esc_url( get_template_directory_uri() . '/assets/images/aiman_logo.png' ) . '" alt="' . esc_attr( $title ) . '">';
+				// Fallback image
+				echo '<img src="' . esc_url( get_template_directory_uri() . '/assets/images/summer_collection.jpg' ) . '" alt="' . esc_attr( $title ) . '">';
 			}
 			?>
 		</a>
 
-		<!-- Quick View Floating Button -->
-		<button type="button" class="quick-view-overlay-btn" onclick="window.AimanStore.openQuickView(<?php echo esc_attr( $product_id ); ?>)" title="<?php esc_attr_e( 'Quick View', 'aiman-collection' ); ?>" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); background: rgba(19, 22, 28, 0.9); border: 1px solid var(--color-border); color: var(--color-gold-light); font-size: 0.78rem; font-weight: 700; padding: 6px 14px; border-radius: var(--radius-full); cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; display: inline-flex; align-items: center; gap: 0.4rem; z-index: 4;">
-			<i class="fas fa-eye text-gold"></i> <?php esc_html_e( 'Quick View', 'aiman-collection' ); ?>
+		<!-- Quick View Button -->
+		<button type="button" class="product-quick-view-btn" onclick="window.AimanStore.openQuickView(<?php echo esc_attr( $product_id ); ?>)">
+			<i class="fas fa-eye"></i> <?php esc_html_e( 'Quick View', 'aiman-collection' ); ?>
 		</button>
 	</div>
 
-	<div class="product-card-body">
-		<div class="product-category-meta">
-			<?php echo wp_kses_post( $categories ? $categories : esc_html__( 'Dawoodi Bohra Libas', 'aiman-collection' ) ); ?>
-		</div>
-
-		<h2 class="woocommerce-loop-product__title">
-			<a href="<?php echo esc_url( $product_url ); ?>" style="color: inherit; text-decoration: none;">
+	<!-- Product Details (Title, Price & WhatsApp Order - NO Add to Cart) -->
+	<div class="product-details">
+		<h3 class="product-title">
+			<a href="<?php echo esc_url( $product_url ); ?>">
 				<?php echo esc_html( $title ); ?>
 			</a>
-		</h2>
+		</h3>
 
-		<div style="margin-bottom: 0.5rem;">
-			<?php
-			if ( $product->get_rating_count() > 0 ) {
-				echo wc_get_rating_html( $product->get_average_rating() );
-			} else {
-				echo aiman_render_star_rating( 5 );
-			}
-			?>
+		<div class="product-price-row">
+			<span class="price-current"><?php echo $product->get_price_html(); ?></span>
 		</div>
 
-		<span class="price" data-price-pkr="<?php echo esc_attr( $product->get_price() ); ?>">
-			<?php echo $product->get_price_html(); ?>
-		</span>
-
-		<div class="product-actions-bar">
-			<?php
-			// WooCommerce Add to Cart button
-			woocommerce_template_loop_add_to_cart();
-			?>
-			<a href="<?php echo esc_url( $wa_link ); ?>" target="_blank" rel="noopener noreferrer" class="btn-wa-direct" title="<?php esc_attr_e( 'Order on WhatsApp', 'aiman-collection' ); ?>">
-				<i class="fab fa-whatsapp"></i> <?php esc_html_e( 'WhatsApp', 'aiman-collection' ); ?>
-			</a>
-		</div>
+		<!-- Direct 1-Click WhatsApp Order (Replaces Add to Cart) -->
+		<a href="<?php echo esc_url( $wa_link ); ?>" target="_blank" rel="noopener noreferrer" class="product-wa-order-link" title="<?php esc_attr_e( 'Order on WhatsApp', 'aiman-collection' ); ?>">
+			<i class="fab fa-whatsapp"></i> <?php esc_html_e( 'Order on WhatsApp', 'aiman-collection' ); ?>
+		</a>
 	</div>
 </li>
