@@ -28,9 +28,6 @@
       try {
         const fbApp = window.firebase.apps.length ? window.firebase.app() : window.firebase.initializeApp(FIREBASE_CONFIG);
         firestoreDb = window.firebase.firestore(fbApp);
-        try {
-          firestoreDb.enablePersistence({ synchronizeTabs: true }).catch(() => {});
-        } catch (e) {}
         console.log('⚡ [AimanStore] Firebase Real-Time Engine Active');
       } catch (err) {
         console.warn('Firebase init note:', err.message);
@@ -38,213 +35,26 @@
     }
     return firestoreDb;
   }
-  getDb();
 
-  // Default Initial Catalog
-  const initialProducts = [
-    {
-      id: 1,
-      title: 'Royal Crimson Heavy Zardozi Ceremonial Bridal Silk Rida',
-      category: 'heavy-rida',
-      price: 15500,
-      regularPrice: 24000,
-      discount: 35,
-      image: 'images/black_formal.jpg',
-      imageStyle: '',
-      stockStatus: 'in-stock',
-      isNew: false,
-      isSale: true,
-      bestSeller: true
-    },
-    {
-      id: 2,
-      title: 'Emerald Velvet Boti Festive Milad Libas & Matching Batwa',
-      category: 'heavy-rida',
-      price: 11900,
-      regularPrice: 19500,
-      discount: 39,
-      image: 'images/black_formal.jpg',
-      imageStyle: 'filter: hue-rotate(90deg);',
-      stockStatus: 'booked',
-      isNew: false,
-      isSale: true,
-      bestSeller: true
-    },
-    {
-      id: 3,
-      title: 'Jet Black Royal Festive Zardozi Formal Embroidered Ensemble',
-      category: 'new-arrivals',
-      price: 6950,
-      regularPrice: 13900,
-      discount: 50,
-      image: 'images/black_formal.jpg',
-      imageStyle: '',
-      stockStatus: 'in-stock',
-      isNew: true,
-      isSale: true,
-      bestSeller: true
-    },
-    {
-      id: 4,
-      title: 'Pearl White Zari Organza Formal Evening Pret Suit',
-      category: 'new-arrivals',
-      price: 7200,
-      regularPrice: 12000,
-      discount: 40,
-      image: 'images/summer_collection.jpg',
-      imageStyle: 'filter: brightness(1.1) saturate(0.5);',
-      stockStatus: 'in-stock',
-      isNew: true,
-      isSale: true,
-      bestSeller: true
-    },
-    {
-      id: 5,
-      title: 'Pastel Mint Chiffon Dupatta Summer Cotton Pret Rida',
-      category: 'cotton-pret',
-      price: 4850,
-      regularPrice: 8500,
-      discount: 43,
-      image: 'images/summer_collection.jpg',
-      imageStyle: '',
-      stockStatus: 'in-stock',
-      isNew: false,
-      isSale: true,
-      bestSeller: true
-    },
-    {
-      id: 6,
-      title: 'Dusty Rose Mauve Scalloped Cutwork 3-Piece Pret Suit',
-      category: 'cotton-pret',
-      price: 5850,
-      regularPrice: 9450,
-      discount: 38,
-      image: 'images/mauve_pret.jpg',
-      imageStyle: '',
-      stockStatus: 'sold-out',
-      isNew: false,
-      isSale: true,
-      bestSeller: true
-    },
-    {
-      id: 7,
-      title: 'Handcrafted Gold Zardozi Matching Bridal Batwa',
-      category: 'bags-batwas',
-      price: 2450,
-      regularPrice: 3800,
-      discount: 35,
-      image: 'images/summer_collection.jpg',
-      imageStyle: 'filter: hue-rotate(330deg);',
-      stockStatus: 'in-stock',
-      isNew: false,
-      isSale: true,
-      bestSeller: false
-    },
-    {
-      id: 8,
-      title: 'Luxury Velvet Quilted Topi & Cosmetic Vanity Pouch Set',
-      category: 'pouches',
-      price: 1650,
-      regularPrice: 2500,
-      discount: 34,
-      image: 'images/mauve_pret.jpg',
-      imageStyle: 'filter: hue-rotate(270deg);',
-      stockStatus: 'in-stock',
-      isNew: false,
-      isSale: true,
-      bestSeller: false
-    },
-    {
-      id: 9,
-      title: 'Pure Royal Silk Boski Unstitched 6-Meter Ceremonial Suit',
-      category: 'boski-fabric',
-      price: 12500,
-      regularPrice: 18500,
-      discount: 32,
-      image: 'images/boski_fabric.jpg',
-      imageStyle: '',
-      stockStatus: 'in-stock',
-      isNew: true,
-      isSale: true,
-      bestSeller: true
-    },
-    {
-      id: 10,
-      title: 'Imperial Ivory Boski Embroidered Kurta & Libas Ensemble',
-      category: 'boski-fabric',
-      price: 9800,
-      regularPrice: 14000,
-      discount: 30,
-      image: 'images/boski_fabric.jpg',
-      imageStyle: 'filter: brightness(1.04);',
-      stockStatus: 'booked',
-      isNew: false,
-      isSale: true,
-      bestSeller: true
-    },
-    {
-      id: 11,
-      title: 'Royal Pure Silk Zari Zardozi Bridal Rida with Matching Batwa',
-      category: 'silk-rida',
-      price: 18500,
-      regularPrice: 26000,
-      discount: 29,
-      image: 'images/silk_rida.jpg',
-      imageStyle: '',
-      stockStatus: 'in-stock',
-      isNew: true,
-      isSale: true,
-      bestSeller: true
-    },
-    {
-      id: 12,
-      title: 'Lavender Mulberry Silk Embroidered Formal Rida & Pardi',
-      category: 'silk-rida',
-      price: 14200,
-      regularPrice: 21000,
-      discount: 32,
-      image: 'images/silk_rida.jpg',
-      imageStyle: 'filter: hue-rotate(240deg) saturate(1.1);',
-      stockStatus: 'booked',
-      isNew: false,
-      isSale: true,
-      bestSeller: true
+  function ensureFirestore(callback) {
+    const db = getDb();
+    if (db) {
+      if (callback) callback(db);
+      return;
     }
-  ];
-
-  // Default Initial Sales Ledger
-  const initialSales = [
-    {
-      id: 'ORD-1091',
-      date: '2026-09-06',
-      productName: 'Royal Crimson Heavy Zardozi Bridal Silk Rida',
-      customerName: 'Fatema Bhen Shabbir',
-      phone: '03452281923',
-      amount: 15500,
-      paymentMethod: 'Cash on Delivery (COD)',
-      status: 'Delivered & Paid'
-    },
-    {
-      id: 'ORD-1090',
-      date: '2026-09-05',
-      productName: 'Pastel Mint Chiffon Dupatta Summer Cotton Pret',
-      customerName: 'Sakina Bhen Burhanuddin',
-      phone: '03332194821',
-      amount: 4850,
-      paymentMethod: 'Meezan Raast',
-      status: 'Delivered & Paid'
-    },
-    {
-      id: 'ORD-1089',
-      date: '2026-09-04',
-      productName: 'Handcrafted Gold Zardozi Matching Bridal Batwa',
-      customerName: 'Zainab Bhen Mustafa',
-      phone: '03219984723',
-      amount: 2450,
-      paymentMethod: 'EasyPaisa',
-      status: 'Dispatched TCS'
-    }
-  ];
+    let attempts = 0;
+    const timer = setInterval(() => {
+      attempts++;
+      const activeDb = getDb();
+      if (activeDb) {
+        clearInterval(timer);
+        if (callback) callback(activeDb);
+      } else if (attempts > 60) {
+        clearInterval(timer);
+        console.warn('⚡ [Firebase] Connection retry timeout');
+      }
+    }, 100);
+  }
 
   // Default Category Slides (7 Bohra Fashion Categories)
   const defaultCategoryCards = [
@@ -257,9 +67,9 @@
     { id: 'pouches', name: '💄 Vanity & Topi Pouches', image: 'images/mauve_pret.jpg', style: 'filter: hue-rotate(270deg);' }
   ];
 
-  // Load from LocalStorage
-  let products = JSON.parse(localStorage.getItem('aiman_products')) || initialProducts;
-  let salesLedger = JSON.parse(localStorage.getItem('aiman_sales')) || initialSales;
+  // Pure Cloud First State (no mock products or mock sales)
+  let products = JSON.parse(localStorage.getItem('aiman_products')) || [];
+  let salesLedger = JSON.parse(localStorage.getItem('aiman_sales')) || [];
   let heroSettings = JSON.parse(localStorage.getItem('aiman_hero_settings')) || null;
   let categoryCards = JSON.parse(localStorage.getItem('aiman_category_cards')) || defaultCategoryCards;
   let cartItems = JSON.parse(localStorage.getItem('aiman_cart')) || [];
@@ -1598,10 +1408,14 @@
       } catch (e) {}
 
       // Save directly to Firebase Firestore
-      const db = getDb();
-      if (db) {
-        db.collection('sales').doc(newSale.id).set(newSale).catch(err => console.warn('Firestore sale note:', err));
-      }
+      ensureFirestore(async (db) => {
+        try {
+          await db.collection('sales').doc(newSale.id).set(newSale);
+          console.log('⚡ [Firebase] Storefront order saved to Firestore:', newSale.id);
+        } catch (err) {
+          console.warn('Firestore sale note:', err);
+        }
+      });
 
       cartItems = [];
       localStorage.setItem('aiman_cart', JSON.stringify(cartItems));
@@ -1657,15 +1471,17 @@
       } catch (e) {}
 
       // Save directly to Firebase Firestore
-      const db = getDb();
-      if (db) {
-        db.collection('reviews').doc(String(pId)).set({
-          reviews: productReviews[pId],
-          updatedAt: new Date().toISOString()
-        }, { merge: true })
-        .then(() => console.log('⚡ [Firebase] Customer review saved to Firestore for product:', pId))
-        .catch(err => console.warn('Firestore review save note:', err));
-      }
+      ensureFirestore(async (db) => {
+        try {
+          await db.collection('reviews').doc(String(pId)).set({
+            reviews: productReviews[pId],
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
+          console.log('⚡ [Firebase] Customer review saved to Firestore for product:', pId);
+        } catch (err) {
+          console.warn('Firestore review save note:', err);
+        }
+      });
 
       window.AimanStore.closeReviewModal();
       e.target.reset();
@@ -1704,6 +1520,8 @@
         const modal = document.getElementById('adminSuiteModal');
         if (modal) {
           modal.style.display = 'flex';
+          setupFirestoreRealtimeSync();
+          if (window.AimanStore && window.AimanStore.syncCloudNow) window.AimanStore.syncCloudNow();
           updateSalesDashboard();
           renderAdminProducts();
           renderAdminHeroSlides();
@@ -1736,6 +1554,8 @@
         const modal = document.getElementById('adminSuiteModal');
         if (modal) {
           modal.style.display = 'flex';
+          setupFirestoreRealtimeSync();
+          if (window.AimanStore && window.AimanStore.syncCloudNow) window.AimanStore.syncCloudNow();
           updateSalesDashboard();
           renderAdminProducts();
           renderAdminHeroSlides();
@@ -1826,12 +1646,14 @@
       } catch (e) {}
 
       // Persist directly to Firebase Firestore
-      const db = getDb();
-      if (db) {
-        db.collection('sales').doc(newSale.id).set(newSale)
-          .then(() => console.log('⚡ [Firebase] Custom sale saved to Firestore'))
-          .catch(err => console.warn('Firestore sale save note:', err));
-      }
+      ensureFirestore(async (db) => {
+        try {
+          await db.collection('sales').doc(newSale.id).set(newSale);
+          console.log('⚡ [Firebase] Custom sale saved to Firestore:', newSale.id);
+        } catch (err) {
+          console.warn('Firestore sale save note:', err);
+        }
+      });
 
       alert(`✅ Sale recorded successfully!\nProduct: ${prodTitle}\nAmount: Rs. ${amount.toLocaleString()}`);
       e.target.reset();
@@ -1869,16 +1691,20 @@
       } catch (e) {}
 
       // Persist directly to Firebase Firestore
-      const db = getDb();
-      if (db) {
-        db.collection('sales').doc(newSale.id).set(newSale).catch(err => console.warn('Firestore sale note:', err));
-        db.collection('products').doc(String(p.id)).update({
-          stockStatus: 'sold-out',
-          isSoldOut: true,
-          inStock: false,
-          updatedAt: new Date().toISOString()
-        }).catch(err => console.warn('Firestore product sold note:', err));
-      }
+      ensureFirestore(async (db) => {
+        try {
+          await db.collection('sales').doc(newSale.id).set(newSale);
+          await db.collection('products').doc(String(p.id)).update({
+            stockStatus: 'sold-out',
+            isSoldOut: true,
+            inStock: false,
+            updatedAt: new Date().toISOString()
+          });
+          console.log('⚡ [Firebase] Quick sold and status synced to Firestore');
+        } catch (err) {
+          console.warn('Firestore product sold note:', err);
+        }
+      });
 
       renderProducts();
       renderAdminProducts();
@@ -1888,32 +1714,51 @@
       window.AimanStore.switchAdminTab('sales');
     },
 
-    deleteSale: function (index) {
-      if (confirm('Delete this sale record?')) {
-        const item = salesLedger[index];
+    deleteSale: async function (index) {
+      const item = salesLedger[index];
+      if (!item) return;
+
+      if (confirm(`Delete sale record for "${item.productName}" (Rs. ${Number(item.amount).toLocaleString()})?`)) {
+        const saleId = String(item.id);
         salesLedger.splice(index, 1);
         try {
           localStorage.setItem('aiman_sales', JSON.stringify(salesLedger));
         } catch (e) {}
 
-        if (item && item.id) {
-          const db = getDb();
-          if (db) {
-            db.collection('sales').doc(String(item.id)).delete()
-              .then(() => console.log('⚡ [Firebase] Deleted sale from Firestore:', item.id))
-              .catch(err => console.warn('Firestore sale delete note:', err));
-          }
-        }
-
         updateSalesDashboard();
+
+        // Delete from Firestore Real-Time Cloud (instant sync across all other devices)
+        ensureFirestore(async (db) => {
+          if (saleId) {
+            try {
+              await db.collection('sales').doc(saleId).delete();
+              console.log('⚡ [Firebase] Deleted sale from Firestore:', saleId);
+            } catch (err) {
+              console.warn('Firestore sale delete note:', err);
+            }
+          }
+        });
       }
     },
 
-    clearSalesHistory: function () {
-      if (confirm('Are you sure you want to clear the entire sales ledger?')) {
+    clearSalesHistory: async function () {
+      if (confirm('Are you sure you want to clear the entire sales ledger from all devices?')) {
         salesLedger = [];
-        localStorage.removeItem('aiman_sales');
+        try { localStorage.setItem('aiman_sales', JSON.stringify([])); } catch (e) {}
         updateSalesDashboard();
+
+        // Delete all from Firestore Real-Time Cloud
+        ensureFirestore(async (db) => {
+          try {
+            const snap = await db.collection('sales').get();
+            const batch = db.batch();
+            snap.forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
+            console.log('⚡ [Firebase] All sales records deleted from Firestore');
+          } catch (err) {
+            console.warn('Firestore clear sales note:', err);
+          }
+        });
       }
     },
 
@@ -2077,8 +1922,7 @@
 
         // Instant Real-Time Cloud Sync to Firebase Firestore (syncs all phones & laptops live)
         if (productPayload) {
-          const db = getDb();
-          if (db) {
+          ensureFirestore(async (db) => {
             try {
               const docId = String(productPayload.id);
               await db.collection('products').doc(docId).set({
@@ -2105,7 +1949,7 @@
             } catch (fsErr) {
               console.warn('Firestore set error:', fsErr);
             }
-          }
+          });
         }
 
         window.AimanStore.resetProductForm();
@@ -2213,20 +2057,19 @@
           localStorage.setItem('aiman_products', JSON.stringify(products));
         } catch (e) {}
 
-        // Delete from Firestore Real-Time Cloud
-        const db = getDb();
-        if (db) {
+        renderProducts();
+        renderAdminProducts();
+        updateSalesDashboard();
+
+        // Delete from Firestore Real-Time Cloud (syncs all connected devices)
+        ensureFirestore(async (db) => {
           try {
             await db.collection('products').doc(String(id)).delete();
             console.log('⚡ [Firebase] Deleted from Firestore:', id);
           } catch (err) {
             console.warn('Firestore delete note:', err.message);
           }
-        }
-
-        renderProducts();
-        renderAdminProducts();
-        updateSalesDashboard();
+        });
       }
     },
 
@@ -2375,12 +2218,11 @@
       try { localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings)); } catch (e) {}
 
       // Save directly to Firebase Firestore
-      const db = getDb();
-      if (db) {
+      ensureFirestore((db) => {
         db.collection('settings').doc('hero').set({ bannerSlides: newSlides }, { merge: true })
           .then(() => console.log('⚡ [Firebase] Hero banners saved to Firestore'))
           .catch(err => console.warn('Firestore hero banners save note:', err));
-      }
+      });
 
       currentSlideIndex = 0;
       renderHeroSlider();
@@ -2396,11 +2238,10 @@
         heroSettings.bannerSlides = [...defaultBannerSlides];
         try { localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings)); } catch (e) {}
 
-        const db = getDb();
-        if (db) {
+        ensureFirestore((db) => {
           db.collection('settings').doc('hero').set({ bannerSlides: defaultBannerSlides }, { merge: true })
             .catch(err => console.warn('Firestore reset hero banners note:', err));
-        }
+        });
 
         currentSlideIndex = 0;
         renderHeroSlider();
@@ -2426,12 +2267,11 @@
       if (badge) badge.textContent = text;
 
       // Save directly to Firebase Firestore
-      const db = getDb();
-      if (db) {
+      ensureFirestore((db) => {
         db.collection('settings').doc('hero').set({ announcement: text }, { merge: true })
           .then(() => console.log('⚡ [Firebase] Announcement saved to Firestore'))
           .catch(err => console.warn('Firestore announcement save note:', err));
-      }
+      });
 
       alert('✅ Top Red Announcement Bar updated live!');
     },
@@ -2457,12 +2297,11 @@
           currentCards[idx].image = compressedBase64;
           categoryCards = currentCards;
           try { localStorage.setItem('aiman_category_cards', JSON.stringify(categoryCards)); } catch (e) {}
-          const db = getDb();
-          if (db) {
+          ensureFirestore((db) => {
             db.collection('settings').doc('category_cards').set({ cards: currentCards }, { merge: true })
               .then(() => console.log(`⚡ [Firebase] Category card ${idx + 1} picture auto-saved live to Firestore`))
               .catch(err => console.warn('Firestore cat card auto-save note:', err));
-          }
+          });
           renderCategoryCards();
         }
       } catch (err) {
@@ -2498,12 +2337,11 @@
       }
 
       // Save directly to Firebase Firestore
-      const db = getDb();
-      if (db) {
+      ensureFirestore((db) => {
         db.collection('settings').doc('category_cards').set({ cards: updated }, { merge: true })
           .then(() => console.log('⚡ [Firebase] Category cards saved to Firestore'))
           .catch(err => console.warn('Firestore category cards save note:', err));
-      }
+      });
 
       renderCategoryCards();
       renderAdminCategoryCards();
@@ -2517,11 +2355,10 @@
           localStorage.setItem('aiman_category_cards', JSON.stringify(categoryCards));
         } catch (e) {}
 
-        const db = getDb();
-        if (db) {
+        ensureFirestore((db) => {
           db.collection('settings').doc('category_cards').set({ cards: defaultCategoryCards }, { merge: true })
             .catch(err => console.warn('Firestore reset category cards note:', err));
-        }
+        });
 
         renderCategoryCards();
         renderAdminCategoryCards();
@@ -2549,6 +2386,106 @@
       currentSlideIndex = Number(idx) % slides.length;
       updateSliderDisplay();
       startHeroSlider();
+    },
+
+    syncCloudNow: async function () {
+      const badge = document.getElementById('adminCloudSyncBadge');
+      if (badge) badge.innerHTML = `<i class="fas fa-spinner fa-spin" style="color:#eab308;"></i> Cloud Syncing...`;
+      try {
+        const db = getDb();
+        if (!db) {
+          if (badge) badge.innerHTML = `<i class="fas fa-circle-exclamation" style="color:#ef4444;"></i> Cloud connecting...`;
+          setupFirestoreRealtimeSync();
+          return;
+        }
+
+        // 1. Fetch products
+        const pSnap = await db.collection('products').get();
+        const firestoreList = [];
+        pSnap.forEach(doc => {
+          const d = doc.data();
+          if (d && (d.title || d.name)) {
+            firestoreList.push({
+              id: d.id || doc.id,
+              title: d.title || d.name || 'Bohra Libas Ensemble',
+              name: d.title || d.name || 'Bohra Libas Ensemble',
+              category: normalizeCategory(d.category),
+              price: Number(d.price) || 0,
+              regularPrice: Number(d.regularPrice || d.originalPrice) || 0,
+              discount: Number(d.discount) || 0,
+              image: d.image || 'images/summer_collection.jpg',
+              imageStyle: d.imageStyle || '',
+              gallery: Array.isArray(d.gallery) ? d.gallery : (Array.isArray(d.galleryImages) ? d.galleryImages : []),
+              stockStatus: d.stockStatus || (d.isSoldOut ? 'sold-out' : (d.isBooked ? 'booked' : 'in-stock')),
+              isNew: Boolean(d.isNew ?? d.isNewArrival),
+              isSale: Boolean(d.isSale ?? d.onSale),
+              bestSeller: Boolean(d.bestSeller ?? d.isFeatured)
+            });
+          }
+        });
+        if (firestoreList.length > 0) {
+          products = firestoreList;
+          try { localStorage.setItem('aiman_products', JSON.stringify(products)); } catch (e) {}
+          renderProducts();
+          renderAdminProducts();
+        }
+
+        // 2. Fetch sales
+        const sSnap = await db.collection('sales').get();
+        const fsSales = [];
+        sSnap.forEach(doc => {
+          const s = doc.data();
+          if (s) {
+            fsSales.push({
+              id: s.id || doc.id,
+              date: s.date || new Date().toISOString().split('T')[0],
+              productName: s.productName || 'Bohra Rida',
+              customerName: s.customerName || 'Customer',
+              phone: s.customerPhone || s.phone || '',
+              amount: Number(s.totalRevenue ?? s.amount ?? s.sellingPrice) || 0,
+              paymentMethod: s.paymentMethod || 'Cash on Delivery (COD)',
+              status: s.status || 'Delivered'
+            });
+          }
+        });
+        fsSales.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+        salesLedger = fsSales;
+        try { localStorage.setItem('aiman_sales', JSON.stringify(salesLedger)); } catch (e) {}
+        updateSalesDashboard();
+
+        // 3. Category cards
+        const catDoc = await db.collection('settings').doc('category_cards').get();
+        if (catDoc && catDoc.exists) {
+          const cd = catDoc.data();
+          if (cd && Array.isArray(cd.cards) && cd.cards.length > 0) {
+            categoryCards = cd.cards;
+            try { localStorage.setItem('aiman_category_cards', JSON.stringify(categoryCards)); } catch (e) {}
+            renderCategoryCards();
+            renderAdminCategoryCards();
+          }
+        }
+
+        // 4. Hero settings
+        const heroDoc = await db.collection('settings').doc('hero').get();
+        if (heroDoc && heroDoc.exists) {
+          const hd = heroDoc.data();
+          if (hd) {
+            heroSettings = heroSettings || {};
+            if (Array.isArray(hd.bannerSlides) && hd.bannerSlides.length > 0) heroSettings.bannerSlides = hd.bannerSlides;
+            if (hd.announcement) heroSettings.announcement = hd.announcement;
+            try { localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings)); } catch (e) {}
+            applyHeroSettings();
+            renderAdminHeroSlides();
+          }
+        }
+
+        if (badge) {
+          badge.innerHTML = `<i class="fas fa-circle-check" style="color:#10b981;"></i> Cloud Synced (${products.length} items, ${salesLedger.length} sales)`;
+        }
+      } catch (err) {
+        console.warn('Manual syncCloudNow error:', err);
+        if (badge) badge.innerHTML = `<i class="fas fa-circle-exclamation" style="color:#ef4444;"></i> Cloud Sync Retry`;
+      }
     }
   };
 
@@ -2620,142 +2557,164 @@
      FIREBASE FIRESTORE REAL-TIME SYNCHRONIZATION (SINGLE SOURCE OF TRUTH)
      Live listeners: Real-time update across all devices without page refresh!
      -------------------------------------------------------------------------- */
+  let unsubscribeFirestore = null;
   function setupFirestoreRealtimeSync() {
-    const db = getDb();
-    if (!db) return;
+    ensureFirestore(db => {
+      // Detach previous listeners if already attached to prevent duplicates
+      if (typeof unsubscribeFirestore === 'function') {
+        try { unsubscribeFirestore(); } catch (e) {}
+      }
 
-    try {
-      // 1. Real-time Products Listener (Pure Source of Truth)
-      db.collection('products').onSnapshot(snapshot => {
-        if (!snapshot) return;
-        const firestoreList = [];
-        snapshot.forEach(doc => {
-          const d = doc.data();
-          if (d && (d.title || d.name)) {
-            firestoreList.push({
-              id: d.id || doc.id,
-              title: d.title || d.name || 'Bohra Libas Ensemble',
-              name: d.title || d.name || 'Bohra Libas Ensemble',
-              category: normalizeCategory(d.category),
-              price: Number(d.price) || 0,
-              regularPrice: Number(d.regularPrice || d.originalPrice) || 0,
-              discount: Number(d.discount) || 0,
-              image: d.image || 'images/summer_collection.jpg',
-              imageStyle: d.imageStyle || '',
-              gallery: Array.isArray(d.gallery) ? d.gallery : (Array.isArray(d.galleryImages) ? d.galleryImages : []),
-              stockStatus: d.stockStatus || (d.isSoldOut ? 'sold-out' : (d.isBooked ? 'booked' : 'in-stock')),
-              isNew: Boolean(d.isNew ?? d.isNewArrival),
-              isSale: Boolean(d.isSale ?? d.onSale),
-              bestSeller: Boolean(d.bestSeller ?? d.isFeatured)
-            });
-          }
-        });
+      const unsubs = [];
 
-        // Firestore is the single source of truth - replace directly, never merge deleted/old items!
-        if (!snapshot.empty) {
+      try {
+        // 1. Real-time Products Listener (Pure Source of Truth)
+        const unsubProd = db.collection('products').onSnapshot(snapshot => {
+          if (!snapshot) return;
+          const firestoreList = [];
+          snapshot.forEach(doc => {
+            const d = doc.data();
+            if (d && (d.title || d.name)) {
+              firestoreList.push({
+                id: d.id || doc.id,
+                title: d.title || d.name || 'Bohra Libas Ensemble',
+                name: d.title || d.name || 'Bohra Libas Ensemble',
+                category: normalizeCategory(d.category),
+                price: Number(d.price) || 0,
+                regularPrice: Number(d.regularPrice || d.originalPrice) || 0,
+                discount: Number(d.discount) || 0,
+                image: d.image || 'images/summer_collection.jpg',
+                imageStyle: d.imageStyle || '',
+                gallery: Array.isArray(d.gallery) ? d.gallery : (Array.isArray(d.galleryImages) ? d.galleryImages : []),
+                stockStatus: d.stockStatus || (d.isSoldOut ? 'sold-out' : (d.isBooked ? 'booked' : 'in-stock')),
+                isNew: Boolean(d.isNew ?? d.isNewArrival),
+                isSale: Boolean(d.isSale ?? d.onSale),
+                bestSeller: Boolean(d.bestSeller ?? d.isFeatured)
+              });
+            }
+          });
+
+          // Firestore is the single source of truth - replace directly, never merge deleted/old items!
           products = firestoreList;
           try {
             localStorage.setItem('aiman_products', JSON.stringify(products));
           } catch (storageErr) {}
 
           renderProducts();
-          if (document.getElementById('adminProductsTableBody')) renderAdminProducts();
+          renderAdminProducts();
+          updateSalesDashboard();
           console.log(`⚡ [Real-Time Sync] ${firestoreList.length} products synced live from Firebase Firestore`);
-        }
-      }, err => {
-        console.warn('Firestore products onSnapshot notice:', err.message);
-      });
-
-      // 2. Real-time Category Cards Listener
-      db.collection('settings').doc('category_cards').onSnapshot(doc => {
-        if (doc && doc.exists) {
-          const data = doc.data();
-          if (data && Array.isArray(data.cards) && data.cards.length > 0) {
-            categoryCards = data.cards;
-            try {
-              localStorage.setItem('aiman_category_cards', JSON.stringify(categoryCards));
-            } catch (e) {}
-            renderCategoryCards();
-            if (document.getElementById('adminCategoryCardsList')) renderAdminCategoryCards();
-            console.log('⚡ [Real-Time Sync] Category cards updated from Firestore');
-          }
-        }
-      }, err => console.warn('Firestore category_cards notice:', err.message));
-
-      // 3. Real-time Hero Settings Listener
-      db.collection('settings').doc('hero').onSnapshot(doc => {
-        if (doc && doc.exists) {
-          const data = doc.data();
-          if (data) {
-            heroSettings = heroSettings || {};
-            let updated = false;
-            if (Array.isArray(data.bannerSlides) && data.bannerSlides.length > 0) {
-              heroSettings.bannerSlides = data.bannerSlides;
-              updated = true;
-            }
-            if (data.announcement) {
-              heroSettings.announcement = data.announcement;
-              updated = true;
-            }
-            if (updated) {
-              try {
-                localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings));
-              } catch (e) {}
-              applyHeroSettings();
-              if (document.getElementById('adminSlideListContainer')) renderAdminHeroSlides();
-              console.log('⚡ [Real-Time Sync] Hero banners & announcement updated from Firestore');
-            }
-          }
-        }
-      }, err => console.warn('Firestore hero notice:', err.message));
-
-      // 4. Real-time Sales Ledger Listener
-      db.collection('sales').onSnapshot(snapshot => {
-        if (!snapshot) return;
-        const fsSales = [];
-        snapshot.forEach(doc => {
-          const s = doc.data();
-          if (s) {
-            fsSales.push({
-              id: s.id || doc.id,
-              date: s.date || new Date().toISOString().split('T')[0],
-              productName: s.productName || 'Bohra Rida',
-              customerName: s.customerName || 'Customer',
-              phone: s.customerPhone || s.phone || '',
-              amount: Number(s.totalRevenue ?? s.amount ?? s.sellingPrice) || 0,
-              paymentMethod: s.paymentMethod || 'Cash on Delivery (COD)',
-              status: s.status || 'Delivered'
-            });
-          }
+        }, err => {
+          console.warn('Firestore products onSnapshot notice:', err.message);
         });
+        unsubs.push(unsubProd);
 
-        if (fsSales.length > 0) {
+        // 2. Real-time Category Cards Listener
+        const unsubCats = db.collection('settings').doc('category_cards').onSnapshot(doc => {
+          if (doc && doc.exists) {
+            const data = doc.data();
+            if (data && Array.isArray(data.cards) && data.cards.length > 0) {
+              categoryCards = data.cards;
+              try {
+                localStorage.setItem('aiman_category_cards', JSON.stringify(categoryCards));
+              } catch (e) {}
+              renderCategoryCards();
+              renderAdminCategoryCards();
+              console.log('⚡ [Real-Time Sync] Category cards updated from Firestore');
+            }
+          }
+        }, err => console.warn('Firestore category_cards notice:', err.message));
+        unsubs.push(unsubCats);
+
+        // 3. Real-time Hero Settings Listener
+        const unsubHero = db.collection('settings').doc('hero').onSnapshot(doc => {
+          if (doc && doc.exists) {
+            const data = doc.data();
+            if (data) {
+              heroSettings = heroSettings || {};
+              let updated = false;
+              if (Array.isArray(data.bannerSlides) && data.bannerSlides.length > 0) {
+                heroSettings.bannerSlides = data.bannerSlides;
+                updated = true;
+              }
+              if (data.announcement) {
+                heroSettings.announcement = data.announcement;
+                updated = true;
+              }
+              if (updated) {
+                try {
+                  localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings));
+                } catch (e) {}
+                applyHeroSettings();
+                renderAdminHeroSlides();
+                console.log('⚡ [Real-Time Sync] Hero banners & announcement updated from Firestore');
+              }
+            }
+          }
+        }, err => console.warn('Firestore hero notice:', err.message));
+        unsubs.push(unsubHero);
+
+        // 4. Real-time Sales Ledger Listener (Exact Reflection: Syncs deletes everywhere!)
+        const unsubSales = db.collection('sales').onSnapshot(snapshot => {
+          if (!snapshot) return;
+          const fsSales = [];
+          snapshot.forEach(doc => {
+            const s = doc.data();
+            if (s) {
+              fsSales.push({
+                id: s.id || doc.id,
+                date: s.date || new Date().toISOString().split('T')[0],
+                productName: s.productName || 'Bohra Rida',
+                customerName: s.customerName || 'Customer',
+                phone: s.customerPhone || s.phone || '',
+                amount: Number(s.totalRevenue ?? s.amount ?? s.sellingPrice) || 0,
+                paymentMethod: s.paymentMethod || 'Cash on Delivery (COD)',
+                status: s.status || 'Delivered'
+              });
+            }
+          });
+
+          // Sort latest first
+          fsSales.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+          // Exact cloud sync: whether 10 items or 0 items (when deleted), sync cleanly!
           salesLedger = fsSales;
           try {
             localStorage.setItem('aiman_sales', JSON.stringify(salesLedger));
           } catch (e) {}
           updateSalesDashboard();
           console.log(`⚡ [Real-Time Sync] ${fsSales.length} sales synced live from Firebase Firestore`);
+        }, err => console.warn('Firestore sales notice:', err.message));
+        unsubs.push(unsubSales);
+
+        // 5. Real-time Customer Reviews Listener
+        const unsubReviews = db.collection('reviews').onSnapshot(snapshot => {
+          if (!snapshot) return;
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            if (data && Array.isArray(data.reviews)) {
+              productReviews[doc.id] = data.reviews;
+            }
+          });
+          try {
+            localStorage.setItem('aiman_reviews', JSON.stringify(productReviews));
+          } catch (e) {}
+        }, err => console.warn('Firestore reviews notice:', err.message));
+        unsubs.push(unsubReviews);
+
+        unsubscribeFirestore = () => {
+          unsubs.forEach(fn => { try { if (typeof fn === 'function') fn(); } catch (e) {} });
+        };
+
+        const syncBadge = document.getElementById('adminCloudSyncBadge');
+        if (syncBadge) {
+          syncBadge.innerHTML = `<i class="fas fa-circle-check" style="color:#10b981;"></i> Cloud Sync: Live Connected`;
         }
-      }, err => console.warn('Firestore sales notice:', err.message));
 
-      // 5. Real-time Customer Reviews Listener
-      db.collection('reviews').onSnapshot(snapshot => {
-        if (!snapshot) return;
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          if (data && Array.isArray(data.reviews)) {
-            productReviews[doc.id] = data.reviews;
-          }
-        });
-        try {
-          localStorage.setItem('aiman_reviews', JSON.stringify(productReviews));
-        } catch (e) {}
-      }, err => console.warn('Firestore reviews notice:', err.message));
-
-    } catch (e) {
-      console.warn('setupFirestoreRealtimeSync error:', e);
-    }
+      } catch (e) {
+        console.warn('setupFirestoreRealtimeSync error:', e);
+      }
+    });
   }
 
   // Strict Zero Horizontal Drift Lock for Mobile

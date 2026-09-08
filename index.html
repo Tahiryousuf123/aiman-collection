@@ -530,7 +530,10 @@
           <button type="button" class="admin-close-btn" onclick="window.AimanStore.closeAdminSuite()">&times;</button>
         </div>
         <div class="admin-header-actions-row">
-          <span class="admin-badge"><i class="fas fa-circle-check"></i> System Active</span>
+          <span class="admin-badge" id="adminCloudSyncBadge"><i class="fas fa-circle-check" style="color:#10b981;"></i> Cloud Sync: Live</span>
+          <button type="button" class="admin-btn" onclick="window.AimanStore.syncCloudNow()" style="padding:6px 14px; font-size:0.82rem; background:rgba(212,175,55,0.15); border-color:#d4af37; color:#d4af37;" title="Force fresh synchronization from Firebase cloud database">
+            <i class="fas fa-rotate"></i> Sync Cloud
+          </button>
           <button type="button" class="admin-btn admin-btn-danger" onclick="window.AimanStore.lockAdminSuite()" style="padding:6px 14px; font-size:0.82rem;">
             <i class="fas fa-lock"></i> Lock Console
           </button>
@@ -933,6 +936,6 @@
   <!-- Firebase Cloud Real-Time Synchronization Engine -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="app.js?v=8.1"></script>
+  <script src="app.js?v=8.2"></script>
 </body>
 </html>
