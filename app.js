@@ -1652,7 +1652,21 @@
         text: text
       });
 
-      localStorage.setItem('aiman_reviews', JSON.stringify(productReviews));
+      try {
+        localStorage.setItem('aiman_reviews', JSON.stringify(productReviews));
+      } catch (e) {}
+
+      // Save directly to Firebase Firestore
+      const db = getDb();
+      if (db) {
+        db.collection('reviews').doc(String(pId)).set({
+          reviews: productReviews[pId],
+          updatedAt: new Date().toISOString()
+        }, { merge: true })
+        .then(() => console.log('⚡ [Firebase] Customer review saved to Firestore for product:', pId))
+        .catch(err => console.warn('Firestore review save note:', err));
+      }
+
       window.AimanStore.closeReviewModal();
       e.target.reset();
       window.AimanStore.setReviewRating(5);
@@ -2255,6 +2269,23 @@
         if (dInput) dInput.value = compressedBase64;
         if (mInput) mInput.value = compressedBase64;
         if (preview) preview.src = compressedBase64;
+
+        // Auto-save immediately to Firestore so it NEVER gets lost if user refreshes!
+        const currentSlides = [...getActiveBannerSlides()];
+        if (currentSlides && currentSlides[idx]) {
+          currentSlides[idx].desktopImg = compressedBase64;
+          currentSlides[idx].mobileImg = compressedBase64;
+          heroSettings = heroSettings || {};
+          heroSettings.bannerSlides = currentSlides;
+          try { localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings)); } catch (e) {}
+          const db = getDb();
+          if (db) {
+            db.collection('settings').doc('hero').set({ bannerSlides: currentSlides }, { merge: true })
+              .then(() => console.log(`⚡ [Firebase] Hero slide ${idx + 1} picture auto-saved live to Firestore`))
+              .catch(err => console.warn('Firestore slide auto-save note:', err));
+          }
+          renderHeroSlider();
+        }
       } catch (err) {
         console.error('Slide upload error:', err);
       }
@@ -2419,6 +2450,21 @@
         const input = document.getElementById(`catCardImgInput_${idx}`);
         if (preview) preview.src = compressedBase64;
         if (input) input.value = compressedBase64;
+
+        // Auto-save immediately to Firestore so it NEVER gets lost if user refreshes!
+        const currentCards = (categoryCards && categoryCards.length > 0) ? categoryCards : defaultCategoryCards;
+        if (currentCards && currentCards[idx]) {
+          currentCards[idx].image = compressedBase64;
+          categoryCards = currentCards;
+          try { localStorage.setItem('aiman_category_cards', JSON.stringify(categoryCards)); } catch (e) {}
+          const db = getDb();
+          if (db) {
+            db.collection('settings').doc('category_cards').set({ cards: currentCards }, { merge: true })
+              .then(() => console.log(`⚡ [Firebase] Category card ${idx + 1} picture auto-saved live to Firestore`))
+              .catch(err => console.warn('Firestore cat card auto-save note:', err));
+          }
+          renderCategoryCards();
+        }
       } catch (err) {
         alert('Error reading image: ' + err.message);
       }
@@ -2692,6 +2738,20 @@
           console.log(`⚡ [Real-Time Sync] ${fsSales.length} sales synced live from Firebase Firestore`);
         }
       }, err => console.warn('Firestore sales notice:', err.message));
+
+      // 5. Real-time Customer Reviews Listener
+      db.collection('reviews').onSnapshot(snapshot => {
+        if (!snapshot) return;
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          if (data && Array.isArray(data.reviews)) {
+            productReviews[doc.id] = data.reviews;
+          }
+        });
+        try {
+          localStorage.setItem('aiman_reviews', JSON.stringify(productReviews));
+        } catch (e) {}
+      }, err => console.warn('Firestore reviews notice:', err.message));
 
     } catch (e) {
       console.warn('setupFirestoreRealtimeSync error:', e);
