@@ -89,31 +89,11 @@
   <!-- 3. KASHAF-STYLE LUXURY HERO SLIDER BANNER -->
   <section class="kashaf-hero-slider" id="mainHeroSlider">
     <div class="hero-slides-wrapper" id="heroSliderTrack">
-      <!-- Slide 1: Summer Collection Luxury Editorial (Exact Kashaf.pk Hero Banner) -->
-      <a href="#catalog" class="hero-slide-item" onclick="window.AimanStore.filterCategory('all'); return true;">
-        <picture>
-          <source media="(max-width: 768px)" srcset="images/kashaf_slider_mobile.jpg">
-          <img src="images/kashaf_slider_desktop.jpg" alt="Aiman Collection Summer Editorial" class="hero-slide-img" loading="eager">
-        </picture>
-      </a>
-
-      <!-- Slide 2: Luxury Collection Banner -->
-      <a href="#catalog" class="hero-slide-item" onclick="window.AimanStore.filterCategory('heavy-rida'); return true;">
-        <img src="images/kashaf_slider_01.jpg" alt="Aiman Collection Bridal &amp; Luxury" class="hero-slide-img" loading="lazy">
-      </a>
-
-      <!-- Slide 3: Pret & Festive Couture -->
-      <a href="#catalog" class="hero-slide-item" onclick="window.AimanStore.filterCategory('silk-rida'); return true;">
-        <img src="images/kashaf_slider_02.jpg" alt="Aiman Collection Silk Pret Couture" class="hero-slide-img" loading="lazy">
-      </a>
+      <!-- Injected dynamically from live Firebase Firestore via renderHeroSlider() -->
     </div>
 
     <!-- Subtle Dot Indicators -->
-    <div class="hero-slider-dots" id="heroSliderDots">
-      <span class="hero-dot active" onclick="window.AimanStore.goToSlide(0)"></span>
-      <span class="hero-dot" onclick="window.AimanStore.goToSlide(1)"></span>
-      <span class="hero-dot" onclick="window.AimanStore.goToSlide(2)"></span>
-    </div>
+    <div class="hero-slider-dots" id="heroSliderDots"></div>
   </section>
 
   <!-- 3. KASHAF.PK MOVING CATEGORY HERO SECTION (EXACT MATCH TO USER'S SCREENSHOT) -->
@@ -136,119 +116,7 @@
 
         <div class="category-marquee-container" id="categoryMarqueeContainer">
           <div class="category-marquee-track" id="categoryMarqueeTrack">
-            <!-- Set 1 of Cards -->
-            <div class="kashaf-cat-card" onclick="window.AimanStore.filterCategory('heavy-rida')">
-              <img src="images/black_formal.jpg" alt="Heavy Rida / Bridal" loading="eager">
-              <div class="kashaf-cat-overlay">
-                <span class="kashaf-cat-name">👑 Heavy Rida / Bridal</span>
-                <span class="kashaf-cat-arrow">↗</span>
-              </div>
-            </div>
-
-            <div class="kashaf-cat-card" onclick="window.AimanStore.filterCategory('silk-rida')">
-              <img src="images/silk_rida.jpg" alt="Silk Rida" loading="eager">
-              <div class="kashaf-cat-overlay">
-                <span class="kashaf-cat-name">🥻 Silk Rida</span>
-                <span class="kashaf-cat-arrow">↗</span>
-              </div>
-            </div>
-
-            <div class="kashaf-cat-card" onclick="window.AimanStore.filterCategory('new-arrivals')">
-              <img src="images/summer_collection.jpg" alt="New Arrivals" loading="eager">
-              <div class="kashaf-cat-overlay">
-                <span class="kashaf-cat-name">✨ New Arrivals</span>
-                <span class="kashaf-cat-arrow">↗</span>
-              </div>
-            </div>
-
-            <div class="kashaf-cat-card" onclick="window.AimanStore.filterCategory('cotton-pret')">
-              <img src="images/mauve_pret.jpg" alt="Cotton Pret" loading="eager">
-              <div class="kashaf-cat-overlay">
-                <span class="kashaf-cat-name">🌸 Cotton Pret</span>
-                <span class="kashaf-cat-arrow">↗</span>
-              </div>
-            </div>
-
-            <div class="kashaf-cat-card" onclick="window.AimanStore.filterCategory('boski-fabric')">
-              <img src="images/boski_fabric.jpg" alt="Boski Fabric" loading="eager">
-              <div class="kashaf-cat-overlay">
-                <span class="kashaf-cat-name">🧵 Boski Fabric</span>
-                <span class="kashaf-cat-arrow">↗</span>
-              </div>
-            </div>
-
-            <div class="kashaf-cat-card" onclick="window.AimanStore.filterCategory('bags-batwas')">
-              <img src="images/summer_collection.jpg" style="filter: hue-rotate(330deg);" alt="Bags & Batwas" loading="eager">
-              <div class="kashaf-cat-overlay">
-                <span class="kashaf-cat-name">👜 Bags &amp; Batwas</span>
-                <span class="kashaf-cat-arrow">↗</span>
-              </div>
-            </div>
-
-            <div class="kashaf-cat-card" onclick="window.AimanStore.filterCategory('pouches')">
-              <img src="images/mauve_pret.jpg" style="filter: hue-rotate(270deg);" alt="Vanity & Topi Pouches" loading="eager">
-              <div class="kashaf-cat-overlay">
-                <span class="kashaf-cat-name">💄 Vanity &amp; Topi Pouches</span>
-                <span class="kashaf-cat-arrow">↗</span>
-              </div>
-            </div>
-
-            <!-- Set 2 (Cloned for seamless infinite smooth loop) -->
-            <div class="kashaf-cat-card" onclick="window.AimanStore.filterCategory('heavy-rida')">
-              <img src="images/black_formal.jpg" alt="Heavy Rida / Bridal" loading="lazy">
-              <div class="kashaf-cat-overlay">
-                <span class="kashaf-cat-name">👑 Heavy Rida / Bridal</span>
-                <span class="kashaf-cat-arrow">↗</span>
-              </div>
-            </div>
-
-            <div class="kashaf-cat-card" onclick="window.AimanStore.filterCategory('silk-rida')">
-              <img src="images/silk_rida.jpg" alt="Silk Rida" loading="lazy">
-              <div class="kashaf-cat-overlay">
-                <span class="kashaf-cat-name">🥻 Silk Rida</span>
-                <span class="kashaf-cat-arrow">↗</span>
-              </div>
-            </div>
-
-            <div class="kashaf-cat-card" onclick="window.AimanStore.filterCategory('new-arrivals')">
-              <img src="images/summer_collection.jpg" alt="New Arrivals" loading="lazy">
-              <div class="kashaf-cat-overlay">
-                <span class="kashaf-cat-name">✨ New Arrivals</span>
-                <span class="kashaf-cat-arrow">↗</span>
-              </div>
-            </div>
-
-            <div class="kashaf-cat-card" onclick="window.AimanStore.filterCategory('cotton-pret')">
-              <img src="images/mauve_pret.jpg" alt="Cotton Pret" loading="lazy">
-              <div class="kashaf-cat-overlay">
-                <span class="kashaf-cat-name">🌸 Cotton Pret</span>
-                <span class="kashaf-cat-arrow">↗</span>
-              </div>
-            </div>
-
-            <div class="kashaf-cat-card" onclick="window.AimanStore.filterCategory('boski-fabric')">
-              <img src="images/boski_fabric.jpg" alt="Boski Fabric" loading="lazy">
-              <div class="kashaf-cat-overlay">
-                <span class="kashaf-cat-name">🧵 Boski Fabric</span>
-                <span class="kashaf-cat-arrow">↗</span>
-              </div>
-            </div>
-
-            <div class="kashaf-cat-card" onclick="window.AimanStore.filterCategory('bags-batwas')">
-              <img src="images/summer_collection.jpg" style="filter: hue-rotate(330deg);" alt="Bags & Batwas" loading="lazy">
-              <div class="kashaf-cat-overlay">
-                <span class="kashaf-cat-name">👜 Bags &amp; Batwas</span>
-                <span class="kashaf-cat-arrow">↗</span>
-              </div>
-            </div>
-
-            <div class="kashaf-cat-card" onclick="window.AimanStore.filterCategory('pouches')">
-              <img src="images/mauve_pret.jpg" style="filter: hue-rotate(270deg);" alt="Vanity & Topi Pouches" loading="lazy">
-              <div class="kashaf-cat-overlay">
-                <span class="kashaf-cat-name">💄 Vanity &amp; Topi Pouches</span>
-                <span class="kashaf-cat-arrow">↗</span>
-              </div>
-            </div>
+            <!-- Injected dynamically from live Firebase Firestore via renderCategoryCards() -->
           </div>
         </div>
       </div>
@@ -746,7 +614,7 @@
                     <span id="prodUploadFileName" style="font-size:0.85rem; color:#64748b; font-style:italic;">No file selected</span>
                   </div>
 
-                  <input type="text" id="prodImageInput" required placeholder="images/black_formal.jpg or uploaded image path">
+                  <input type="text" id="prodImageInput" required placeholder="Upload image above or paste image URL">
 
                   <div id="prodImagePreviewWrap" style="display:none; margin-top:12px; align-items:center; gap:15px; padding:12px 16px; background:#f0fdfa; border:1.5px dashed #0f766e; border-radius:8px;">
                     <img id="prodImagePreview" src="" alt="Live Preview" style="width:75px; height:95px; object-fit:cover; border-radius:6px; border:1px solid #cbd5e1; box-shadow:0 3px 8px rgba(0,0,0,0.12);">
@@ -936,6 +804,6 @@
   <!-- Firebase Cloud Real-Time Synchronization Engine -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="app.js?v=8.2"></script>
+  <script src="app.js?v=8.4"></script>
 </body>
 </html>

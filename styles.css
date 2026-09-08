@@ -2526,6 +2526,20 @@ button, input, select, textarea {
     padding: 7px 8px;
     font-size: 0.74rem;
   }
+
+  #adminCategoryCardsList {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .admin-slide-card {
+    padding: 12px 10px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .admin-slide-preview-box {
+    max-width: 100% !important;
+  }
 }
 
 @media (max-width: 380px) {

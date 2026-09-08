@@ -56,22 +56,37 @@
     }, 100);
   }
 
+  // Luxury Brand Placeholder SVG (Data URI - Never 404s, Zero External Requests)
+  const FALLBACK_PRODUCT_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%2320080d'/%3E%3Ctext x='50%25' y='46%25' dominant-baseline='middle' text-anchor='middle' fill='%23d4af37' font-family='sans-serif' font-size='22' font-weight='700'%3EAiman Collection%3C/text%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' fill='%23cbd5e1' font-family='sans-serif' font-size='13' letter-spacing='0.1em'%3ELUXURY BOHRA ATELIER%3C/text%3E%3C/svg%3E";
+
   // Default Category Slides (7 Bohra Fashion Categories)
   const defaultCategoryCards = [
-    { id: 'heavy-rida', name: '👑 Heavy Rida / Bridal', image: 'images/black_formal.jpg', style: '' },
-    { id: 'silk-rida', name: '🥻 Silk Rida', image: 'images/silk_rida.jpg', style: '' },
-    { id: 'new-arrivals', name: '✨ New Arrivals', image: 'images/summer_collection.jpg', style: '' },
-    { id: 'cotton-pret', name: '🌸 Cotton Pret', image: 'images/mauve_pret.jpg', style: '' },
-    { id: 'boski-fabric', name: '🧵 Boski Fabric', image: 'images/boski_fabric.jpg', style: '' },
-    { id: 'bags-batwas', name: '👜 Bags & Batwas', image: 'images/summer_collection.jpg', style: 'filter: hue-rotate(330deg);' },
-    { id: 'pouches', name: '💄 Vanity & Topi Pouches', image: 'images/mauve_pret.jpg', style: 'filter: hue-rotate(270deg);' }
+    { id: 'heavy-rida', name: '👑 Heavy Rida / Bridal', image: '', style: '' },
+    { id: 'silk-rida', name: '🥻 Silk Rida', image: '', style: '' },
+    { id: 'new-arrivals', name: '✨ New Arrivals', image: '', style: '' },
+    { id: 'cotton-pret', name: '🌸 Cotton Pret', image: '', style: '' },
+    { id: 'boski-fabric', name: '🧵 Boski Fabric', image: '', style: '' },
+    { id: 'bags-batwas', name: '👜 Bags & Batwas', image: '', style: '' },
+    { id: 'pouches', name: '💄 Vanity & Topi Pouches', image: '', style: '' }
   ];
 
   // Pure Cloud First State (no mock products or mock sales)
   let products = JSON.parse(localStorage.getItem('aiman_products')) || [];
   let salesLedger = JSON.parse(localStorage.getItem('aiman_sales')) || [];
   let heroSettings = JSON.parse(localStorage.getItem('aiman_hero_settings')) || null;
-  let categoryCards = JSON.parse(localStorage.getItem('aiman_category_cards')) || defaultCategoryCards;
+  let categoryCards = (function () {
+    try {
+      const stored = JSON.parse(localStorage.getItem('aiman_category_cards'));
+      if (Array.isArray(stored) && stored.length > 0) {
+        // Sanitize out old mock file paths
+        return stored.map(c => ({
+          ...c,
+          image: (c.image && c.image.startsWith('images/') && !c.image.startsWith('images/uploads')) ? '' : (c.image || '')
+        }));
+      }
+    } catch (e) {}
+    return defaultCategoryCards;
+  })();
   let cartItems = JSON.parse(localStorage.getItem('aiman_cart')) || [];
   let productReviews = JSON.parse(localStorage.getItem('aiman_reviews')) || {};
 
@@ -140,7 +155,7 @@
   }
 
   function buildProductGallery(p) {
-    if (!p) return ['images/summer_collection.jpg'];
+    if (!p) return [];
     const imgs = [];
     if (p.image) imgs.push(p.image);
 
@@ -159,27 +174,14 @@
       });
     }
 
-    return imgs.length > 0 ? imgs : ['images/summer_collection.jpg'];
+    return imgs;
   }
 
   function getProductReviews(pId) {
-    if (productReviews[pId] && productReviews[pId].length > 0) {
+    if (productReviews[pId] && Array.isArray(productReviews[pId])) {
       return productReviews[pId];
     }
-    return [
-      {
-        author: 'Fatema Bhen Burhanuddin (Karachi)',
-        rating: 5,
-        date: '2 days ago',
-        text: 'Bohot hi nafees stitching aur authentic fabric hai. Pardi ka drapery aur border embroidery bilkul flawless aayi. TCS delivery bhi 2 din me pohanch gayi!'
-      },
-      {
-        author: 'Zainab Bhen Shabbir (Lahore)',
-        rating: 5,
-        date: '1 week ago',
-        text: 'Alhamdulillah wonderful quality. Colour and zardozi needlework match exactly as shown on the website. Highly recommended for Bohra occasions.'
-      }
-    ];
+    return [];
   }
 
   function getRelatedProducts(currentId, category) {
@@ -191,28 +193,14 @@
     return sameCat.slice(0, 4);
   }
 
-  // Default Kashaf-Style Panoramic Fashion Hero Banners
+  // Pure Boutique Fashion Hero Banners (No Mock Images)
   const defaultBannerSlides = [
     {
       id: 'slide-1',
-      title: 'Summer Collection Luxury Editorial',
-      desktopImg: 'images/kashaf_slider_desktop.jpg',
-      mobileImg: 'images/kashaf_slider_mobile.jpg',
+      title: 'Royal Dawoodi Bohra Libas Atelier',
+      desktopImg: '',
+      mobileImg: '',
       category: 'all'
-    },
-    {
-      id: 'slide-2',
-      title: 'Royal Bohra Bridal Ridas & Ensembles',
-      desktopImg: 'images/kashaf_slider_01.jpg',
-      mobileImg: 'images/kashaf_slider_01.jpg',
-      category: 'heavy-rida'
-    },
-    {
-      id: 'slide-3',
-      title: 'Heirloom Pure Silk Ridas & Festive Pret',
-      desktopImg: 'images/kashaf_slider_02.jpg',
-      mobileImg: 'images/kashaf_slider_02.jpg',
-      category: 'silk-rida'
     }
   ];
 
@@ -222,7 +210,12 @@
 
   function getActiveBannerSlides() {
     if (heroSettings && Array.isArray(heroSettings.bannerSlides) && heroSettings.bannerSlides.length > 0) {
-      return heroSettings.bannerSlides;
+      // Cleanse out old mock images
+      return heroSettings.bannerSlides.map(s => ({
+        ...s,
+        desktopImg: (s.desktopImg && s.desktopImg.startsWith('images/') && !s.desktopImg.startsWith('images/uploads')) ? '' : (s.desktopImg || ''),
+        mobileImg: (s.mobileImg && s.mobileImg.startsWith('images/') && !s.mobileImg.startsWith('images/uploads')) ? '' : (s.mobileImg || '')
+      }));
     }
     return defaultBannerSlides;
   }
@@ -237,24 +230,54 @@
 
     const slides = getActiveBannerSlides();
 
+    if (!slides || slides.length === 0) {
+      track.innerHTML = `
+        <div class="hero-slide-item active" style="background: radial-gradient(circle at 50% 50%, #2a080d 0%, #150305 100%); display:flex; align-items:center; justify-content:center; text-align:center; padding:40px 20px; min-height:320px;">
+          <div style="max-width:750px; color:#fff;">
+            <div style="font-size:0.85rem; letter-spacing:0.25em; text-transform:uppercase; color:#d4af37; margin-bottom:12px; font-weight:700;">👑 Dawoodi Bohra Haute Couture Atelier</div>
+            <h1 style="font-family:'Cormorant Garamond',serif; font-size:clamp(1.8rem, 4vw, 3rem); font-weight:700; line-height:1.2; margin-bottom:14px; color:#fff;">Aiman Collection Atelier</h1>
+            <p style="color:#e2e8f0; font-size:0.95rem; margin-bottom:20px;">Handcrafted Dawoodi Bohra Bridal Ridas, Luxury Pret &amp; Matching Ensembles</p>
+            <a href="#catalog" class="admin-btn" style="background:#d4af37; color:#1e1b18; font-weight:700; padding:10px 24px; border-radius:4px; display:inline-block; text-decoration:none;">View Collection ↗</a>
+          </div>
+        </div>
+      `;
+      if (dotsContainer) dotsContainer.innerHTML = '';
+      return;
+    }
+
     track.innerHTML = slides.map((s, idx) => {
       const cat = s.category || 'all';
-      const desktop = s.desktopImg || s.img || 'images/kashaf_slider_desktop.jpg';
+      const desktop = s.desktopImg || s.img || '';
       const mobile = s.mobileImg || desktop;
-      return `
-        <a href="#catalog" class="hero-slide-item ${idx === currentSlideIndex ? 'active' : ''}" onclick="window.AimanStore.filterCategory('${cat}'); return true;" title="${s.title || 'Aiman Collection'}">
-          <picture>
-            <source media="(max-width: 768px)" srcset="${mobile}">
-            <img src="${desktop}" onerror="this.onerror=null; this.src='images/black_formal.jpg';" alt="${s.title || 'Aiman Collection'}" class="hero-slide-img" loading="${idx === 0 ? 'eager' : 'lazy'}">
-          </picture>
-        </a>
-      `;
+      const isActive = idx === currentSlideIndex;
+
+      if (desktop) {
+        return `
+          <a href="#catalog" class="hero-slide-item ${isActive ? 'active' : ''}" onclick="window.AimanStore.filterCategory('${cat}'); return true;" title="${s.title || 'Aiman Collection'}">
+            <picture>
+              ${mobile && mobile !== desktop ? `<source media="(max-width: 768px)" srcset="${mobile}">` : ''}
+              <img src="${desktop}" alt="${s.title || 'Aiman Collection'}" class="hero-slide-img" loading="${idx === 0 ? 'eager' : 'lazy'}">
+            </picture>
+          </a>
+        `;
+      } else {
+        return `
+          <div class="hero-slide-item ${isActive ? 'active' : ''}" style="background: radial-gradient(circle at 50% 50%, #2a080d 0%, #150305 100%); display:flex; align-items:center; justify-content:center; text-align:center; padding:40px 20px; min-height:320px;">
+            <div style="max-width:750px; color:#fff;">
+              <div style="font-size:0.85rem; letter-spacing:0.25em; text-transform:uppercase; color:#d4af37; margin-bottom:12px; font-weight:700;">👑 Dawoodi Bohra Haute Couture Atelier</div>
+              <h1 style="font-family:'Cormorant Garamond',serif; font-size:clamp(1.8rem, 4vw, 3rem); font-weight:700; line-height:1.2; margin-bottom:14px; color:#fff;">${s.title || 'Aiman Collection Atelier'}</h1>
+              <p style="color:#e2e8f0; font-size:0.95rem; margin-bottom:20px;">Handcrafted Dawoodi Bohra Bridal Ridas, Luxury Pret &amp; Matching Ensembles</p>
+              <a href="#catalog" class="admin-btn" style="background:#d4af37; color:#1e1b18; font-weight:700; padding:10px 24px; border-radius:4px; display:inline-block; text-decoration:none;">View Collection ↗</a>
+            </div>
+          </div>
+        `;
+      }
     }).join('');
 
     if (dotsContainer) {
-      dotsContainer.innerHTML = slides.map((_, idx) => `
+      dotsContainer.innerHTML = slides.length > 1 ? slides.map((_, idx) => `
         <span class="hero-dot ${idx === currentSlideIndex ? 'active' : ''}" onclick="window.AimanStore.goToSlide(${idx})"></span>
-      `).join('');
+      `).join('') : '';
     }
 
     updateSliderDisplay();
@@ -365,7 +388,7 @@
             ${p.discount > 0 ? `<span class="kashaf-sale-badge">-${p.discount}%</span>` : ''}
             <div class="product-stock-badge">${statusBadgeHtml}</div>
             <a href="javascript:void(0)" onclick="window.AimanStore.openProductPage('${p.id}')">
-              <img src="${p.image}" onerror="this.onerror=null; this.src='images/black_formal.jpg';" style="${p.imageStyle || ''}" alt="${title}" loading="lazy">
+              <img src="${p.image || FALLBACK_PRODUCT_IMAGE}" onerror="this.onerror=null; this.src=FALLBACK_PRODUCT_IMAGE;" style="${p.imageStyle || ''}" alt="${title}" loading="lazy">
             </a>
             <button type="button" class="product-quick-view-btn" onclick="window.AimanStore.openProductPage('${p.id}')">
               <i class="fas fa-eye"></i> View Details
@@ -484,7 +507,7 @@
 
       return `
         <tr>
-          <td><img src="${p.image}" onerror="this.onerror=null; this.src='images/black_formal.jpg';" style="${p.imageStyle || ''} width:42px; height:50px; object-fit:cover; border-radius:3px;"></td>
+          <td><img src="${p.image || FALLBACK_PRODUCT_IMAGE}" onerror="this.onerror=null; this.src=FALLBACK_PRODUCT_IMAGE;" style="${p.imageStyle || ''} width:42px; height:50px; object-fit:cover; border-radius:3px;"></td>
           <td><strong>${p.title}</strong></td>
           <td><span style="font-size:0.8rem; color:#666;">${catLabel}</span></td>
           <td>
@@ -556,7 +579,7 @@
 
     listEl.innerHTML = slides.map((s, idx) => {
       const cat = s.category || 'all';
-      const desktop = s.desktopImg || s.img || 'images/kashaf_slider_desktop.jpg';
+      const desktop = s.desktopImg || s.img || '';
       const mobile = s.mobileImg || desktop;
       const title = s.title || `Slide ${idx + 1}`;
 
@@ -579,40 +602,18 @@
           <div style="display:flex; flex-direction:column; margin-bottom:14px;">
             <label style="font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">Live Banner Preview (2.4 : 1 Panoramic Ratio):</label>
             <div class="admin-slide-preview-box">
-              <img id="adminSlidePreview_${idx}" src="${desktop}" onerror="this.onerror=null; this.src='images/black_formal.jpg';" alt="Slide ${idx + 1} Preview">
-            </div>
-          </div>
-
-          <!-- Quick Presets -->
-          <div style="margin-bottom:14px;">
-            <span style="font-size:0.8rem; font-weight:700; color:#475569; display:block; margin-bottom:5px;">1-Click Quick Presets (Bohra & Fashion Banners):</span>
-            <div class="admin-quick-presets">
-              <button type="button" class="admin-preset-btn" onclick="window.AimanStore.setSlidePreset(${idx}, 'images/kashaf_slider_desktop.jpg', 'images/kashaf_slider_mobile.jpg', 'Summer Collection Luxury Editorial')">
-                ✨ Editorial Summer (Kashaf)
-              </button>
-              <button type="button" class="admin-preset-btn" onclick="window.AimanStore.setSlidePreset(${idx}, 'images/kashaf_slider_01.jpg', 'images/kashaf_slider_01.jpg', 'Royal Bohra Bridal Ridas & Ensembles')">
-                👑 Bridal & Heavy Rida
-              </button>
-              <button type="button" class="admin-preset-btn" onclick="window.AimanStore.setSlidePreset(${idx}, 'images/kashaf_slider_02.jpg', 'images/kashaf_slider_02.jpg', 'Heirloom Pure Silk Ridas & Festive Pret')">
-                🥻 Silk Pret & Festive
-              </button>
-              <button type="button" class="admin-preset-btn" onclick="window.AimanStore.setSlidePreset(${idx}, 'images/summer_collection.jpg', 'images/summer_collection.jpg', 'Summer Pret Bohra Collection')">
-                🌸 Summer Pret Look
-              </button>
-              <button type="button" class="admin-preset-btn" onclick="window.AimanStore.setSlidePreset(${idx}, 'images/black_formal.jpg', 'images/black_formal.jpg', 'Black Formal Embroidered')">
-                🖤 Black Formal Luxe
-              </button>
+              ${desktop ? `<img id="adminSlidePreview_${idx}" src="${desktop}" alt="Slide ${idx + 1} Preview">` : `<div id="adminSlidePreview_${idx}" style="display:flex; align-items:center; justify-content:center; height:100%; min-height:160px; background:#1e1b18; color:#d4af37; font-size:0.9rem; font-weight:600;"><i class="fas fa-image" style="margin-right:8px;"></i> Koi banner photo upload nahi hai (Abhi upload karein)</div>`}
             </div>
           </div>
 
           <!-- Upload from device / laptop -->
-          <div style="margin-bottom:14px; padding:10px 14px; background:#f0fdfa; border:1px dashed #0f766e; border-radius:6px;">
-            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+          <div style="margin-bottom:14px; padding:12px 16px; background:#f0fdfa; border:1.5px dashed #0f766e; border-radius:8px;">
+            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
               <input type="file" id="slideFileInput_${idx}" accept="image/*" style="display:none;" onchange="window.AimanStore.handleSlideFileUpload(${idx}, event)">
-              <button type="button" class="admin-btn" onclick="document.getElementById('slideFileInput_${idx}').click()" style="background:#0f766e; color:#fff; border:none; padding:7px 14px; border-radius:5px; font-size:0.8rem; font-weight:600; cursor:pointer;">
+              <button type="button" class="admin-btn" onclick="document.getElementById('slideFileInput_${idx}').click()" style="background:#0f766e; color:#fff; border:none; padding:8px 16px; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer;">
                 <i class="fas fa-camera"></i> Laptop / Phone se Banner Upload karein
               </button>
-              <span id="slideFileName_${idx}" style="font-size:0.8rem; color:#475569; font-style:italic;">Koi bhi custom banner image select karein</span>
+              <span id="slideFileName_${idx}" style="font-size:0.82rem; color:#334155; font-weight:500;">${desktop ? '✅ Photo set (Upload new to replace)' : 'Koi bhi custom banner photo select karein (Real-time Cloud Sync)'}</span>
             </div>
           </div>
 
@@ -624,13 +625,13 @@
             </div>
 
             <div class="form-group">
-              <label style="font-weight:600; font-size:0.85rem;">Desktop Banner Image URL / Path *</label>
-              <input type="text" id="slideDesktop_${idx}" value="${desktop}" required placeholder="images/kashaf_slider_desktop.jpg" oninput="window.AimanStore.updateSlidePreview(${idx}, this.value)">
+              <label style="font-weight:600; font-size:0.85rem;">Desktop Banner Image URL / Path</label>
+              <input type="text" id="slideDesktop_${idx}" value="${desktop}" placeholder="Upload image above or paste image URL" oninput="window.AimanStore.updateSlidePreview(${idx}, this.value)">
             </div>
 
             <div class="form-group">
               <label style="font-weight:600; font-size:0.85rem;">Mobile Banner Image URL (Optional)</label>
-              <input type="text" id="slideMobile_${idx}" value="${mobile}" placeholder="images/kashaf_slider_mobile.jpg">
+              <input type="text" id="slideMobile_${idx}" value="${mobile}" placeholder="Optional mobile image URL">
             </div>
 
             <div class="form-group" style="grid-column: span 2;">
@@ -656,7 +657,14 @@
 
     const generateCardsHtml = (setNum) => cards.map(c => `
       <div class="kashaf-cat-card" onclick="window.AimanStore.filterCategory('${c.id}')">
-        <img src="${c.image}" style="${c.style || ''}" alt="${c.name}" loading="${setNum === 1 ? 'eager' : 'lazy'}" onerror="this.onerror=null; this.src='images/black_formal.jpg';">
+        ${c.image ? `
+          <img src="${c.image}" style="${c.style || ''}" alt="${c.name}" loading="${setNum === 1 ? 'eager' : 'lazy'}">
+        ` : `
+          <div style="width:100%; height:100%; background: linear-gradient(145deg, #2a0b12, #140508); display:flex; flex-direction:column; align-items:center; justify-content:center; color:#d4af37; padding:10px; text-align:center;">
+            <span style="font-size:2rem; margin-bottom:6px;">${c.name.split(' ')[0]}</span>
+            <span style="font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:#f1f5f9;">${c.name.replace(c.name.split(' ')[0], '').trim()}</span>
+          </div>
+        `}
         <div class="kashaf-cat-overlay">
           <span class="kashaf-cat-name">${c.name}</span>
           <span class="kashaf-cat-arrow">↗</span>
@@ -676,8 +684,14 @@
 
     listEl.innerHTML = cards.map((c, idx) => `
       <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; display:flex; gap:12px; align-items:center;">
-        <div style="width:75px; height:85px; flex-shrink:0; border-radius:6px; overflow:hidden; border:1px solid #cbd5e1; background:#000;">
-          <img id="catCardPreview_${idx}" src="${c.image}" style="width:100%; height:100%; object-fit:cover; ${c.style || ''}" onerror="this.onerror=null; this.src='images/black_formal.jpg';">
+        <div style="width:75px; height:85px; flex-shrink:0; border-radius:6px; overflow:hidden; border:1px solid #cbd5e1; background:#1e1b18;">
+          ${c.image ? `
+            <img id="catCardPreview_${idx}" src="${c.image}" style="width:100%; height:100%; object-fit:cover; ${c.style || ''}">
+          ` : `
+            <div id="catCardPreview_${idx}" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#d4af37; font-size:1.5rem;">
+              ${c.name.split(' ')[0]}
+            </div>
+          `}
         </div>
         <div style="flex:1; min-width:0;">
           <span style="display:block; font-size:0.85rem; font-weight:700; color:#1e293b; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
@@ -688,9 +702,9 @@
             <button type="button" class="admin-btn" onclick="document.getElementById('catCardFileInput_${idx}').click()" style="background:#0f766e; color:#fff; padding:5px 10px; font-size:0.75rem; border:none; border-radius:4px; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">
               <i class="fas fa-camera"></i> Change Picture
             </button>
-            <span id="catCardFileName_${idx}" style="font-size:0.72rem; color:#64748b; font-style:italic; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:110px;">Select file</span>
+            <span id="catCardFileName_${idx}" style="font-size:0.72rem; color:#64748b; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:110px;">${c.image ? 'Photo set' : 'Select file'}</span>
           </div>
-          <input type="text" id="catCardImgInput_${idx}" value="${c.image}" placeholder="Image URL / Path" style="width:100%; font-size:0.75rem; padding:5px 8px; border:1px solid #cbd5e1; border-radius:4px;" oninput="window.AimanStore.previewCategoryCard(${idx})">
+          <input type="text" id="catCardImgInput_${idx}" value="${c.image || ''}" placeholder="Upload photo or paste URL" style="width:100%; font-size:0.75rem; padding:5px 8px; border:1px solid #cbd5e1; border-radius:4px;" oninput="window.AimanStore.previewCategoryCard(${idx})">
         </div>
       </div>
     `).join('');
@@ -829,7 +843,7 @@
 
         return `
           <div class="search-dropdown-item" onclick="window.AimanStore.openProductPage('${p.id}'); window.AimanStore.closeSearchModal();">
-            <img src="${p.image}" onerror="this.onerror=null; this.src='images/black_formal.jpg';" class="search-dropdown-thumb" alt="${p.title}" style="${p.imageStyle || ''}">
+            <img src="${p.image || FALLBACK_PRODUCT_IMAGE}" onerror="this.onerror=null; this.src=FALLBACK_PRODUCT_IMAGE;" class="search-dropdown-thumb" alt="${p.title}" style="${p.imageStyle || ''}">
             <div class="search-dropdown-info">
               <div class="search-dropdown-title" title="${p.title}">${p.title}</div>
               <div class="search-dropdown-meta">
@@ -949,7 +963,7 @@
       }
 
       const reviews = getProductReviews(p.id);
-      const reviewsHtml = reviews.map(r => `
+      const reviewsHtml = reviews.length > 0 ? reviews.map(r => `
         <div class="pdp-review-card">
           <div class="pdp-review-top">
             <strong>${r.author}</strong>
@@ -958,14 +972,20 @@
           <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:6px;">${r.date || 'Verified Purchase'}</div>
           <div class="pdp-review-text">${r.text}</div>
         </div>
-      `).join('');
+      `).join('') : `
+        <div style="text-align:center; padding:24px 16px; color:#64748b; background:#f8fafc; border-radius:8px; border:1px dashed #cbd5e1; margin-top:14px;">
+          <i class="far fa-comments" style="font-size:1.6rem; color:#d4af37; margin-bottom:8px; display:block;"></i>
+          <span style="font-size:0.9rem; font-weight:600; color:#334155; display:block;">Abhi tak is rida par koi customer review darj nahi hua.</span>
+          <span style="font-size:0.8rem; color:#64748b;">Apna keemti experience share karne ke liye upar 'Write a review' button dabayein!</span>
+        </div>
+      `;
 
       const related = getRelatedProducts(p.id, p.category);
       const relatedHtml = related.map(item => `
         <li class="pdp-related-card" onclick="window.AimanStore.openProductPage('${item.id}')">
           <div class="pdp-related-img-box">
             ${item.discount > 0 ? `<span class="pdp-discount-badge" style="font-size:0.7rem; padding:2px 6px;">-${item.discount}%</span>` : ''}
-            <img src="${item.image}" onerror="this.onerror=null; this.src='images/black_formal.jpg';" style="${item.imageStyle || ''}" alt="${item.title}" loading="lazy">
+            <img src="${item.image || FALLBACK_PRODUCT_IMAGE}" onerror="this.onerror=null; this.src=FALLBACK_PRODUCT_IMAGE;" style="${item.imageStyle || ''}" alt="${item.title}" loading="lazy">
             <button type="button" class="pdp-related-bag-btn" onclick="event.stopPropagation(); window.AimanStore.openProductPage('${item.id}')" title="View Product Details">
               <i class="fas fa-eye"></i>
             </button>
@@ -982,7 +1002,7 @@
 
       const thumbnailsHtml = currentPdpGalleryImages.map((img, idx) => `
         <div class="pdp-thumb-item ${idx === 0 ? 'active' : ''}" id="pdpThumb_${idx}" onclick="window.AimanStore.selectGalleryImage(${idx})">
-          <img src="${img}" onerror="this.onerror=null; this.src='images/black_formal.jpg';" alt="Angle ${idx + 1}">
+          <img src="${img || FALLBACK_PRODUCT_IMAGE}" onerror="this.onerror=null; this.src=FALLBACK_PRODUCT_IMAGE;" alt="Angle ${idx + 1}">
         </div>
       `).join('');
 
@@ -1019,7 +1039,7 @@
                       <i class="fas fa-chevron-right"></i>
                     </button>
                   </div>` : ''}
-                  <img id="pdpMainImage" src="${currentPdpGalleryImages[0]}" onerror="this.onerror=null; this.src='images/black_formal.jpg';" alt="${p.title}" class="pdp-main-img">
+                  <img id="pdpMainImage" src="${currentPdpGalleryImages[0] || FALLBACK_PRODUCT_IMAGE}" onerror="this.onerror=null; this.src=FALLBACK_PRODUCT_IMAGE;" alt="${p.title}" class="pdp-main-img">
                 </div>
 
                 ${currentPdpGalleryImages.length > 1 ? `
@@ -1329,7 +1349,7 @@
 
         list.innerHTML = cartItems.map(item => `
           <div class="cart-drawer-item">
-            <img src="${item.image}" onerror="this.onerror=null; this.src='images/black_formal.jpg';" class="cart-drawer-thumb" alt="${item.title}">
+            <img src="${item.image || FALLBACK_PRODUCT_IMAGE}" onerror="this.onerror=null; this.src=FALLBACK_PRODUCT_IMAGE;" class="cart-drawer-thumb" alt="${item.title}">
             <div class="cart-drawer-info">
               <div class="cart-drawer-title" title="${item.title}">${item.title}</div>
               <div class="cart-drawer-price">Rs. ${Number(item.price).toLocaleString()}</div>
@@ -1872,7 +1892,11 @@
         const price = Number(document.getElementById('prodPriceInput').value);
         const regPrice = Number(document.getElementById('prodRegPriceInput').value) || (price * 1.5);
         const discount = Number(document.getElementById('prodDiscountInput').value) || Math.round(((regPrice - price) / regPrice) * 100);
-        const image = document.getElementById('prodImageInput').value.trim() || 'images/summer_collection.jpg';
+        const image = document.getElementById('prodImageInput').value.trim();
+        if (!image) {
+          alert('Baraye meharbani product ki picture upload karein ya image URL paste karein.');
+          return;
+        }
         const gal1 = document.getElementById('galInput1') ? document.getElementById('galInput1').value.trim() : '';
         const gal2 = document.getElementById('galInput2') ? document.getElementById('galInput2').value.trim() : '';
         const gal3 = document.getElementById('galInput3') ? document.getElementById('galInput3').value.trim() : '';
@@ -2100,48 +2124,82 @@
       if (!file) return;
 
       const nameLabel = document.getElementById(`slideFileName_${idx}`);
-      if (nameLabel) nameLabel.textContent = `✓ Uploaded: ${file.name}`;
+      if (nameLabel) nameLabel.innerHTML = `<i class="fas fa-spinner fa-spin" style="color:#0f766e;"></i> Compressing & Cloud Uploading...`;
 
       const dInput = document.getElementById(`slideDesktop_${idx}`);
       const mInput = document.getElementById(`slideMobile_${idx}`);
       const preview = document.getElementById(`adminSlidePreview_${idx}`);
 
       try {
-        const compressedBase64 = await compressImageFile(file, 1600, 0.82);
+        // High quality yet lightweight compression: 1200px max width, 0.72 quality (~45-70KB)
+        const compressedBase64 = await compressImageFile(file, 1200, 0.72);
 
         if (dInput) dInput.value = compressedBase64;
         if (mInput) mInput.value = compressedBase64;
-        if (preview) preview.src = compressedBase64;
+        if (preview) {
+          if (preview.tagName === 'IMG') {
+            preview.src = compressedBase64;
+          } else {
+            preview.outerHTML = `<img id="adminSlidePreview_${idx}" src="${compressedBase64}" alt="Slide ${idx + 1} Preview">`;
+          }
+        }
 
-        // Auto-save immediately to Firestore so it NEVER gets lost if user refreshes!
+        // Auto-save immediately to Firestore so it NEVER gets lost on refresh!
         const currentSlides = [...getActiveBannerSlides()];
         if (currentSlides && currentSlides[idx]) {
-          currentSlides[idx].desktopImg = compressedBase64;
-          currentSlides[idx].mobileImg = compressedBase64;
+          const slide = currentSlides[idx];
+          slide.id = slide.id || ('slide-' + (idx + 1));
+          slide.desktopImg = compressedBase64;
+          slide.mobileImg = compressedBase64;
+          slide.order = idx;
+
           heroSettings = heroSettings || {};
           heroSettings.bannerSlides = currentSlides;
           try { localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings)); } catch (e) {}
-          const db = getDb();
-          if (db) {
+
+          ensureFirestore((db) => {
+            // 1. Save to dedicated hero_slides collection doc (never hits 1MB document limit)
+            db.collection('hero_slides').doc(slide.id).set({
+              id: slide.id,
+              title: slide.title || `Slide ${idx + 1}`,
+              desktopImg: compressedBase64,
+              mobileImg: compressedBase64,
+              category: slide.category || 'all',
+              order: idx,
+              updatedAt: new Date().toISOString()
+            }, { merge: true })
+              .then(() => {
+                console.log(`⚡ [Firebase] Hero slide ${slide.id} uploaded live to Firestore`);
+                if (nameLabel) nameLabel.innerHTML = `<i class="fas fa-circle-check" style="color:#10b981;"></i> Cloud Synced: ${file.name}`;
+              })
+              .catch(err => {
+                console.warn('Firestore hero_slides save error:', err);
+                if (nameLabel) nameLabel.innerHTML = `<i class="fas fa-circle-exclamation" style="color:#ef4444;"></i> Save note: ${err.message}`;
+              });
+
+            // 2. Also mirror to settings/hero doc
             db.collection('settings').doc('hero').set({ bannerSlides: currentSlides }, { merge: true })
-              .then(() => console.log(`⚡ [Firebase] Hero slide ${idx + 1} picture auto-saved live to Firestore`))
-              .catch(err => console.warn('Firestore slide auto-save note:', err));
-          }
+              .catch(e => console.warn('settings/hero sync note:', e));
+          });
+
           renderHeroSlider();
         }
       } catch (err) {
         console.error('Slide upload error:', err);
+        if (nameLabel) nameLabel.innerHTML = `<i class="fas fa-circle-exclamation" style="color:#ef4444;"></i> Upload failed`;
       }
     },
 
     addNewHeroBanner: function () {
       const currentSlides = [...getActiveBannerSlides()];
+      const newId = 'slide-' + Date.now();
       const newSlide = {
-        id: 'slide-' + Date.now(),
+        id: newId,
         title: 'New Bohra Couture Showcase',
-        desktopImg: 'images/kashaf_slider_01.jpg',
-        mobileImg: 'images/kashaf_slider_01.jpg',
-        category: 'heavy-rida'
+        desktopImg: '',
+        mobileImg: '',
+        category: 'all',
+        order: currentSlides.length
       };
       currentSlides.push(newSlide);
 
@@ -2149,16 +2207,18 @@
       heroSettings.bannerSlides = currentSlides;
       try { localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings)); } catch (e) {}
 
-      const db = getDb();
-      if (db) {
-        db.collection('settings').doc('hero').set({ bannerSlides: currentSlides }, { merge: true })
+      ensureFirestore((db) => {
+        db.collection('hero_slides').doc(newId).set(newSlide)
+          .then(() => console.log(`⚡ [Firebase] New hero slide ${newId} created in Firestore`))
           .catch(err => console.warn('Firestore hero banner add note:', err));
-      }
+        db.collection('settings').doc('hero').set({ bannerSlides: currentSlides }, { merge: true })
+          .catch(() => {});
+      });
 
       renderAdminHeroSlides();
       renderHeroSlider();
       startHeroSlider();
-      alert('✨ Naya slide add ho gaya! Aap iski image, title, aur category abhi change kar sakte hain.');
+      alert('✨ Naya slide add ho gaya! Aap iski image, title, aur category abhi upload/set kar sakte hain.');
     },
 
     deleteHeroBanner: function (idx) {
@@ -2168,16 +2228,20 @@
         return;
       }
       if (confirm(`Slide ${idx + 1} ko delete karna chahte hain?`)) {
-        currentSlides.splice(idx, 1);
+        const deletedSlide = currentSlides.splice(idx, 1)[0];
         heroSettings = heroSettings || {};
         heroSettings.bannerSlides = currentSlides;
         try { localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings)); } catch (e) {}
 
-        const db = getDb();
-        if (db) {
+        ensureFirestore((db) => {
+          if (deletedSlide && deletedSlide.id) {
+            db.collection('hero_slides').doc(deletedSlide.id).delete()
+              .then(() => console.log(`⚡ [Firebase] Hero slide ${deletedSlide.id} deleted from Firestore`))
+              .catch(err => console.warn('Firestore hero banner delete note:', err));
+          }
           db.collection('settings').doc('hero').set({ bannerSlides: currentSlides }, { merge: true })
-            .catch(err => console.warn('Firestore hero banner delete note:', err));
-        }
+            .catch(() => {});
+        });
 
         currentSlideIndex = 0;
         renderAdminHeroSlides();
@@ -2197,20 +2261,21 @@
         const mEl = document.getElementById(`slideMobile_${i}`);
         const cEl = document.getElementById(`slideCategory_${i}`);
 
-        if (dEl && dEl.value.trim()) {
-          newSlides.push({
-            id: currentSlides[i].id || ('slide-' + (i + 1)),
-            title: titleEl ? titleEl.value.trim() : `Slide ${i + 1}`,
-            desktopImg: dEl.value.trim(),
-            mobileImg: (mEl && mEl.value.trim()) ? mEl.value.trim() : dEl.value.trim(),
-            category: cEl ? cEl.value : 'all'
-          });
-        }
-      }
+        const id = currentSlides[i].id || ('slide-' + (i + 1));
+        const title = titleEl ? titleEl.value.trim() : `Slide ${i + 1}`;
+        const desktopImg = dEl ? dEl.value.trim() : '';
+        const mobileImg = (mEl && mEl.value.trim()) ? mEl.value.trim() : desktopImg;
+        const category = cEl ? cEl.value : 'all';
 
-      if (newSlides.length === 0) {
-        alert('Kam se kam ek valid banner image URL ya upload hona zaroori hai.');
-        return;
+        newSlides.push({
+          id,
+          title,
+          desktopImg,
+          mobileImg,
+          category,
+          order: i,
+          updatedAt: new Date().toISOString()
+        });
       }
 
       heroSettings = heroSettings || {};
@@ -2219,6 +2284,10 @@
 
       // Save directly to Firebase Firestore
       ensureFirestore((db) => {
+        newSlides.forEach(s => {
+          db.collection('hero_slides').doc(s.id).set(s, { merge: true })
+            .catch(err => console.warn(`Slide ${s.id} save note:`, err));
+        });
         db.collection('settings').doc('hero').set({ bannerSlides: newSlides }, { merge: true })
           .then(() => console.log('⚡ [Firebase] Hero banners saved to Firestore'))
           .catch(err => console.warn('Firestore hero banners save note:', err));
@@ -2233,12 +2302,16 @@
     },
 
     resetHeroBannersToDefault: function () {
-      if (confirm('Banners ko default Kashaf luxury editorial slides par reset karein?')) {
+      if (confirm('Hero Banners ko initial clean atelier banner par reset karein?')) {
         heroSettings = heroSettings || {};
         heroSettings.bannerSlides = [...defaultBannerSlides];
         try { localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings)); } catch (e) {}
 
         ensureFirestore((db) => {
+          db.collection('hero_slides').get().then(snap => {
+            snap.forEach(d => d.ref.delete());
+            db.collection('hero_slides').doc('slide-1').set(defaultBannerSlides[0]);
+          }).catch(() => {});
           db.collection('settings').doc('hero').set({ bannerSlides: defaultBannerSlides }, { merge: true })
             .catch(err => console.warn('Firestore reset hero banners note:', err));
         });
@@ -2248,7 +2321,7 @@
         startHeroSlider();
         renderAdminHeroSlides();
 
-        alert('✅ Hero Banners reset to default luxury presets.');
+        alert('✅ Hero Banners reset to clean atelier template.');
       }
     },
 
@@ -2413,7 +2486,7 @@
               price: Number(d.price) || 0,
               regularPrice: Number(d.regularPrice || d.originalPrice) || 0,
               discount: Number(d.discount) || 0,
-              image: d.image || 'images/summer_collection.jpg',
+              image: d.image || FALLBACK_PRODUCT_IMAGE,
               imageStyle: d.imageStyle || '',
               gallery: Array.isArray(d.gallery) ? d.gallery : (Array.isArray(d.galleryImages) ? d.galleryImages : []),
               stockStatus: d.stockStatus || (d.isSoldOut ? 'sold-out' : (d.isBooked ? 'booked' : 'in-stock')),
@@ -2465,13 +2538,38 @@
           }
         }
 
-        // 4. Hero settings
+        // 4. Hero slides & settings
+        const slidesSnap = await db.collection('hero_slides').get();
+        if (!slidesSnap.empty) {
+          const fsSlides = [];
+          slidesSnap.forEach(d => {
+            const s = d.data();
+            if (s) {
+              fsSlides.push({
+                id: s.id || d.id,
+                title: s.title || 'Aiman Collection',
+                desktopImg: (s.desktopImg && s.desktopImg.startsWith('images/') && !s.desktopImg.startsWith('images/uploads')) ? '' : (s.desktopImg || ''),
+                mobileImg: (s.mobileImg && s.mobileImg.startsWith('images/') && !s.mobileImg.startsWith('images/uploads')) ? '' : (s.mobileImg || ''),
+                category: s.category || 'all',
+                order: (typeof s.order === 'number') ? s.order : 999
+              });
+            }
+          });
+          if (fsSlides.length > 0) {
+            fsSlides.sort((a, b) => a.order - b.order);
+            heroSettings = heroSettings || {};
+            heroSettings.bannerSlides = fsSlides;
+          }
+        }
+
         const heroDoc = await db.collection('settings').doc('hero').get();
         if (heroDoc && heroDoc.exists) {
           const hd = heroDoc.data();
           if (hd) {
             heroSettings = heroSettings || {};
-            if (Array.isArray(hd.bannerSlides) && hd.bannerSlides.length > 0) heroSettings.bannerSlides = hd.bannerSlides;
+            if ((!heroSettings.bannerSlides || heroSettings.bannerSlides.length === 0) && Array.isArray(hd.bannerSlides) && hd.bannerSlides.length > 0) {
+              heroSettings.bannerSlides = hd.bannerSlides;
+            }
             if (hd.announcement) heroSettings.announcement = hd.announcement;
             try { localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings)); } catch (e) {}
             applyHeroSettings();
@@ -2583,7 +2681,7 @@
                 price: Number(d.price) || 0,
                 regularPrice: Number(d.regularPrice || d.originalPrice) || 0,
                 discount: Number(d.discount) || 0,
-                image: d.image || 'images/summer_collection.jpg',
+                image: d.image || FALLBACK_PRODUCT_IMAGE,
                 imageStyle: d.imageStyle || '',
                 gallery: Array.isArray(d.gallery) ? d.gallery : (Array.isArray(d.galleryImages) ? d.galleryImages : []),
                 stockStatus: d.stockStatus || (d.isSoldOut ? 'sold-out' : (d.isBooked ? 'booked' : 'in-stock')),
@@ -2626,19 +2724,55 @@
         }, err => console.warn('Firestore category_cards notice:', err.message));
         unsubs.push(unsubCats);
 
-        // 3. Real-time Hero Settings Listener
+        // 3a. Real-time Hero Slides Collection Listener (Dedicated Collection - Instant Sync)
+        const unsubHeroSlides = db.collection('hero_slides').onSnapshot(snapshot => {
+          if (!snapshot || snapshot.empty) return;
+          const fsSlides = [];
+          snapshot.forEach(doc => {
+            const s = doc.data();
+            if (s) {
+              fsSlides.push({
+                id: s.id || doc.id,
+                title: s.title || 'Aiman Collection',
+                desktopImg: (s.desktopImg && s.desktopImg.startsWith('images/') && !s.desktopImg.startsWith('images/uploads')) ? '' : (s.desktopImg || ''),
+                mobileImg: (s.mobileImg && s.mobileImg.startsWith('images/') && !s.mobileImg.startsWith('images/uploads')) ? '' : (s.mobileImg || ''),
+                category: s.category || 'all',
+                order: (typeof s.order === 'number') ? s.order : 999
+              });
+            }
+          });
+
+          if (fsSlides.length > 0) {
+            fsSlides.sort((a, b) => a.order - b.order);
+            heroSettings = heroSettings || {};
+            heroSettings.bannerSlides = fsSlides;
+            try {
+              localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings));
+            } catch (e) {}
+            renderHeroSlider();
+            renderAdminHeroSlides();
+            console.log(`⚡ [Real-Time Sync] ${fsSlides.length} hero slides updated live from Firestore`);
+          }
+        }, err => console.warn('Firestore hero_slides notice:', err.message));
+        unsubs.push(unsubHeroSlides);
+
+        // 3b. Real-time Hero Settings Listener (Announcement Bar & fallback)
         const unsubHero = db.collection('settings').doc('hero').onSnapshot(doc => {
           if (doc && doc.exists) {
             const data = doc.data();
             if (data) {
               heroSettings = heroSettings || {};
               let updated = false;
-              if (Array.isArray(data.bannerSlides) && data.bannerSlides.length > 0) {
-                heroSettings.bannerSlides = data.bannerSlides;
+              if (data.announcement && data.announcement !== heroSettings.announcement) {
+                heroSettings.announcement = data.announcement;
                 updated = true;
               }
-              if (data.announcement) {
-                heroSettings.announcement = data.announcement;
+              if ((!heroSettings.bannerSlides || heroSettings.bannerSlides.length === 0) && Array.isArray(data.bannerSlides) && data.bannerSlides.length > 0) {
+                heroSettings.bannerSlides = data.bannerSlides.map(s => ({
+                  ...s,
+                  desktopImg: (s.desktopImg && s.desktopImg.startsWith('images/') && !s.desktopImg.startsWith('images/uploads')) ? '' : (s.desktopImg || ''),
+                  mobileImg: (s.mobileImg && s.mobileImg.startsWith('images/') && !s.mobileImg.startsWith('images/uploads')) ? '' : (s.mobileImg || '')
+                }));
                 updated = true;
               }
               if (updated) {
@@ -2647,7 +2781,7 @@
                 } catch (e) {}
                 applyHeroSettings();
                 renderAdminHeroSlides();
-                console.log('⚡ [Real-Time Sync] Hero banners & announcement updated from Firestore');
+                console.log('⚡ [Real-Time Sync] Hero announcement updated from Firestore');
               }
             }
           }
