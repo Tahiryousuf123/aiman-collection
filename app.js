@@ -13,14 +13,8 @@
   'use strict';
 
   const defaultPhone = '923452439196';
-  const API_BASE = (function () {
-    if (!window.location.port || window.location.port === '5050' || window.location.port === '80' || window.location.port === '443') {
-      return '';
-    }
-    return `${window.location.protocol}//${window.location.hostname}:5050`;
-  })();
 
-  // Firebase Cloud Real-Time Engine Configuration
+  // Firebase Cloud Real-Time Engine (Single Source of Truth)
   const FIREBASE_CONFIG = {
     apiKey: "AIzaSyAYHwV9Pdbvqg7Yk9hcgp5XDiWCpEZTOoE",
     authDomain: "aiman-collecion.firebaseapp.com",
@@ -29,21 +23,22 @@
   };
 
   let firestoreDb = null;
-  function initFirestore() {
-    if (typeof window !== 'undefined' && window.firebase) {
+  function getDb() {
+    if (!firestoreDb && typeof window !== 'undefined' && window.firebase) {
       try {
         const fbApp = window.firebase.apps.length ? window.firebase.app() : window.firebase.initializeApp(FIREBASE_CONFIG);
         firestoreDb = window.firebase.firestore(fbApp);
         try {
           firestoreDb.enablePersistence({ synchronizeTabs: true }).catch(() => {});
         } catch (e) {}
-        console.log('⚡ [AimanStore] Firebase Real-Time Firestore Engine initialized');
+        console.log('⚡ [AimanStore] Firebase Real-Time Engine Active');
       } catch (err) {
         console.warn('Firebase init note:', err.message);
       }
     }
+    return firestoreDb;
   }
-  initFirestore();
+  getDb();
 
   // Default Initial Catalog
   const initialProducts = [
@@ -1097,13 +1092,21 @@
       const p = products.find(x => String(x.id) === String(id));
       if (!p) return;
       p.stockStatus = newStatus;
-      localStorage.setItem('aiman_products', JSON.stringify(products));
+      try {
+        localStorage.setItem('aiman_products', JSON.stringify(products));
+      } catch (e) {}
 
-      fetch(`${API_BASE}/api/products`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...p, id: p.id, stockStatus: newStatus })
-      }).catch(err => console.log('Offline stock status update:', err.message));
+      // Update directly in Firebase Firestore
+      const db = getDb();
+      if (db) {
+        db.collection('products').doc(String(id)).update({
+          stockStatus: newStatus,
+          isSoldOut: newStatus === 'sold-out',
+          isBooked: newStatus === 'booked',
+          inStock: newStatus === 'in-stock',
+          updatedAt: new Date().toISOString()
+        }).catch(err => console.warn('Firestore stock update note:', err));
+      }
 
       renderProducts();
       renderAdminProducts();
@@ -1590,13 +1593,15 @@
       };
 
       salesLedger.unshift(newSale);
-      localStorage.setItem('aiman_sales', JSON.stringify(salesLedger));
+      try {
+        localStorage.setItem('aiman_sales', JSON.stringify(salesLedger));
+      } catch (e) {}
 
-      fetch(`${API_BASE}/api/sales`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newSale)
-      }).catch(err => console.log('Offline COD sync:', err.message));
+      // Save directly to Firebase Firestore
+      const db = getDb();
+      if (db) {
+        db.collection('sales').doc(newSale.id).set(newSale).catch(err => console.warn('Firestore sale note:', err));
+      }
 
       cartItems = [];
       localStorage.setItem('aiman_cart', JSON.stringify(cartItems));
@@ -1802,14 +1807,17 @@
       };
 
       salesLedger.unshift(newSale);
-      localStorage.setItem('aiman_sales', JSON.stringify(salesLedger));
+      try {
+        localStorage.setItem('aiman_sales', JSON.stringify(salesLedger));
+      } catch (e) {}
 
-      // Persist to backend server & disk
-      fetch(`${API_BASE}/api/sales`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newSale)
-      }).catch(err => console.log('Offline sale sync:', err.message));
+      // Persist directly to Firebase Firestore
+      const db = getDb();
+      if (db) {
+        db.collection('sales').doc(newSale.id).set(newSale)
+          .then(() => console.log('⚡ [Firebase] Custom sale saved to Firestore'))
+          .catch(err => console.warn('Firestore sale save note:', err));
+      }
 
       alert(`✅ Sale recorded successfully!\nProduct: ${prodTitle}\nAmount: Rs. ${amount.toLocaleString()}`);
       e.target.reset();
@@ -1837,13 +1845,29 @@
       };
 
       salesLedger.unshift(newSale);
-      localStorage.setItem('aiman_sales', JSON.stringify(salesLedger));
+      try {
+        localStorage.setItem('aiman_sales', JSON.stringify(salesLedger));
+      } catch (e) {}
 
-      fetch(`${API_BASE}/api/sales`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newSale)
-      }).catch(err => console.log('Offline quick sale sync:', err.message));
+      p.stockStatus = 'sold-out';
+      try {
+        localStorage.setItem('aiman_products', JSON.stringify(products));
+      } catch (e) {}
+
+      // Persist directly to Firebase Firestore
+      const db = getDb();
+      if (db) {
+        db.collection('sales').doc(newSale.id).set(newSale).catch(err => console.warn('Firestore sale note:', err));
+        db.collection('products').doc(String(p.id)).update({
+          stockStatus: 'sold-out',
+          isSoldOut: true,
+          inStock: false,
+          updatedAt: new Date().toISOString()
+        }).catch(err => console.warn('Firestore product sold note:', err));
+      }
+
+      renderProducts();
+      renderAdminProducts();
 
       alert(`🎉 Sale added to Ledger! Total atelier revenue updated.`);
       updateSalesDashboard();
@@ -1854,12 +1878,17 @@
       if (confirm('Delete this sale record?')) {
         const item = salesLedger[index];
         salesLedger.splice(index, 1);
-        localStorage.setItem('aiman_sales', JSON.stringify(salesLedger));
+        try {
+          localStorage.setItem('aiman_sales', JSON.stringify(salesLedger));
+        } catch (e) {}
 
         if (item && item.id) {
-          fetch(`${API_BASE}/api/sales/${item.id}`, {
-            method: 'DELETE'
-          }).catch(err => console.log('Offline sale delete:', err.message));
+          const db = getDb();
+          if (db) {
+            db.collection('sales').doc(String(item.id)).delete()
+              .then(() => console.log('⚡ [Firebase] Deleted sale from Firestore:', item.id))
+              .catch(err => console.warn('Firestore sale delete note:', err));
+          }
         }
 
         updateSalesDashboard();
@@ -1913,25 +1942,7 @@
 
         if (preview) preview.src = compressedBase64;
         if (input) input.value = compressedBase64;
-        if (status) status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving image to atelier cloud & disk...';
-
-        fetch(`${API_BASE}/api/upload`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: compressedBase64, filename: file.name })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data && data.success && data.url) {
-            if (input) input.value = data.url;
-            if (status) status.innerHTML = `<i class="fas fa-circle-check" style="color:#0f766e;"></i> Stored permanently (${data.url})`;
-          } else {
-            if (status) status.innerHTML = `<i class="fas fa-check" style="color:#0f766e;"></i> Image ready to save with product`;
-          }
-        })
-        .catch(() => {
-          if (status) status.innerHTML = `<i class="fas fa-check" style="color:#0f766e;"></i> Image ready to save`;
-        });
+        if (status) status.innerHTML = `<i class="fas fa-circle-check" style="color:#0f766e;"></i> Photo ready to save live`;
       } catch (err) {
         console.error('Image compression error:', err);
         if (status) status.innerHTML = `<span style="color:#dc2626;">Error loading photo: ${err.message}</span>`;
@@ -1953,20 +1964,6 @@
         if (preview) preview.src = compressedBase64;
         if (wrap) wrap.style.display = 'block';
         if (input) input.value = compressedBase64;
-
-        fetch(`${API_BASE}/api/upload`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: compressedBase64, filename: `angle_${slotNum}_` + file.name })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data && data.success && data.url) {
-            if (input) input.value = data.url;
-            if (preview) preview.src = data.url;
-          }
-        })
-        .catch(err => console.log('Offline gallery upload:', err.message));
       } catch (err) {
         console.error('Gallery image error:', err);
       }
@@ -2064,13 +2061,13 @@
           console.warn('localStorage quota warning:', storageErr);
         }
 
-        // 1. Instant Real-Time Cloud Sync to Firebase Firestore (syncs all phones & laptops live)
+        // Instant Real-Time Cloud Sync to Firebase Firestore (syncs all phones & laptops live)
         if (productPayload) {
-          if (!firestoreDb) initFirestore();
-          if (firestoreDb) {
+          const db = getDb();
+          if (db) {
             try {
               const docId = String(productPayload.id);
-              firestoreDb.collection('products').doc(docId).set({
+              await db.collection('products').doc(docId).set({
                 id: docId,
                 name: productPayload.title,
                 title: productPayload.title,
@@ -2089,31 +2086,11 @@
                 onSale: Boolean(productPayload.isSale),
                 isFeatured: Boolean(productPayload.bestSeller),
                 updatedAt: new Date().toISOString()
-              }, { merge: true })
-              .then(() => console.log('⚡ [Firebase] Product synced to Firestore:', docId))
-              .catch(fsErr => console.warn('Firestore write warning:', fsErr.message));
+              }, { merge: true });
+              console.log('⚡ [Firebase] Product synced to Firestore:', docId);
             } catch (fsErr) {
               console.warn('Firestore set error:', fsErr);
             }
-          }
-        }
-
-        // 2. Dual-layer backend persistence (MongoDB Atlas Cloud + Disk db_store.json)
-        if (productPayload) {
-          try {
-            const res = await fetch(`${API_BASE}/api/products`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(productPayload)
-            });
-            if (res.ok) {
-              const data = await res.json();
-              if (data && data.data && data.data.id) {
-                productPayload.id = data.data.id;
-              }
-            }
-          } catch (netErr) {
-            console.log('Offline product persist note:', netErr.message);
           }
         }
 
@@ -2215,24 +2192,23 @@
       document.getElementById('btnResetProductForm').style.display = 'none';
     },
 
-    deleteProduct: function (id) {
+    deleteProduct: async function (id) {
       if (confirm('Are you sure you want to delete this product from the website?')) {
         products = products.filter(x => String(x.id) !== String(id));
-        localStorage.setItem('aiman_products', JSON.stringify(products));
+        try {
+          localStorage.setItem('aiman_products', JSON.stringify(products));
+        } catch (e) {}
 
         // Delete from Firestore Real-Time Cloud
-        if (!firestoreDb) initFirestore();
-        if (firestoreDb) {
+        const db = getDb();
+        if (db) {
           try {
-            firestoreDb.collection('products').doc(String(id)).delete()
-              .then(() => console.log('⚡ [Firebase] Deleted from Firestore:', id))
-              .catch(err => console.warn('Firestore delete note:', err.message));
-          } catch (e) {}
+            await db.collection('products').doc(String(id)).delete();
+            console.log('⚡ [Firebase] Deleted from Firestore:', id);
+          } catch (err) {
+            console.warn('Firestore delete note:', err.message);
+          }
         }
-
-        fetch(`${API_BASE}/api/products/${id}`, {
-          method: 'DELETE'
-        }).catch(err => console.log('Offline product delete:', err.message));
 
         renderProducts();
         renderAdminProducts();
@@ -2279,19 +2255,6 @@
         if (dInput) dInput.value = compressedBase64;
         if (mInput) mInput.value = compressedBase64;
         if (preview) preview.src = compressedBase64;
-
-        // Sync with backend upload API if available
-        fetch(`${API_BASE}/api/upload`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: compressedBase64, filename: file.name })
-        }).then(res => res.json()).then(data => {
-          if (data && data.url) {
-            if (dInput) dInput.value = data.url;
-            if (mInput) mInput.value = data.url;
-            if (preview) preview.src = data.url;
-          }
-        }).catch(err => console.log('Offline slide file upload:', err.message));
       } catch (err) {
         console.error('Slide upload error:', err);
       }
@@ -2310,7 +2273,13 @@
 
       heroSettings = heroSettings || {};
       heroSettings.bannerSlides = currentSlides;
-      localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings));
+      try { localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings)); } catch (e) {}
+
+      const db = getDb();
+      if (db) {
+        db.collection('settings').doc('hero').set({ bannerSlides: currentSlides }, { merge: true })
+          .catch(err => console.warn('Firestore hero banner add note:', err));
+      }
 
       renderAdminHeroSlides();
       renderHeroSlider();
@@ -2328,7 +2297,13 @@
         currentSlides.splice(idx, 1);
         heroSettings = heroSettings || {};
         heroSettings.bannerSlides = currentSlides;
-        localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings));
+        try { localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings)); } catch (e) {}
+
+        const db = getDb();
+        if (db) {
+          db.collection('settings').doc('hero').set({ bannerSlides: currentSlides }, { merge: true })
+            .catch(err => console.warn('Firestore hero banner delete note:', err));
+        }
 
         currentSlideIndex = 0;
         renderAdminHeroSlides();
@@ -2366,14 +2341,15 @@
 
       heroSettings = heroSettings || {};
       heroSettings.bannerSlides = newSlides;
-      localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings));
+      try { localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings)); } catch (e) {}
 
-      // Backend sync
-      fetch(`${API_BASE}/api/settings`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key: 'hero_banners', value: newSlides })
-      }).catch(err => console.log('Offline hero banners persist:', err.message));
+      // Save directly to Firebase Firestore
+      const db = getDb();
+      if (db) {
+        db.collection('settings').doc('hero').set({ bannerSlides: newSlides }, { merge: true })
+          .then(() => console.log('⚡ [Firebase] Hero banners saved to Firestore'))
+          .catch(err => console.warn('Firestore hero banners save note:', err));
+      }
 
       currentSlideIndex = 0;
       renderHeroSlider();
@@ -2387,7 +2363,13 @@
       if (confirm('Banners ko default Kashaf luxury editorial slides par reset karein?')) {
         heroSettings = heroSettings || {};
         heroSettings.bannerSlides = [...defaultBannerSlides];
-        localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings));
+        try { localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings)); } catch (e) {}
+
+        const db = getDb();
+        if (db) {
+          db.collection('settings').doc('hero').set({ bannerSlides: defaultBannerSlides }, { merge: true })
+            .catch(err => console.warn('Firestore reset hero banners note:', err));
+        }
 
         currentSlideIndex = 0;
         renderHeroSlider();
@@ -2403,7 +2385,7 @@
       const text = document.getElementById('announcementTextInput').value.trim();
       heroSettings = heroSettings || {};
       heroSettings.announcement = text;
-      localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings));
+      try { localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings)); } catch (e) {}
 
       const marquee = document.getElementById('marqueeTrack');
       if (marquee) {
@@ -2412,12 +2394,13 @@
       const badge = document.getElementById('announcementLiveBadge');
       if (badge) badge.textContent = text;
 
-      // Dual-layer backend persistence (Disk db_store.json + MongoDB Atlas)
-      fetch(`${API_BASE}/api/settings`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key: 'announcement', value: text })
-      }).catch(err => console.log('Offline announcement persist:', err.message));
+      // Save directly to Firebase Firestore
+      const db = getDb();
+      if (db) {
+        db.collection('settings').doc('hero').set({ announcement: text }, { merge: true })
+          .then(() => console.log('⚡ [Firebase] Announcement saved to Firestore'))
+          .catch(err => console.warn('Firestore announcement save note:', err));
+      }
 
       alert('✅ Top Red Announcement Bar updated live!');
     },
@@ -2436,20 +2419,6 @@
         const input = document.getElementById(`catCardImgInput_${idx}`);
         if (preview) preview.src = compressedBase64;
         if (input) input.value = compressedBase64;
-
-        fetch(`${API_BASE}/api/upload`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: compressedBase64, filename: `cat_${idx}_` + file.name })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data && data.success && data.url) {
-            if (input) input.value = data.url;
-            if (preview) preview.src = data.url;
-          }
-        })
-        .catch(err => console.log('Offline category card upload:', err.message));
       } catch (err) {
         alert('Error reading image: ' + err.message);
       }
@@ -2482,12 +2451,13 @@
         console.warn('localStorage quota note:', storageErr);
       }
 
-      // Sync with MongoDB Atlas & backend settings
-      fetch(`${API_BASE}/api/settings`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key: 'category_cards', value: updated })
-      }).catch(err => console.log('Offline category cards persist:', err.message));
+      // Save directly to Firebase Firestore
+      const db = getDb();
+      if (db) {
+        db.collection('settings').doc('category_cards').set({ cards: updated }, { merge: true })
+          .then(() => console.log('⚡ [Firebase] Category cards saved to Firestore'))
+          .catch(err => console.warn('Firestore category cards save note:', err));
+      }
 
       renderCategoryCards();
       renderAdminCategoryCards();
@@ -2501,11 +2471,11 @@
           localStorage.setItem('aiman_category_cards', JSON.stringify(categoryCards));
         } catch (e) {}
 
-        fetch(`${API_BASE}/api/settings`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ key: 'category_cards', value: categoryCards })
-        }).catch(err => console.log('Offline category cards reset:', err.message));
+        const db = getDb();
+        if (db) {
+          db.collection('settings').doc('category_cards').set({ cards: defaultCategoryCards }, { merge: true })
+            .catch(err => console.warn('Firestore reset category cards note:', err));
+        }
 
         renderCategoryCards();
         renderAdminCategoryCards();
@@ -2601,16 +2571,17 @@
   }
 
   /* --------------------------------------------------------------------------
-     FIREBASE FIRESTORE REAL-TIME SYNCHRONIZATION
-     Live listener: Real-time update across all devices without page refresh!
+     FIREBASE FIRESTORE REAL-TIME SYNCHRONIZATION (SINGLE SOURCE OF TRUTH)
+     Live listeners: Real-time update across all devices without page refresh!
      -------------------------------------------------------------------------- */
   function setupFirestoreRealtimeSync() {
-    if (!firestoreDb) initFirestore();
-    if (!firestoreDb) return;
+    const db = getDb();
+    if (!db) return;
 
     try {
-      firestoreDb.collection('products').onSnapshot(snapshot => {
-        if (!snapshot || snapshot.empty) return;
+      // 1. Real-time Products Listener (Pure Source of Truth)
+      db.collection('products').onSnapshot(snapshot => {
+        if (!snapshot) return;
         const firestoreList = [];
         snapshot.forEach(doc => {
           const d = doc.data();
@@ -2634,12 +2605,9 @@
           }
         });
 
-        if (firestoreList.length > 0) {
-          const fsIds = new Set(firestoreList.map(p => String(p.id)));
-          const remaining = products.filter(p => !fsIds.has(String(p.id)));
-          // Place real cloud items first
-          products = [...firestoreList, ...remaining];
-
+        // Firestore is the single source of truth - replace directly, never merge deleted/old items!
+        if (!snapshot.empty) {
+          products = firestoreList;
           try {
             localStorage.setItem('aiman_products', JSON.stringify(products));
           } catch (storageErr) {}
@@ -2649,118 +2617,84 @@
           console.log(`⚡ [Real-Time Sync] ${firestoreList.length} products synced live from Firebase Firestore`);
         }
       }, err => {
-        console.warn('Firestore onSnapshot listener notice:', err.message);
+        console.warn('Firestore products onSnapshot notice:', err.message);
       });
-    } catch (e) {
-      console.warn('setupFirestoreRealtimeSync error:', e);
-    }
-  }
 
-  /* --------------------------------------------------------------------------
-     AUTOMATIC BACKEND & DISK SYNCHRONIZATION
-     Ensures all products, sales, and announcements survive laptop reboots
-     -------------------------------------------------------------------------- */
-  async function syncWithBackend() {
-    try {
-      const res = await fetch(`${API_BASE}/api/products`);
-      if (res.ok) {
-        const json = await res.json();
-        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
-          const fetchedProducts = json.data.map(p => ({
-            id: p.id || p._id || ('prod-' + Date.now()),
-            title: p.title || p.name || 'Bohra Libas Ensemble',
-            name: p.title || p.name || 'Bohra Libas Ensemble',
-            category: normalizeCategory(p.category),
-            price: Number(p.price) || 0,
-            regularPrice: Number(p.regularPrice || p.originalPrice) || 0,
-            discount: Number(p.discount) || 0,
-            image: p.image || 'images/summer_collection.jpg',
-            imageStyle: p.imageStyle || '',
-            gallery: Array.isArray(p.gallery) ? p.gallery : (Array.isArray(p.images) ? p.images.slice(1) : []),
-            stockStatus: p.stockStatus || (p.status === 'soldout' ? 'sold-out' : (p.status === 'booked' ? 'booked' : 'in-stock')),
-            isNew: Boolean(p.isNew ?? p.isNewArrival),
-            isSale: Boolean(p.isSale ?? p.onSale),
-            bestSeller: Boolean(p.bestSeller ?? p.isFeatured)
-          }));
-
-          // Intelligent Merge: preserve newly added local items that are not yet in backend
-          const fetchedIds = new Set(fetchedProducts.map(p => String(p.id)));
-          const localOnly = products.filter(p => !fetchedIds.has(String(p.id)));
-          products = [...localOnly, ...fetchedProducts];
-
-          try {
-            localStorage.setItem('aiman_products', JSON.stringify(products));
-          } catch (storageErr) {
-            console.warn('localStorage quota note:', storageErr);
-          }
-          renderProducts();
-          if (document.getElementById('adminProductsTableBody')) renderAdminProducts();
-        }
-      }
-    } catch (e) {
-      console.log('Backend note: running in offline/cached local mode for products');
-    }
-
-    try {
-      const res = await fetch(`${API_BASE}/api/sales`);
-      if (res.ok) {
-        const json = await res.json();
-        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
-          salesLedger = json.data.map(s => ({
-            id: s.id || ('ORD-' + Math.floor(1000 + Math.random() * 9000)),
-            date: s.date || new Date().toISOString().split('T')[0],
-            productName: s.productName || 'Bohra Rida',
-            customerName: s.customerName || 'Customer',
-            phone: s.customerPhone || s.phone || '',
-            amount: Number(s.totalRevenue ?? s.amount ?? s.sellingPrice) || 0,
-            paymentMethod: s.paymentMethod || 'Cash on Delivery (COD)',
-            status: s.status || 'Delivered'
-          }));
-          try {
-            localStorage.setItem('aiman_sales', JSON.stringify(salesLedger));
-          } catch (storageErr) {
-            console.warn('localStorage quota note:', storageErr);
-          }
-          updateSalesDashboard();
-        }
-      }
-    } catch (e) {
-      console.log('Backend note: running in offline/cached local mode for sales');
-    }
-
-    try {
-      const res = await fetch(`${API_BASE}/api/settings`);
-      if (res.ok) {
-        const json = await res.json();
-        if (json.success && json.data) {
-          heroSettings = heroSettings || {};
-          let updated = false;
-          if (json.data.announcement) {
-            heroSettings.announcement = json.data.announcement;
-            updated = true;
-          }
-          if (json.data.hero_banners && Array.isArray(json.data.hero_banners)) {
-            heroSettings.bannerSlides = json.data.hero_banners;
-            updated = true;
-          }
-          if (updated) {
-            try {
-              localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings));
-            } catch (e) {}
-            applyHeroSettings();
-          }
-          if (json.data.category_cards && Array.isArray(json.data.category_cards)) {
-            categoryCards = json.data.category_cards;
+      // 2. Real-time Category Cards Listener
+      db.collection('settings').doc('category_cards').onSnapshot(doc => {
+        if (doc && doc.exists) {
+          const data = doc.data();
+          if (data && Array.isArray(data.cards) && data.cards.length > 0) {
+            categoryCards = data.cards;
             try {
               localStorage.setItem('aiman_category_cards', JSON.stringify(categoryCards));
             } catch (e) {}
             renderCategoryCards();
             if (document.getElementById('adminCategoryCardsList')) renderAdminCategoryCards();
+            console.log('⚡ [Real-Time Sync] Category cards updated from Firestore');
           }
         }
-      }
+      }, err => console.warn('Firestore category_cards notice:', err.message));
+
+      // 3. Real-time Hero Settings Listener
+      db.collection('settings').doc('hero').onSnapshot(doc => {
+        if (doc && doc.exists) {
+          const data = doc.data();
+          if (data) {
+            heroSettings = heroSettings || {};
+            let updated = false;
+            if (Array.isArray(data.bannerSlides) && data.bannerSlides.length > 0) {
+              heroSettings.bannerSlides = data.bannerSlides;
+              updated = true;
+            }
+            if (data.announcement) {
+              heroSettings.announcement = data.announcement;
+              updated = true;
+            }
+            if (updated) {
+              try {
+                localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings));
+              } catch (e) {}
+              applyHeroSettings();
+              if (document.getElementById('adminSlideListContainer')) renderAdminHeroSlides();
+              console.log('⚡ [Real-Time Sync] Hero banners & announcement updated from Firestore');
+            }
+          }
+        }
+      }, err => console.warn('Firestore hero notice:', err.message));
+
+      // 4. Real-time Sales Ledger Listener
+      db.collection('sales').onSnapshot(snapshot => {
+        if (!snapshot) return;
+        const fsSales = [];
+        snapshot.forEach(doc => {
+          const s = doc.data();
+          if (s) {
+            fsSales.push({
+              id: s.id || doc.id,
+              date: s.date || new Date().toISOString().split('T')[0],
+              productName: s.productName || 'Bohra Rida',
+              customerName: s.customerName || 'Customer',
+              phone: s.customerPhone || s.phone || '',
+              amount: Number(s.totalRevenue ?? s.amount ?? s.sellingPrice) || 0,
+              paymentMethod: s.paymentMethod || 'Cash on Delivery (COD)',
+              status: s.status || 'Delivered'
+            });
+          }
+        });
+
+        if (fsSales.length > 0) {
+          salesLedger = fsSales;
+          try {
+            localStorage.setItem('aiman_sales', JSON.stringify(salesLedger));
+          } catch (e) {}
+          updateSalesDashboard();
+          console.log(`⚡ [Real-Time Sync] ${fsSales.length} sales synced live from Firebase Firestore`);
+        }
+      }, err => console.warn('Firestore sales notice:', err.message));
+
     } catch (e) {
-      console.log('Backend note: running in offline/cached local mode for settings');
+      console.warn('setupFirestoreRealtimeSync error:', e);
     }
   }
 
@@ -2792,17 +2726,14 @@
     updateHeaderCartBadge();
     startHeroSlider();
     setupFirestoreRealtimeSync();
-    syncWithBackend();
 
     // Auto-sync across devices whenever user tabs back or focuses browser
     window.addEventListener('focus', () => {
       setupFirestoreRealtimeSync();
-      syncWithBackend();
     });
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
         setupFirestoreRealtimeSync();
-        syncWithBackend();
       }
     });
 
