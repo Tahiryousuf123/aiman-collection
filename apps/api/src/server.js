@@ -78,6 +78,18 @@ app.use((req, res, next) => {
   next();
 });
 
+// Database connection middleware for Serverless & Long-running instances
+app.use(async (req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    try {
+      await connectMongoDB();
+    } catch (err) {
+      console.warn('MongoDB connection middleware warning:', err.message);
+    }
+  }
+  next();
+});
+
 /* --------------------------------------------------------------------------
    1. System Health & MongoDB Status
    -------------------------------------------------------------------------- */
@@ -163,7 +175,7 @@ app.get('/api/products', async (req, res) => {
     if (status) query.status = status;
     if (search) {
       const regex = new RegExp(search, 'i');
-      query.$or = [{ name: regex }, { description: regex }, { fabric: regex }, { badge: regex }];
+      query.$or = [{ name: regex }, { title: regex }, { description: regex }, { fabric: regex }, { badge: regex }];
     }
 
     let products = [];
@@ -275,39 +287,52 @@ app.post('/api/upload', (req, res) => {
       return res.status(400).json({ success: false, error: 'No image data provided' });
     }
 
-    const uploadsDir = path.join(rootDir, 'images', 'uploads');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
+    if (!process.env.VERCEL) {
+      try {
+        const uploadsDir = path.join(rootDir, 'images', 'uploads');
+        if (!fs.existsSync(uploadsDir)) {
+          fs.mkdirSync(uploadsDir, { recursive: true });
+        }
+
+        // Parse base64
+        let buffer;
+        let ext = 'jpg';
+        const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        if (matches && matches.length === 3) {
+          buffer = Buffer.from(matches[2], 'base64');
+          const mime = matches[1];
+          if (mime.includes('png')) ext = 'png';
+          else if (mime.includes('webp')) ext = 'webp';
+          else if (mime.includes('gif')) ext = 'gif';
+        } else {
+          buffer = Buffer.from(image, 'base64');
+        }
+
+        const cleanName = (filename || 'item')
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, '_')
+          .substring(0, 25);
+        const saveName = `${Date.now()}_${cleanName}.${ext}`;
+        const filePath = path.join(uploadsDir, saveName);
+
+        fs.writeFileSync(filePath, buffer);
+        const publicUrl = `images/uploads/${saveName}`;
+
+        return res.json({
+          success: true,
+          url: publicUrl,
+          message: 'Image successfully saved to atelier storage'
+        });
+      } catch (diskErr) {
+        console.warn('Disk upload write fallback (using data URL):', diskErr.message);
+      }
     }
 
-    // Parse base64
-    let buffer;
-    let ext = 'jpg';
-    const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-    if (matches && matches.length === 3) {
-      buffer = Buffer.from(matches[2], 'base64');
-      const mime = matches[1];
-      if (mime.includes('png')) ext = 'png';
-      else if (mime.includes('webp')) ext = 'webp';
-      else if (mime.includes('gif')) ext = 'gif';
-    } else {
-      buffer = Buffer.from(image, 'base64');
-    }
-
-    const cleanName = (filename || 'item')
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '_')
-      .substring(0, 25);
-    const saveName = `${Date.now()}_${cleanName}.${ext}`;
-    const filePath = path.join(uploadsDir, saveName);
-
-    fs.writeFileSync(filePath, buffer);
-    const publicUrl = `images/uploads/${saveName}`;
-
-    res.json({
+    // On serverless or read-only disks, return the image data URL
+    return res.json({
       success: true,
-      url: publicUrl,
-      message: 'Image successfully saved to atelier storage'
+      url: image,
+      message: 'Image prepared as cloud-synced visual'
     });
   } catch (err) {
     console.error('Upload error:', err);

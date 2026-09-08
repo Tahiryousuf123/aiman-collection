@@ -20,6 +20,31 @@
     return `${window.location.protocol}//${window.location.hostname}:5050`;
   })();
 
+  // Firebase Cloud Real-Time Engine Configuration
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyAYHwV9Pdbvqg7Yk9hcgp5XDiWCpEZTOoE",
+    authDomain: "aiman-collecion.firebaseapp.com",
+    projectId: "aiman-collecion",
+    appId: "1:820035584701:web:c9cca04bd175c0f2f2edd4"
+  };
+
+  let firestoreDb = null;
+  function initFirestore() {
+    if (typeof window !== 'undefined' && window.firebase) {
+      try {
+        const fbApp = window.firebase.apps.length ? window.firebase.app() : window.firebase.initializeApp(FIREBASE_CONFIG);
+        firestoreDb = window.firebase.firestore(fbApp);
+        try {
+          firestoreDb.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+        } catch (e) {}
+        console.log('⚡ [AimanStore] Firebase Real-Time Firestore Engine initialized');
+      } catch (err) {
+        console.warn('Firebase init note:', err.message);
+      }
+    }
+  }
+  initFirestore();
+
   // Default Initial Catalog
   const initialProducts = [
     {
@@ -2039,7 +2064,41 @@
           console.warn('localStorage quota warning:', storageErr);
         }
 
-        // Dual-layer backend persistence (MongoDB Atlas Cloud + Disk db_store.json)
+        // 1. Instant Real-Time Cloud Sync to Firebase Firestore (syncs all phones & laptops live)
+        if (productPayload) {
+          if (!firestoreDb) initFirestore();
+          if (firestoreDb) {
+            try {
+              const docId = String(productPayload.id);
+              firestoreDb.collection('products').doc(docId).set({
+                id: docId,
+                name: productPayload.title,
+                title: productPayload.title,
+                category: productPayload.category,
+                price: Number(productPayload.price) || 0,
+                originalPrice: Number(productPayload.regularPrice) || (Number(productPayload.price) * 1.5),
+                regularPrice: Number(productPayload.regularPrice) || (Number(productPayload.price) * 1.5),
+                discount: Number(productPayload.discount) || 0,
+                image: productPayload.image || '',
+                gallery: productPayload.gallery || [],
+                isSoldOut: productPayload.stockStatus === 'sold-out',
+                isBooked: productPayload.stockStatus === 'booked',
+                inStock: productPayload.stockStatus === 'in-stock',
+                stockStatus: productPayload.stockStatus,
+                isNewArrival: Boolean(productPayload.isNew),
+                onSale: Boolean(productPayload.isSale),
+                isFeatured: Boolean(productPayload.bestSeller),
+                updatedAt: new Date().toISOString()
+              }, { merge: true })
+              .then(() => console.log('⚡ [Firebase] Product synced to Firestore:', docId))
+              .catch(fsErr => console.warn('Firestore write warning:', fsErr.message));
+            } catch (fsErr) {
+              console.warn('Firestore set error:', fsErr);
+            }
+          }
+        }
+
+        // 2. Dual-layer backend persistence (MongoDB Atlas Cloud + Disk db_store.json)
         if (productPayload) {
           try {
             const res = await fetch(`${API_BASE}/api/products`, {
@@ -2160,6 +2219,16 @@
       if (confirm('Are you sure you want to delete this product from the website?')) {
         products = products.filter(x => String(x.id) !== String(id));
         localStorage.setItem('aiman_products', JSON.stringify(products));
+
+        // Delete from Firestore Real-Time Cloud
+        if (!firestoreDb) initFirestore();
+        if (firestoreDb) {
+          try {
+            firestoreDb.collection('products').doc(String(id)).delete()
+              .then(() => console.log('⚡ [Firebase] Deleted from Firestore:', id))
+              .catch(err => console.warn('Firestore delete note:', err.message));
+          } catch (e) {}
+        }
 
         fetch(`${API_BASE}/api/products/${id}`, {
           method: 'DELETE'
@@ -2532,6 +2601,62 @@
   }
 
   /* --------------------------------------------------------------------------
+     FIREBASE FIRESTORE REAL-TIME SYNCHRONIZATION
+     Live listener: Real-time update across all devices without page refresh!
+     -------------------------------------------------------------------------- */
+  function setupFirestoreRealtimeSync() {
+    if (!firestoreDb) initFirestore();
+    if (!firestoreDb) return;
+
+    try {
+      firestoreDb.collection('products').onSnapshot(snapshot => {
+        if (!snapshot || snapshot.empty) return;
+        const firestoreList = [];
+        snapshot.forEach(doc => {
+          const d = doc.data();
+          if (d && (d.title || d.name)) {
+            firestoreList.push({
+              id: d.id || doc.id,
+              title: d.title || d.name || 'Bohra Libas Ensemble',
+              name: d.title || d.name || 'Bohra Libas Ensemble',
+              category: normalizeCategory(d.category),
+              price: Number(d.price) || 0,
+              regularPrice: Number(d.regularPrice || d.originalPrice) || 0,
+              discount: Number(d.discount) || 0,
+              image: d.image || 'images/summer_collection.jpg',
+              imageStyle: d.imageStyle || '',
+              gallery: Array.isArray(d.gallery) ? d.gallery : (Array.isArray(d.galleryImages) ? d.galleryImages : []),
+              stockStatus: d.stockStatus || (d.isSoldOut ? 'sold-out' : (d.isBooked ? 'booked' : 'in-stock')),
+              isNew: Boolean(d.isNew ?? d.isNewArrival),
+              isSale: Boolean(d.isSale ?? d.onSale),
+              bestSeller: Boolean(d.bestSeller ?? d.isFeatured)
+            });
+          }
+        });
+
+        if (firestoreList.length > 0) {
+          const fsIds = new Set(firestoreList.map(p => String(p.id)));
+          const remaining = products.filter(p => !fsIds.has(String(p.id)));
+          // Place real cloud items first
+          products = [...firestoreList, ...remaining];
+
+          try {
+            localStorage.setItem('aiman_products', JSON.stringify(products));
+          } catch (storageErr) {}
+
+          renderProducts();
+          if (document.getElementById('adminProductsTableBody')) renderAdminProducts();
+          console.log(`⚡ [Real-Time Sync] ${firestoreList.length} products synced live from Firebase Firestore`);
+        }
+      }, err => {
+        console.warn('Firestore onSnapshot listener notice:', err.message);
+      });
+    } catch (e) {
+      console.warn('setupFirestoreRealtimeSync error:', e);
+    }
+  }
+
+  /* --------------------------------------------------------------------------
      AUTOMATIC BACKEND & DISK SYNCHRONIZATION
      Ensures all products, sales, and announcements survive laptop reboots
      -------------------------------------------------------------------------- */
@@ -2541,9 +2666,10 @@
       if (res.ok) {
         const json = await res.json();
         if (json.success && Array.isArray(json.data) && json.data.length > 0) {
-          products = json.data.map(p => ({
+          const fetchedProducts = json.data.map(p => ({
             id: p.id || p._id || ('prod-' + Date.now()),
             title: p.title || p.name || 'Bohra Libas Ensemble',
+            name: p.title || p.name || 'Bohra Libas Ensemble',
             category: normalizeCategory(p.category),
             price: Number(p.price) || 0,
             regularPrice: Number(p.regularPrice || p.originalPrice) || 0,
@@ -2556,6 +2682,12 @@
             isSale: Boolean(p.isSale ?? p.onSale),
             bestSeller: Boolean(p.bestSeller ?? p.isFeatured)
           }));
+
+          // Intelligent Merge: preserve newly added local items that are not yet in backend
+          const fetchedIds = new Set(fetchedProducts.map(p => String(p.id)));
+          const localOnly = products.filter(p => !fetchedIds.has(String(p.id)));
+          products = [...localOnly, ...fetchedProducts];
+
           try {
             localStorage.setItem('aiman_products', JSON.stringify(products));
           } catch (storageErr) {
@@ -2659,15 +2791,19 @@
     renderProducts();
     updateHeaderCartBadge();
     startHeroSlider();
-    syncWithBackend();
-    updateHeaderCartBadge();
-    startHeroSlider();
+    setupFirestoreRealtimeSync();
     syncWithBackend();
 
     // Auto-sync across devices whenever user tabs back or focuses browser
-    window.addEventListener('focus', syncWithBackend);
+    window.addEventListener('focus', () => {
+      setupFirestoreRealtimeSync();
+      syncWithBackend();
+    });
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') syncWithBackend();
+      if (document.visibilityState === 'visible') {
+        setupFirestoreRealtimeSync();
+        syncWithBackend();
+      }
     });
 
     // Check URL routing on load
