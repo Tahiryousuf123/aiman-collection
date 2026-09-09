@@ -439,6 +439,36 @@
             </div>
             <div class="stat-metric-card">
               <div>
+                <p>Total Making Cost</p>
+                <h3 id="statTotalCost" style="color:#64748b;">Rs. 0</h3>
+              </div>
+              <div class="stat-icon" style="background:#f8fafc; color:#64748b;">
+                <i class="fas fa-receipt"></i>
+              </div>
+            </div>
+            <div class="stat-metric-card">
+              <div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <p style="margin-bottom:0;">Total Net Profit</p>
+                  <span id="statProfitMarginBadge" style="font-size:0.7rem; font-weight:700; background:#dcfce7; color:#15803d; padding:2px 6px; border-radius:10px;">0%</span>
+                </div>
+                <h3 id="statTotalProfit" style="color:#059669; margin-top:4px;">Rs. 0</h3>
+              </div>
+              <div class="stat-icon" style="background:#ecfdf5; color:#059669;">
+                <i class="fas fa-chart-line"></i>
+              </div>
+            </div>
+            <div class="stat-metric-card">
+              <div>
+                <p>Avg Profit / Rida</p>
+                <h3 id="statAvgProfitPerRida" style="color:#b45309;">Rs. 0</h3>
+              </div>
+              <div class="stat-icon" style="background:#fffbeb; color:#b45309;">
+                <i class="fas fa-coins"></i>
+              </div>
+            </div>
+            <div class="stat-metric-card">
+              <div>
                 <p>Ridas / Items Sold</p>
                 <h3 id="statTotalSold">0</h3>
               </div>
@@ -448,20 +478,14 @@
             </div>
             <div class="stat-metric-card">
               <div>
-                <p>Pending Delivery</p>
-                <h3 id="statPendingOrders" style="color:#f59e0b;">0</h3>
-              </div>
-              <div class="stat-icon" style="background:#fffbeb; color:#f59e0b;">
-                <i class="fas fa-truck"></i>
-              </div>
-            </div>
-            <div class="stat-metric-card">
-              <div>
-                <p>Delivered / Completed</p>
-                <h3 id="statCompletedOrders" style="color:#0f766e;">0</h3>
+                <p>Orders Status</p>
+                <h3 style="font-size:1.15rem; margin-top:4px;">
+                  <span id="statCompletedOrders" style="color:#0f766e;">0</span> <span style="font-size:0.78rem; font-weight:normal; color:#64748b;">Delivered</span> / 
+                  <span id="statPendingOrders" style="color:#f59e0b;">0</span> <span style="font-size:0.78rem; font-weight:normal; color:#64748b;">Pending</span>
+                </h3>
               </div>
               <div class="stat-icon" style="background:#f0fdfa; color:#0f766e;">
-                <i class="fas fa-box-archive"></i>
+                <i class="fas fa-truck"></i>
               </div>
             </div>
           </div>
@@ -470,7 +494,7 @@
           <div class="admin-section-box">
             <div class="admin-section-header">
               <h3><i class="fas fa-plus-circle" style="color:#16a34a;"></i> Record New Sale (Rida Sold)</h3>
-              <span style="font-size:0.8rem; color:#777;">Record order details for accounting and dispatch</span>
+              <span style="font-size:0.8rem; color:#777;">Record order details &amp; track profit per rida</span>
             </div>
             <form onsubmit="window.AimanStore.recordSale(event)">
               <div class="admin-form-grid">
@@ -481,8 +505,12 @@
                   </select>
                 </div>
                 <div class="form-group">
-                  <label>Sale Amount (PKR) *</label>
-                  <input type="number" id="saleAmountInput" required min="1" placeholder="e.g. 15500">
+                  <label>Sale Price (PKR) *</label>
+                  <input type="number" id="saleAmountInput" required min="1" placeholder="e.g. 15500" oninput="window.AimanStore.calcSaleProfitPreview()">
+                </div>
+                <div class="form-group">
+                  <label>Cost / Making Price (PKR) <span style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Kapra + Karigari)</span></label>
+                  <input type="number" id="saleCostInput" min="0" placeholder="e.g. 8500" oninput="window.AimanStore.calcSaleProfitPreview()">
                 </div>
                 <div class="form-group">
                   <label>Customer Name *</label>
@@ -502,7 +530,7 @@
                     <option value="Direct Bank Transfer">Direct Bank Transfer</option>
                   </select>
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="grid-column: span 2;">
                   <label>City &amp; Dispatch Status</label>
                   <select id="saleStatusSelect">
                     <option value="Sold - In Stitching">Sold - In Stitching</option>
@@ -511,6 +539,19 @@
                   </select>
                 </div>
               </div>
+
+              <!-- Real-time Profit Preview for Current Sale -->
+              <div id="saleProfitPreviewWrap" style="display:flex; align-items:center; justify-content:space-between; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 16px; margin-top:12px; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                  <i class="fas fa-calculator" style="color:#16a34a;"></i>
+                  <span style="font-size:0.85rem; font-weight:600; color:#166534;">Profit Calculation (Per Rida):</span>
+                  <span id="saleProfitPreviewText" style="font-size:0.95rem; font-weight:700; color:#15803d;">Rs. 0 (0% margin)</span>
+                </div>
+                <span id="saleProfitPill" style="font-size:0.75rem; color:#15803d; background:#dcfce7; padding:3px 10px; border-radius:12px; font-weight:700;">
+                  Live Net Profit
+                </span>
+              </div>
+
               <div style="display:flex; justify-content:flex-end;">
                 <button type="submit" class="admin-btn admin-btn-success">
                   <i class="fas fa-check"></i> Add Sold Record to Ledger
@@ -540,7 +581,9 @@
                     <th>Product / Rida</th>
                     <th>Customer</th>
                     <th>Phone</th>
-                    <th>Amount</th>
+                    <th>Sale Price</th>
+                    <th>Cost Price</th>
+                    <th>Net Profit</th>
                     <th>Payment</th>
                     <th>Status</th>
                     <th>Action</th>
@@ -594,6 +637,10 @@
                 <div class="form-group">
                   <label>Sale Price (PKR) *</label>
                   <input type="number" id="prodPriceInput" required min="1" placeholder="e.g. 15500">
+                </div>
+                <div class="form-group">
+                  <label>Cost / Making Price (PKR) <span style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Kapra + Karigari)</span></label>
+                  <input type="number" id="prodCostInput" min="0" placeholder="e.g. 8500">
                 </div>
                 <div class="form-group">
                   <label>Original Strike Price (PKR)</label>

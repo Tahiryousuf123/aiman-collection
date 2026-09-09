@@ -418,13 +418,39 @@
      3. SALES DASHBOARD & METRICS
      -------------------------------------------------------------------------- */
   function updateSalesDashboard() {
-    const totalRev = salesLedger.reduce((sum, s) => sum + Number(s.amount || 0), 0);
+    const totalRev = salesLedger.reduce((sum, s) => sum + Number(s.amount || s.totalRevenue || s.sellingPrice || 0), 0);
+    const totalCost = salesLedger.reduce((sum, s) => sum + Number(s.costPrice ?? s.cost ?? s.unitCost ?? s.totalCost ?? 0), 0);
+    const totalNetProfit = totalRev - totalCost;
     const totalCount = salesLedger.length;
-    const pendingCount = salesLedger.filter(s => s.status && s.status.includes('Dispatched') || s.status.includes('Stitching')).length;
+    const avgProfitPerRida = totalCount > 0 ? Math.round(totalNetProfit / totalCount) : 0;
+    const profitMarginPct = totalRev > 0 ? ((totalNetProfit / totalRev) * 100).toFixed(1) : '0.0';
+    const pendingCount = salesLedger.filter(s => s.status && (s.status.includes('Dispatched') || s.status.includes('Stitching'))).length;
     const deliveredCount = salesLedger.filter(s => s.status && s.status.includes('Delivered')).length;
 
     const revElem = document.getElementById('statTotalRevenue');
     if (revElem) revElem.textContent = `Rs. ${totalRev.toLocaleString()}`;
+
+    const costElem = document.getElementById('statTotalCost');
+    if (costElem) costElem.textContent = `Rs. ${totalCost.toLocaleString()}`;
+
+    const profitElem = document.getElementById('statTotalProfit');
+    if (profitElem) {
+      profitElem.textContent = `${totalNetProfit >= 0 ? '' : '-'}Rs. ${Math.abs(totalNetProfit).toLocaleString()}`;
+      profitElem.style.color = totalNetProfit >= 0 ? '#059669' : '#dc2626';
+    }
+
+    const marginBadge = document.getElementById('statProfitMarginBadge');
+    if (marginBadge) {
+      marginBadge.textContent = `${profitMarginPct}% margin`;
+      marginBadge.style.background = totalNetProfit >= 0 ? '#dcfce7' : '#fee2e2';
+      marginBadge.style.color = totalNetProfit >= 0 ? '#15803d' : '#b91c1c';
+    }
+
+    const avgProfitElem = document.getElementById('statAvgProfitPerRida');
+    if (avgProfitElem) {
+      avgProfitElem.textContent = `${avgProfitPerRida >= 0 ? '' : '-'}Rs. ${Math.abs(avgProfitPerRida).toLocaleString()}`;
+      avgProfitElem.style.color = avgProfitPerRida >= 0 ? '#b45309' : '#dc2626';
+    }
 
     const soldElem = document.getElementById('statTotalSold');
     if (soldElem) soldElem.textContent = totalCount;
@@ -439,26 +465,51 @@
     const tbody = document.getElementById('salesTableBody');
     if (tbody) {
       if (salesLedger.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:25px; color:#888;">No sales recorded yet. Record your first sale above!</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:25px; color:#888;">No sales recorded yet. Record your first sale above!</td></tr>`;
       } else {
         tbody.innerHTML = salesLedger.map((s, idx) => {
           let statusClass = 'status-sold';
-          if (s.status.includes('Delivered')) statusClass = 'status-delivered';
-          else if (s.status.includes('Dispatched')) statusClass = 'status-shipped';
+          if (s.status && s.status.includes('Delivered')) statusClass = 'status-delivered';
+          else if (s.status && s.status.includes('Dispatched')) statusClass = 'status-shipped';
+
+          const sellPrice = Number(s.amount ?? s.totalRevenue ?? s.sellingPrice ?? 0);
+          const costPrice = Number(s.costPrice ?? s.cost ?? s.unitCost ?? s.totalCost ?? 0);
+          const netProfit = (s.netProfit !== undefined && s.netProfit !== null && !isNaN(Number(s.netProfit)))
+            ? Number(s.netProfit)
+            : ((s.profit !== undefined && s.profit !== null && !isNaN(Number(s.profit)))
+                ? Number(s.profit)
+                : (sellPrice - costPrice));
+          const margin = sellPrice > 0 ? Math.round((netProfit / sellPrice) * 100) : 0;
+          const isProfitPos = netProfit >= 0;
 
           return `
             <tr>
               <td><strong>${s.date || new Date().toISOString().split('T')[0]}</strong></td>
-              <td><strong>${s.productName}</strong></td>
-              <td>${s.customerName}</td>
+              <td><strong>${s.productName || 'Bohra Rida'}</strong></td>
+              <td>${s.customerName || 'Customer'}</td>
               <td>${s.phone || '-'}</td>
-              <td><strong style="color:#16a34a;">Rs. ${Number(s.amount).toLocaleString()}</strong></td>
-              <td>${s.paymentMethod}</td>
-              <td><span class="status-tag ${statusClass}">${s.status}</span></td>
+              <td><strong style="color:#1e293b;">Rs. ${sellPrice.toLocaleString()}</strong></td>
               <td>
-                <button type="button" class="admin-btn admin-btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="window.AimanStore.deleteSale(${idx})">
-                  <i class="fas fa-trash"></i>
-                </button>
+                <span style="color:#64748b; font-weight:600;">Rs. ${costPrice.toLocaleString()}</span>
+              </td>
+              <td>
+                <span class="profit-badge ${isProfitPos ? 'profit-positive' : 'profit-negative'}">
+                  <i class="fas fa-${isProfitPos ? 'arrow-trend-up' : 'arrow-trend-down'}"></i>
+                  ${isProfitPos ? '+' : ''}Rs. ${netProfit.toLocaleString()}
+                </span>
+                <span class="profit-margin-tag">${margin}% profit margin</span>
+              </td>
+              <td>${s.paymentMethod || 'COD'}</td>
+              <td><span class="status-tag ${statusClass}">${s.status || 'Delivered'}</span></td>
+              <td>
+                <div style="display:inline-flex; align-items:center; gap:6px;">
+                  <button type="button" class="admin-btn-edit-cost" onclick="window.AimanStore.editSaleCost(${idx})" title="Edit Cost Price">
+                    <i class="fas fa-pen"></i> Cost
+                  </button>
+                  <button type="button" class="admin-btn admin-btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="window.AimanStore.deleteSale(${idx})" title="Delete Sale">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
               </td>
             </tr>
           `;
@@ -470,7 +521,7 @@
     const prodSelect = document.getElementById('saleProductSelect');
     if (prodSelect) {
       prodSelect.innerHTML = `<option value="">-- Select Sold Rida / Item --</option>` + 
-        products.map(p => `<option value="${p.id}" data-price="${p.price}">${p.title} (Rs. ${p.price.toLocaleString()})</option>`).join('');
+        products.map(p => `<option value="${p.id}" data-price="${p.price}" data-cost="${p.costPrice || 0}">${p.title} (Rs. ${p.price.toLocaleString()})</option>`).join('');
     }
   }
 
@@ -517,7 +568,10 @@
               <option value="sold-out" ${curStatus === 'sold-out' ? 'selected' : ''}>🔴 Sold Out</option>
             </select>
           </td>
-          <td><strong>Rs. ${p.price.toLocaleString()}</strong></td>
+          <td>
+            <strong>Rs. ${p.price.toLocaleString()}</strong>
+            ${p.costPrice ? `<br><small style="color:#64748b; font-size:0.75rem;">Cost: Rs. ${Number(p.costPrice).toLocaleString()}</small>` : ''}
+          </td>
           <td><span class="status-tag status-sold">-${p.discount || 0}%</span></td>
           <td style="white-space:nowrap;">
             <button type="button" class="admin-btn admin-btn-success" style="padding:4px 8px; font-size:0.75rem;" onclick="window.AimanStore.quickMarkSold('${p.id}')" title="Record as Sold">
@@ -1629,11 +1683,51 @@
       }
     },
 
-    // Sales Recording
+    // Sales Recording & Profit Analysis
     onSaleProductChange: function (prodId) {
       const p = products.find(x => String(x.id) === String(prodId));
       if (p) {
         document.getElementById('saleAmountInput').value = p.price;
+        const costInput = document.getElementById('saleCostInput');
+        if (costInput) {
+          costInput.value = p.costPrice || '';
+        }
+      }
+      this.calcSaleProfitPreview();
+    },
+
+    calcSaleProfitPreview: function () {
+      const amtInput = document.getElementById('saleAmountInput');
+      const costInput = document.getElementById('saleCostInput');
+      const previewText = document.getElementById('saleProfitPreviewText');
+      const profitPill = document.getElementById('saleProfitPill');
+
+      if (!previewText) return;
+
+      const amt = Number(amtInput ? amtInput.value : 0) || 0;
+      const cost = Number(costInput ? costInput.value : 0) || 0;
+      const profit = amt - cost;
+      const margin = amt > 0 ? ((profit / amt) * 100).toFixed(1) : '0.0';
+
+      if (amt === 0 && cost === 0) {
+        previewText.textContent = `Rs. 0 (0% margin)`;
+        previewText.style.color = '#15803d';
+        if (profitPill) {
+          profitPill.textContent = 'Live Net Profit';
+          profitPill.style.background = '#dcfce7';
+          profitPill.style.color = '#15803d';
+        }
+        return;
+      }
+
+      const isPositive = profit >= 0;
+      previewText.textContent = `${isPositive ? '+' : ''}Rs. ${profit.toLocaleString()} (${margin}% profit margin)`;
+      previewText.style.color = isPositive ? '#15803d' : '#b91c1c';
+
+      if (profitPill) {
+        profitPill.textContent = isPositive ? 'Net Profit / Rida' : 'Loss Warning';
+        profitPill.style.background = isPositive ? '#dcfce7' : '#fee2e2';
+        profitPill.style.color = isPositive ? '#15803d' : '#b91c1c';
       }
     },
 
@@ -1643,10 +1737,14 @@
       const selectedOption = prodSelect.options[prodSelect.selectedIndex];
       const prodTitle = selectedOption ? selectedOption.text.split(' (Rs.')[0] : 'Bespoke Rida';
       const amount = Number(document.getElementById('saleAmountInput').value) || 0;
+      const costPrice = Number(document.getElementById('saleCostInput') ? document.getElementById('saleCostInput').value : 0) || 0;
       const customer = document.getElementById('saleCustomerInput').value.trim();
       const phone = document.getElementById('salePhoneInput').value.trim();
       const payment = document.getElementById('salePaymentSelect').value;
       const status = document.getElementById('saleStatusSelect').value;
+
+      const netProfit = amount - costPrice;
+      const profitMargin = amount > 0 ? Number(((netProfit / amount) * 100).toFixed(1)) : 0;
 
       const newSale = {
         id: 'ORD-' + Math.floor(1000 + Math.random() * 9000),
@@ -1655,7 +1753,14 @@
         customerName: customer,
         phone: phone,
         amount: amount,
+        sellingPrice: amount,
+        costPrice: costPrice,
+        unitCost: costPrice,
+        totalCost: costPrice,
         totalRevenue: amount,
+        netProfit: netProfit,
+        profit: netProfit,
+        profitMargin: profitMargin,
         paymentMethod: payment,
         status: status
       };
@@ -1675,8 +1780,9 @@
         }
       });
 
-      alert(`✅ Sale recorded successfully!\nProduct: ${prodTitle}\nAmount: Rs. ${amount.toLocaleString()}`);
+      alert(`✅ Sale recorded successfully!\nProduct: ${prodTitle}\nSelling Price: Rs. ${amount.toLocaleString()}\nCost Price: Rs. ${costPrice.toLocaleString()}\nNet Profit: Rs. ${netProfit.toLocaleString()} (${profitMargin}% margin)`);
       e.target.reset();
+      this.calcSaleProfitPreview();
       updateSalesDashboard();
     },
 
@@ -1688,14 +1794,28 @@
       if (!customer) return;
 
       const phone = prompt('Enter Customer WhatsApp/Phone:', '03001234567') || '';
+      const defaultCost = p.costPrice || 0;
+      const costInput = prompt(`Enter Cost Price (Kapra + Karigari) in PKR for "${p.title}":`, String(defaultCost));
+      const costPrice = (costInput !== null && costInput !== '') ? (Number(costInput) || 0) : defaultCost;
+      const amount = Number(p.price) || 0;
+      const netProfit = amount - costPrice;
+      const profitMargin = amount > 0 ? Number(((netProfit / amount) * 100).toFixed(1)) : 0;
+
       const newSale = {
         id: 'ORD-' + Math.floor(1000 + Math.random() * 9000),
         date: new Date().toISOString().split('T')[0],
         productName: p.title,
         customerName: customer,
         phone: phone,
-        amount: p.price,
-        totalRevenue: p.price,
+        amount: amount,
+        sellingPrice: amount,
+        costPrice: costPrice,
+        unitCost: costPrice,
+        totalCost: costPrice,
+        totalRevenue: amount,
+        netProfit: netProfit,
+        profit: netProfit,
+        profitMargin: profitMargin,
         paymentMethod: 'Cash on Delivery (COD)',
         status: 'Sold - In Stitching'
       };
@@ -1729,9 +1849,57 @@
       renderProducts();
       renderAdminProducts();
 
-      alert(`🎉 Sale added to Ledger! Total atelier revenue updated.`);
+      alert(`🎉 Sale added to Ledger!\nProduct: ${p.title}\nSale: Rs. ${amount.toLocaleString()} | Cost: Rs. ${costPrice.toLocaleString()}\nNet Profit: Rs. ${netProfit.toLocaleString()}`);
       updateSalesDashboard();
       window.AimanStore.switchAdminTab('sales');
+    },
+
+    editSaleCost: async function (index) {
+      const item = salesLedger[index];
+      if (!item) return;
+
+      const currentCost = Number(item.costPrice ?? item.cost ?? item.unitCost ?? 0);
+      const sellPrice = Number(item.amount ?? item.sellingPrice ?? item.totalRevenue ?? 0);
+      const input = prompt(`Update Cost Price (PKR) for:\n"${item.productName}"\n\nSelling Price: Rs. ${sellPrice.toLocaleString()}\nCurrent Cost: Rs. ${currentCost.toLocaleString()}`, String(currentCost));
+      if (input === null) return; // User pressed Cancel
+
+      const newCost = Math.max(0, Number(input) || 0);
+      const newProfit = sellPrice - newCost;
+      const newMargin = sellPrice > 0 ? Number(((newProfit / sellPrice) * 100).toFixed(1)) : 0;
+
+      item.costPrice = newCost;
+      item.unitCost = newCost;
+      item.totalCost = newCost;
+      item.netProfit = newProfit;
+      item.profit = newProfit;
+      item.profitMargin = newMargin;
+
+      try {
+        localStorage.setItem('aiman_sales', JSON.stringify(salesLedger));
+      } catch (e) {}
+
+      updateSalesDashboard();
+
+      // Sync updated cost to Firestore
+      ensureFirestore(async (db) => {
+        if (item.id) {
+          try {
+            await db.collection('sales').doc(String(item.id)).set({
+              costPrice: newCost,
+              unitCost: newCost,
+              totalCost: newCost,
+              netProfit: newProfit,
+              profit: newProfit,
+              profitMargin: newMargin
+            }, { merge: true });
+            console.log('⚡ [Firebase] Updated sale cost in Firestore:', item.id);
+          } catch (err) {
+            console.warn('Firestore edit cost warning:', err);
+          }
+        }
+      });
+
+      alert(`✅ Cost updated for "${item.productName}"!\nNew Cost: Rs. ${newCost.toLocaleString()}\nNew Net Profit: Rs. ${newProfit.toLocaleString()} (${newMargin}% margin)`);
     },
 
     deleteSale: async function (index) {
@@ -1787,9 +1955,16 @@
         alert('No sales data to export.');
         return;
       }
-      let csv = 'Order ID,Date,Product,Customer,Phone,Amount (PKR),Payment Method,Status\n';
+      let csv = 'Order ID,Date,Product,Customer,Phone,Sale Price (PKR),Cost Price (PKR),Net Profit (PKR),Margin %,Payment Method,Status\n';
       salesLedger.forEach(s => {
-        csv += `"${s.id}","${s.date}","${s.productName.replace(/"/g, '""')}","${s.customerName.replace(/"/g, '""')}","${s.phone}","${s.amount}","${s.paymentMethod}","${s.status}"\n`;
+        const amt = Number(s.amount ?? s.totalRevenue ?? s.sellingPrice ?? 0);
+        const cost = Number(s.costPrice ?? s.cost ?? s.unitCost ?? s.totalCost ?? 0);
+        const profit = (s.netProfit !== undefined && s.netProfit !== null && !isNaN(Number(s.netProfit)))
+          ? Number(s.netProfit)
+          : (amt - cost);
+        const margin = amt > 0 ? Math.round((profit / amt) * 100) : 0;
+
+        csv += `"${s.id}","${s.date}","${(s.productName || '').replace(/"/g, '""')}","${(s.customerName || '').replace(/"/g, '""')}","${s.phone || ''}","${amt}","${cost}","${profit}","${margin}%","${s.paymentMethod || ''}","${s.status || ''}"\n`;
       });
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
@@ -1890,6 +2065,7 @@
         const category = document.getElementById('prodCategorySelect').value;
         const stockStatus = document.getElementById('prodStockStatusSelect') ? document.getElementById('prodStockStatusSelect').value : 'in-stock';
         const price = Number(document.getElementById('prodPriceInput').value);
+        const costPrice = Number(document.getElementById('prodCostInput') ? document.getElementById('prodCostInput').value : 0) || 0;
         const regPrice = Number(document.getElementById('prodRegPriceInput').value) || (price * 1.5);
         const discount = Number(document.getElementById('prodDiscountInput').value) || Math.round(((regPrice - price) / regPrice) * 100);
         const image = document.getElementById('prodImageInput').value.trim();
@@ -1912,6 +2088,7 @@
             item.category = category;
             item.stockStatus = stockStatus;
             item.price = price;
+            item.costPrice = costPrice;
             item.regularPrice = regPrice;
             item.discount = discount;
             item.image = image;
@@ -1926,6 +2103,7 @@
             category: category,
             stockStatus: stockStatus,
             price: price,
+            costPrice: costPrice,
             regularPrice: regPrice,
             discount: discount,
             image: image,
@@ -1955,6 +2133,7 @@
                 title: productPayload.title,
                 category: productPayload.category,
                 price: Number(productPayload.price) || 0,
+                costPrice: Number(productPayload.costPrice) || 0,
                 originalPrice: Number(productPayload.regularPrice) || (Number(productPayload.price) * 1.5),
                 regularPrice: Number(productPayload.regularPrice) || (Number(productPayload.price) * 1.5),
                 discount: Number(productPayload.discount) || 0,
@@ -2004,6 +2183,9 @@
         document.getElementById('prodStockStatusSelect').value = p.stockStatus || 'in-stock';
       }
       document.getElementById('prodPriceInput').value = p.price;
+      if (document.getElementById('prodCostInput')) {
+        document.getElementById('prodCostInput').value = p.costPrice || '';
+      }
       document.getElementById('prodRegPriceInput').value = p.regularPrice || '';
       document.getElementById('prodDiscountInput').value = p.discount || '';
       document.getElementById('prodImageInput').value = p.image;
@@ -2047,6 +2229,9 @@
         document.getElementById('prodStockStatusSelect').value = 'in-stock';
       }
       document.getElementById('prodPriceInput').value = '';
+      if (document.getElementById('prodCostInput')) {
+        document.getElementById('prodCostInput').value = '';
+      }
       document.getElementById('prodRegPriceInput').value = '';
       document.getElementById('prodDiscountInput').value = '';
       document.getElementById('prodImageInput').value = '';
@@ -2509,13 +2694,24 @@
         sSnap.forEach(doc => {
           const s = doc.data();
           if (s) {
+            const amt = Number(s.totalRevenue ?? s.amount ?? s.sellingPrice ?? 0);
+            const cost = Number(s.costPrice ?? s.unitCost ?? s.totalCost ?? 0);
+            const profit = s.netProfit !== undefined ? Number(s.netProfit) : (s.profit !== undefined ? Number(s.profit) : (amt - cost));
             fsSales.push({
               id: s.id || doc.id,
               date: s.date || new Date().toISOString().split('T')[0],
               productName: s.productName || 'Bohra Rida',
-              customerName: s.customerName || 'Customer',
+              customerName: s.customerName || s.customerName || 'Customer',
               phone: s.customerPhone || s.phone || '',
-              amount: Number(s.totalRevenue ?? s.amount ?? s.sellingPrice) || 0,
+              amount: amt,
+              sellingPrice: amt,
+              costPrice: cost,
+              unitCost: cost,
+              totalCost: cost,
+              totalRevenue: amt,
+              netProfit: profit,
+              profit: profit,
+              profitMargin: amt > 0 ? Number(((profit / amt) * 100).toFixed(1)) : 0,
               paymentMethod: s.paymentMethod || 'Cash on Delivery (COD)',
               status: s.status || 'Delivered'
             });
@@ -2679,6 +2875,7 @@
                 name: d.title || d.name || 'Bohra Libas Ensemble',
                 category: normalizeCategory(d.category),
                 price: Number(d.price) || 0,
+                costPrice: Number(d.costPrice) || 0,
                 regularPrice: Number(d.regularPrice || d.originalPrice) || 0,
                 discount: Number(d.discount) || 0,
                 image: d.image || FALLBACK_PRODUCT_IMAGE,
@@ -2795,13 +2992,24 @@
           snapshot.forEach(doc => {
             const s = doc.data();
             if (s) {
+              const amt = Number(s.totalRevenue ?? s.amount ?? s.sellingPrice ?? 0);
+              const cost = Number(s.costPrice ?? s.unitCost ?? s.totalCost ?? 0);
+              const profit = s.netProfit !== undefined ? Number(s.netProfit) : (s.profit !== undefined ? Number(s.profit) : (amt - cost));
               fsSales.push({
                 id: s.id || doc.id,
                 date: s.date || new Date().toISOString().split('T')[0],
                 productName: s.productName || 'Bohra Rida',
                 customerName: s.customerName || 'Customer',
                 phone: s.customerPhone || s.phone || '',
-                amount: Number(s.totalRevenue ?? s.amount ?? s.sellingPrice) || 0,
+                amount: amt,
+                sellingPrice: amt,
+                costPrice: cost,
+                unitCost: cost,
+                totalCost: cost,
+                totalRevenue: amt,
+                netProfit: profit,
+                profit: profit,
+                profitMargin: amt > 0 ? Number(((profit / amt) * 100).toFixed(1)) : 0,
                 paymentMethod: s.paymentMethod || 'Cash on Delivery (COD)',
                 status: s.status || 'Delivered'
               });

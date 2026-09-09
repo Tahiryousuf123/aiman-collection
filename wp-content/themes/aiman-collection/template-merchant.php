@@ -41,44 +41,66 @@ $phone_disp = get_theme_mod( 'aiman_whatsapp_display', '+92 345 2439196' );
 					<i class="fas fa-window-maximize"></i> <?php esc_html_e( 'Open Fullscreen Suite', 'aiman-collection' ); ?>
 				</button>
 			</div>
-		</div>
-
-		<!-- Dashboard Metrics Grid -->
-		<div class="admin-stats-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
-			<div class="stat-metric-card" style="background:#fff; border:1px solid #eee; border-radius:10px; padding:1.25rem; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+		</div>		<!-- Dashboard Metrics Grid -->
+		<div class="admin-stats-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+			<div style="background:#fff; border:1px solid #eee; border-radius:10px; padding:1.25rem; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
 				<div>
 					<p style="font-size:0.8rem; text-transform:uppercase; color:#777; margin:0 0 5px 0; font-weight:600;"><?php esc_html_e( 'Total Sales Revenue', 'aiman-collection' ); ?></p>
-					<h3 id="statTotalRevenuePage" style="font-size:1.6rem; color:#16a34a; margin:0; font-weight:700;">Rs. 0</h3>
+					<h3 id="statTotalRevenuePage" style="font-size:1.5rem; color:#16a34a; margin:0; font-weight:700;">Rs. 0</h3>
 				</div>
-				<div style="width:48px; height:48px; border-radius:10px; background:#f0fdf4; color:#16a34a; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+				<div style="width:44px; height:44px; border-radius:10px; background:#f0fdf4; color:#16a34a; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
 					<i class="fas fa-wallet"></i>
 				</div>
 			</div>
-			<div class="stat-metric-card" style="background:#fff; border:1px solid #eee; border-radius:10px; padding:1.25rem; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+			<div style="background:#fff; border:1px solid #eee; border-radius:10px; padding:1.25rem; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
 				<div>
-					<p style="font-size:0.8rem; text-transform:uppercase; color:#777; margin:0 0 5px 0; font-weight:600;"><?php esc_html_e( 'Ridas / Items Sold', 'aiman-collection' ); ?></p>
-					<h3 id="statTotalSoldPage" style="font-size:1.6rem; color:#111; margin:0; font-weight:700;">0</h3>
+					<p style="font-size:0.8rem; text-transform:uppercase; color:#777; margin:0 0 5px 0; font-weight:600;"><?php esc_html_e( 'Total Making Cost', 'aiman-collection' ); ?></p>
+					<h3 id="statTotalCostPage" style="font-size:1.5rem; color:#64748b; margin:0; font-weight:700;">Rs. 0</h3>
 				</div>
-				<div style="width:48px; height:48px; border-radius:10px; background:#eff6ff; color:#2563eb; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+				<div style="width:44px; height:44px; border-radius:10px; background:#f8fafc; color:#64748b; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
+					<i class="fas fa-receipt"></i>
+				</div>
+			</div>
+			<div style="background:#fff; border:1px solid #eee; border-radius:10px; padding:1.25rem; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+				<div>
+					<div style="display:flex; align-items:center; gap:6px; margin-bottom:5px;">
+						<p style="font-size:0.8rem; text-transform:uppercase; color:#777; margin:0; font-weight:600;"><?php esc_html_e( 'Total Net Profit', 'aiman-collection' ); ?></p>
+						<span id="statProfitMarginBadgePage" style="font-size:0.7rem; font-weight:700; background:#dcfce7; color:#15803d; padding:2px 6px; border-radius:10px;">0%</span>
+					</div>
+					<h3 id="statTotalProfitPage" style="font-size:1.5rem; color:#059669; margin:0; font-weight:700;">Rs. 0</h3>
+				</div>
+				<div style="width:44px; height:44px; border-radius:10px; background:#ecfdf5; color:#059669; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
+					<i class="fas fa-chart-line"></i>
+				</div>
+			</div>
+			<div style="background:#fff; border:1px solid #eee; border-radius:10px; padding:1.25rem; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+				<div>
+					<p style="font-size:0.8rem; text-transform:uppercase; color:#777; margin:0 0 5px 0; font-weight:600;"><?php esc_html_e( 'Avg Profit / Rida', 'aiman-collection' ); ?></p>
+					<h3 id="statAvgProfitPage" style="font-size:1.5rem; color:#b45309; margin:0; font-weight:700;">Rs. 0</h3>
+				</div>
+				<div style="width:44px; height:44px; border-radius:10px; background:#fffbeb; color:#b45309; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
+					<i class="fas fa-coins"></i>
+				</div>
+			</div>
+			<div style="background:#fff; border:1px solid #eee; border-radius:10px; padding:1.25rem; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+				<div>
+					<p style="font-size:0.8rem; text-transform:uppercase; color:#777; margin:0 0 5px 0; font-weight:600;"><?php esc_html_e( 'Ridas Sold', 'aiman-collection' ); ?></p>
+					<h3 id="statTotalSoldPage" style="font-size:1.5rem; color:#111; margin:0; font-weight:700;">0</h3>
+				</div>
+				<div style="width:44px; height:44px; border-radius:10px; background:#eff6ff; color:#2563eb; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
 					<i class="fas fa-crown"></i>
 				</div>
 			</div>
-			<div class="stat-metric-card" style="background:#fff; border:1px solid #eee; border-radius:10px; padding:1.25rem; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+			<div style="background:#fff; border:1px solid #eee; border-radius:10px; padding:1.25rem; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
 				<div>
-					<p style="font-size:0.8rem; text-transform:uppercase; color:#777; margin:0 0 5px 0; font-weight:600;"><?php esc_html_e( 'Pending Dispatch', 'aiman-collection' ); ?></p>
-					<h3 id="statPendingOrdersPage" style="font-size:1.6rem; color:#f59e0b; margin:0; font-weight:700;">0</h3>
+					<p style="font-size:0.8rem; text-transform:uppercase; color:#777; margin:0 0 5px 0; font-weight:600;"><?php esc_html_e( 'Delivery Status', 'aiman-collection' ); ?></p>
+					<h3 style="font-size:1.1rem; color:#111; margin:0; font-weight:700;">
+						<span id="statCompletedOrdersPage" style="color:#0f766e;">0</span> <span style="font-size:0.75rem; font-weight:normal; color:#64748b;">Delivered</span> /
+						<span id="statPendingOrdersPage" style="color:#f59e0b;">0</span> <span style="font-size:0.75rem; font-weight:normal; color:#64748b;">Pending</span>
+					</h3>
 				</div>
-				<div style="width:48px; height:48px; border-radius:10px; background:#fffbeb; color:#f59e0b; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+				<div style="width:44px; height:44px; border-radius:10px; background:#f0fdfa; color:#0f766e; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
 					<i class="fas fa-truck"></i>
-				</div>
-			</div>
-			<div class="stat-metric-card" style="background:#fff; border:1px solid #eee; border-radius:10px; padding:1.25rem; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
-				<div>
-					<p style="font-size:0.8rem; text-transform:uppercase; color:#777; margin:0 0 5px 0; font-weight:600;"><?php esc_html_e( 'Delivered & Paid', 'aiman-collection' ); ?></p>
-					<h3 id="statCompletedOrdersPage" style="font-size:1.6rem; color:#0f766e; margin:0; font-weight:700;">0</h3>
-				</div>
-				<div style="width:48px; height:48px; border-radius:10px; background:#f0fdfa; color:#0f766e; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
-					<i class="fas fa-box-archive"></i>
 				</div>
 			</div>
 		</div>
@@ -101,8 +123,12 @@ $phone_disp = get_theme_mod( 'aiman_whatsapp_display', '+92 345 2439196' );
 							<input type="text" id="merchantSaleProduct" required placeholder="e.g. Royal Crimson Heavy Zardozi Bridal Silk Rida" style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:6px; font-size:0.9rem;">
 						</div>
 						<div>
-							<label style="display:block; font-size:0.8rem; font-weight:600; text-transform:uppercase; margin-bottom:4px; color:#555;">Sale Amount (PKR) *</label>
-							<input type="number" id="merchantSaleAmount" required min="1" placeholder="e.g. 15500" style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:6px; font-size:0.9rem;">
+							<label style="display:block; font-size:0.8rem; font-weight:600; text-transform:uppercase; margin-bottom:4px; color:#555;">Sale Price (PKR) *</label>
+							<input type="number" id="merchantSaleAmount" required min="1" placeholder="e.g. 15500" oninput="calcMerchantProfit()" style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:6px; font-size:0.9rem;">
+						</div>
+						<div>
+							<label style="display:block; font-size:0.8rem; font-weight:600; text-transform:uppercase; margin-bottom:4px; color:#555;">Cost / Making Price (PKR) <span style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Kapra + Karigari)</span></label>
+							<input type="number" id="merchantSaleCost" min="0" placeholder="e.g. 8500" oninput="calcMerchantProfit()" style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:6px; font-size:0.9rem;">
 						</div>
 						<div>
 							<label style="display:block; font-size:0.8rem; font-weight:600; text-transform:uppercase; margin-bottom:4px; color:#555;">Customer Name *</label>
@@ -130,6 +156,15 @@ $phone_disp = get_theme_mod( 'aiman_whatsapp_display', '+92 345 2439196' );
 								<option value="Delivered & Paid">Delivered &amp; Paid</option>
 							</select>
 						</div>
+					</div>
+					<!-- Live Profit Preview -->
+					<div id="merchantProfitPreview" style="display:flex; align-items:center; justify-content:space-between; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:9px 14px; margin-bottom:12px; flex-wrap:wrap; gap:6px;">
+						<div style="display:flex; align-items:center; gap:7px;">
+							<i class="fas fa-calculator" style="color:#16a34a;"></i>
+							<span style="font-size:0.82rem; font-weight:600; color:#166534;">Profit Per Rida:</span>
+							<span id="merchantProfitText" style="font-size:0.92rem; font-weight:700; color:#15803d;">Rs. 0 (0% margin)</span>
+						</div>
+						<span id="merchantProfitPill" style="font-size:0.72rem; color:#15803d; background:#dcfce7; padding:2px 9px; border-radius:10px; font-weight:700;">Live Net Profit</span>
 					</div>
 					<div style="display:flex; justify-content:flex-end;">
 						<button type="submit" style="background:#16a34a; color:#fff; border:none; padding:10px 20px; border-radius:6px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px;">
@@ -189,14 +224,16 @@ $phone_disp = get_theme_mod( 'aiman_whatsapp_display', '+92 345 2439196' );
 				</div>
 			</div>
 			<div style="overflow-x:auto;">
-				<table style="width:100%; border-collapse:collapse; font-size:0.88rem; text-align:left;">
+				<table style="width:100%; border-collapse:collapse; font-size:0.85rem; text-align:left;">
 					<thead>
 						<tr style="border-bottom:2px solid #eee; background:#fafafa;">
 							<th style="padding:10px 12px; font-weight:600; color:#555;">Date</th>
 							<th style="padding:10px 12px; font-weight:600; color:#555;">Rida / Libas</th>
 							<th style="padding:10px 12px; font-weight:600; color:#555;">Customer</th>
 							<th style="padding:10px 12px; font-weight:600; color:#555;">Phone</th>
-							<th style="padding:10px 12px; font-weight:600; color:#555;">Amount</th>
+							<th style="padding:10px 12px; font-weight:600; color:#555;">Sale Price</th>
+							<th style="padding:10px 12px; font-weight:600; color:#555;">Cost Price</th>
+							<th style="padding:10px 12px; font-weight:600; color:#555;">Net Profit</th>
 							<th style="padding:10px 12px; font-weight:600; color:#555;">Payment</th>
 							<th style="padding:10px 12px; font-weight:600; color:#555;">Status</th>
 							<th style="padding:10px 12px; font-weight:600; color:#555;">Action</th>
@@ -216,76 +253,125 @@ $phone_disp = get_theme_mod( 'aiman_whatsapp_display', '+92 345 2439196' );
 (function() {
 	function getSales() {
 		return JSON.parse(localStorage.getItem('aiman_sales')) || [
-			{ id: 'ORD-1091', date: '2026-09-06', productName: 'Royal Crimson Heavy Zardozi Bridal Silk Rida', customerName: 'Fatema Bhen Shabbir', phone: '03452281923', amount: 15500, paymentMethod: 'Cash on Delivery (COD)', status: 'Delivered & Paid' },
-			{ id: 'ORD-1090', date: '2026-09-05', productName: 'Pastel Mint Chiffon Dupatta Summer Cotton Pret', customerName: 'Sakina Bhen Burhanuddin', phone: '03332194821', amount: 4850, paymentMethod: 'Meezan Raast', status: 'Delivered & Paid' },
-			{ id: 'ORD-1089', date: '2026-09-04', productName: 'Handcrafted Gold Zardozi Matching Bridal Batwa', customerName: 'Zainab Bhen Mustafa', phone: '03219984723', amount: 2450, paymentMethod: 'EasyPaisa', status: 'Dispatched TCS' }
+			{ id: 'ORD-1091', date: '2026-09-06', productName: 'Royal Crimson Heavy Zardozi Bridal Silk Rida', customerName: 'Fatema Bhen Shabbir', phone: '03452281923', amount: 15500, costPrice: 9000, paymentMethod: 'Cash on Delivery (COD)', status: 'Delivered & Paid' },
+			{ id: 'ORD-1090', date: '2026-09-05', productName: 'Pastel Mint Chiffon Dupatta Summer Cotton Pret', customerName: 'Sakina Bhen Burhanuddin', phone: '03332194821', amount: 4850, costPrice: 2500, paymentMethod: 'Meezan Raast', status: 'Delivered & Paid' },
+			{ id: 'ORD-1089', date: '2026-09-04', productName: 'Handcrafted Gold Zardozi Matching Bridal Batwa', customerName: 'Zainab Bhen Mustafa', phone: '03219984723', amount: 2450, costPrice: 0, paymentMethod: 'EasyPaisa', status: 'Dispatched TCS' }
 		];
 	}
+
+	window.calcMerchantProfit = function() {
+		const amt = Number(document.getElementById('merchantSaleAmount').value) || 0;
+		const cost = Number(document.getElementById('merchantSaleCost').value) || 0;
+		const profit = amt - cost;
+		const margin = amt > 0 ? ((profit / amt) * 100).toFixed(1) : '0.0';
+		const text = document.getElementById('merchantProfitText');
+		const pill = document.getElementById('merchantProfitPill');
+		if (!text) return;
+		const isPos = profit >= 0;
+		text.textContent = `${isPos ? '+' : ''}Rs. ${profit.toLocaleString()} (${margin}% margin)`;
+		text.style.color = isPos ? '#15803d' : '#b91c1c';
+		if (pill) { pill.textContent = isPos ? 'Net Profit / Rida' : 'Loss Warning'; pill.style.background = isPos ? '#dcfce7' : '#fee2e2'; pill.style.color = isPos ? '#15803d' : '#b91c1c'; }
+	};
 
 	function renderSalesPage() {
 		const sales = getSales();
 		const tbody = document.getElementById('merchantLedgerTableBody');
 		if (!tbody) return;
 
-		let totalRev = 0;
-		let pending = 0;
-		let completed = 0;
+		let totalRev = 0, totalCost = 0, pending = 0, completed = 0;
 
 		tbody.innerHTML = '';
 		if (sales.length === 0) {
-			tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:30px; color:#999;">No sales recorded yet. Use the form above to record sold ridas.</td></tr>';
+			tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:30px; color:#999;">No sales recorded yet. Use the form above to record sold ridas.</td></tr>';
 		} else {
 			sales.forEach((s, idx) => {
-				totalRev += Number(s.amount) || 0;
-				if (s.status.includes('Stitching') || s.status.includes('Dispatched')) pending++;
-				if (s.status.includes('Delivered')) completed++;
+				const amt = Number(s.amount || s.totalRevenue || s.sellingPrice || 0);
+				const cost = Number(s.costPrice || s.unitCost || s.totalCost || 0);
+				const profit = (s.netProfit !== undefined && s.netProfit !== null && !isNaN(Number(s.netProfit)))
+					? Number(s.netProfit) : (s.profit !== undefined && !isNaN(Number(s.profit))) ? Number(s.profit) : (amt - cost);
+				const margin = amt > 0 ? Math.round((profit / amt) * 100) : 0;
+
+				totalRev += amt;
+				totalCost += cost;
+				if (s.status && (s.status.includes('Stitching') || s.status.includes('Dispatched'))) pending++;
+				if (s.status && s.status.includes('Delivered')) completed++;
 
 				const tr = document.createElement('tr');
 				tr.style.borderBottom = '1px solid #f0f0f0';
-				
-				let statusColor = '#16a34a';
-				let statusBg = '#f0fdf4';
-				if (s.status.includes('Stitching')) { statusColor = '#f59e0b'; statusBg = '#fffbeb'; }
-				else if (s.status.includes('Dispatched')) { statusColor = '#2563eb'; statusBg = '#eff6ff'; }
+
+				let statusColor = '#16a34a', statusBg = '#f0fdf4';
+				if (s.status && s.status.includes('Stitching')) { statusColor = '#f59e0b'; statusBg = '#fffbeb'; }
+				else if (s.status && s.status.includes('Dispatched')) { statusColor = '#2563eb'; statusBg = '#eff6ff'; }
+
+				const isPos = profit >= 0;
 
 				tr.innerHTML = `
-					<td style="padding:10px 12px; color:#777; font-size:0.84rem;">${s.date || 'Today'}</td>
-					<td style="padding:10px 12px; font-weight:600; color:#111;">${s.productName}</td>
-					<td style="padding:10px 12px;">${s.customerName}</td>
-					<td style="padding:10px 12px; font-size:0.84rem; color:#555;">${s.phone || '—'}</td>
-					<td style="padding:10px 12px; font-weight:700; color:#16a34a;">Rs. ${(Number(s.amount)||0).toLocaleString()}</td>
-					<td style="padding:10px 12px; font-size:0.84rem;">${s.paymentMethod || 'COD'}</td>
-					<td style="padding:10px 12px;">
-						<span style="background:${statusBg}; color:${statusColor}; padding:3px 10px; border-radius:15px; font-size:0.78rem; font-weight:600;">
-							${s.status}
+					<td style="padding:9px 12px; color:#777; font-size:0.82rem;">${s.date || 'Today'}</td>
+					<td style="padding:9px 12px; font-weight:600; color:#111;">${s.productName || 'Bohra Rida'}</td>
+					<td style="padding:9px 12px;">${s.customerName || 'Customer'}</td>
+					<td style="padding:9px 12px; font-size:0.82rem; color:#555;">${s.phone || '—'}</td>
+					<td style="padding:9px 12px; font-weight:700; color:#1e293b;">Rs. ${amt.toLocaleString()}</td>
+					<td style="padding:9px 12px; color:#64748b; font-weight:600;">Rs. ${cost.toLocaleString()}</td>
+					<td style="padding:9px 12px;">
+						<span style="background:${isPos ? '#ecfdf5' : '#fef2f2'}; color:${isPos ? '#059669' : '#dc2626'}; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:700; border:1px solid ${isPos ? '#a7f3d0' : '#fecaca'};">
+							${isPos ? '+' : ''}Rs. ${profit.toLocaleString()}
 						</span>
+						<small style="display:block; color:#64748b; font-size:0.72rem; margin-top:2px;">${margin}% margin</small>
 					</td>
-					<td style="padding:10px 12px;">
-						<button type="button" onclick="deleteMerchantSale(${idx})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:0.85rem;" title="Delete Record">
-							<i class="fas fa-trash-alt"></i>
-						</button>
+					<td style="padding:9px 12px; font-size:0.82rem;">${s.paymentMethod || 'COD'}</td>
+					<td style="padding:9px 12px;">
+						<span style="background:${statusBg}; color:${statusColor}; padding:3px 10px; border-radius:15px; font-size:0.78rem; font-weight:600;">${s.status || 'Delivered'}</span>
+					</td>
+					<td style="padding:9px 12px;">
+						<div style="display:flex; gap:5px; align-items:center;">
+							<button type="button" onclick="editMerchantSaleCost(${idx})" style="background:#eff6ff; border:1px solid #bfdbfe; color:#2563eb; padding:3px 8px; border-radius:4px; font-size:0.75rem; cursor:pointer;" title="Edit Cost"><i class="fas fa-pen"></i> Cost</button>
+							<button type="button" onclick="deleteMerchantSale(${idx})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:0.85rem;" title="Delete Record"><i class="fas fa-trash-alt"></i></button>
+						</div>
 					</td>
 				`;
 				tbody.appendChild(tr);
 			});
 		}
 
+		const totalProfit = totalRev - totalCost;
+		const profitMargin = totalRev > 0 ? ((totalProfit / totalRev) * 100).toFixed(1) : '0.0';
+		const avgProfit = sales.length > 0 ? Math.round(totalProfit / sales.length) : 0;
+
 		document.getElementById('statTotalRevenuePage').textContent = 'Rs. ' + totalRev.toLocaleString();
+
+		const costEl = document.getElementById('statTotalCostPage');
+		if (costEl) costEl.textContent = 'Rs. ' + totalCost.toLocaleString();
+
+		const profitEl = document.getElementById('statTotalProfitPage');
+		if (profitEl) { profitEl.textContent = (totalProfit >= 0 ? '' : '-') + 'Rs. ' + Math.abs(totalProfit).toLocaleString(); profitEl.style.color = totalProfit >= 0 ? '#059669' : '#dc2626'; }
+
+		const marginEl = document.getElementById('statProfitMarginBadgePage');
+		if (marginEl) { marginEl.textContent = profitMargin + '% margin'; marginEl.style.background = totalProfit >= 0 ? '#dcfce7' : '#fee2e2'; marginEl.style.color = totalProfit >= 0 ? '#15803d' : '#b91c1c'; }
+
+		const avgEl = document.getElementById('statAvgProfitPage');
+		if (avgEl) { avgEl.textContent = (avgProfit >= 0 ? '' : '-') + 'Rs. ' + Math.abs(avgProfit).toLocaleString(); avgEl.style.color = avgProfit >= 0 ? '#b45309' : '#dc2626'; }
+
 		document.getElementById('statTotalSoldPage').textContent = sales.length;
-		document.getElementById('statPendingOrdersPage').textContent = pending;
-		document.getElementById('statCompletedOrdersPage').textContent = completed;
+		const pendEl = document.getElementById('statPendingOrdersPage');
+		if (pendEl) pendEl.textContent = pending;
+		const compEl = document.getElementById('statCompletedOrdersPage');
+		if (compEl) compEl.textContent = completed;
 	}
 
 	window.handleMerchantSaleSubmit = function(e) {
 		e.preventDefault();
 		const prod = document.getElementById('merchantSaleProduct').value.trim();
 		const amt = Number(document.getElementById('merchantSaleAmount').value);
+		const cost = Number(document.getElementById('merchantSaleCost').value) || 0;
 		const cust = document.getElementById('merchantSaleCustomer').value.trim();
 		const phone = document.getElementById('merchantSalePhone').value.trim();
 		const pay = document.getElementById('merchantSalePayment').value;
 		const status = document.getElementById('merchantSaleStatus').value;
 
 		if (!prod || !amt || !cust) return;
+
+		const netProfit = amt - cost;
+		const profitMargin = amt > 0 ? Number(((netProfit / amt) * 100).toFixed(1)) : 0;
 
 		const sales = getSales();
 		sales.unshift({
@@ -295,14 +381,41 @@ $phone_disp = get_theme_mod( 'aiman_whatsapp_display', '+92 345 2439196' );
 			customerName: cust,
 			phone: phone,
 			amount: amt,
+			sellingPrice: amt,
+			totalRevenue: amt,
+			costPrice: cost,
+			unitCost: cost,
+			totalCost: cost,
+			netProfit: netProfit,
+			profit: netProfit,
+			profitMargin: profitMargin,
 			paymentMethod: pay,
 			status: status
 		});
 
 		localStorage.setItem('aiman_sales', JSON.stringify(sales));
 		e.target.reset();
+		calcMerchantProfit();
 		renderSalesPage();
-		alert('Sale successfully recorded to Atelier Ledger!');
+		alert('Sale successfully recorded to Atelier Ledger!\nNet Profit: Rs. ' + netProfit.toLocaleString() + ' (' + profitMargin + '% margin)');
+	};
+
+	window.editMerchantSaleCost = function(idx) {
+		const sales = getSales();
+		const s = sales[idx];
+		if (!s) return;
+		const currentCost = Number(s.costPrice || s.unitCost || s.totalCost || 0);
+		const sellPrice = Number(s.amount || s.totalRevenue || s.sellingPrice || 0);
+		const input = prompt('Update Cost Price (PKR) for:\n"' + s.productName + '"\n\nSelling Price: Rs. ' + sellPrice.toLocaleString() + '\nCurrent Cost: Rs. ' + currentCost.toLocaleString(), String(currentCost));
+		if (input === null) return;
+		const newCost = Math.max(0, Number(input) || 0);
+		const newProfit = sellPrice - newCost;
+		const newMargin = sellPrice > 0 ? Number(((newProfit / sellPrice) * 100).toFixed(1)) : 0;
+		s.costPrice = newCost; s.unitCost = newCost; s.totalCost = newCost;
+		s.netProfit = newProfit; s.profit = newProfit; s.profitMargin = newMargin;
+		localStorage.setItem('aiman_sales', JSON.stringify(sales));
+		renderSalesPage();
+		alert('Cost updated!\nNew Net Profit: Rs. ' + newProfit.toLocaleString() + ' (' + newMargin + '% margin)');
 	};
 
 	window.deleteMerchantSale = function(idx) {
@@ -316,17 +429,19 @@ $phone_disp = get_theme_mod( 'aiman_whatsapp_display', '+92 345 2439196' );
 	window.exportMerchantCSV = function() {
 		const sales = getSales();
 		if (!sales.length) { alert('No sales to export.'); return; }
-		let csv = 'ID,Date,Product,Customer,Phone,Amount,Payment,Status\n';
+		let csv = 'ID,Date,Product,Customer,Phone,Sale Price (PKR),Cost Price (PKR),Net Profit (PKR),Margin %,Payment,Status\n';
 		sales.forEach(s => {
-			csv += `"${s.id}","${s.date}","${s.productName.replace(/"/g, '""')}","${s.customerName.replace(/"/g, '""')}","${s.phone}","${s.amount}","${s.paymentMethod}","${s.status}"\n`;
+			const amt = Number(s.amount || s.totalRevenue || s.sellingPrice || 0);
+			const cost = Number(s.costPrice || s.unitCost || s.totalCost || 0);
+			const profit = (s.netProfit !== undefined && !isNaN(Number(s.netProfit))) ? Number(s.netProfit) : (amt - cost);
+			const margin = amt > 0 ? Math.round((profit / amt) * 100) : 0;
+			csv += `"${s.id}","${s.date}","${(s.productName||'').replace(/"/g,'""')}","${(s.customerName||'').replace(/"/g,'""')}","${s.phone||''}","${amt}","${cost}","${profit}","${margin}%","${s.paymentMethod||''}","${s.status||''}"\n`;
 		});
 		const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
-		a.href = url;
-		a.download = `Aiman_Sales_Ledger_${new Date().toISOString().split('T')[0]}.csv`;
-		a.click();
-		URL.revokeObjectURL(url);
+		a.href = url; a.download = `Aiman_Sales_Ledger_${new Date().toISOString().split('T')[0]}.csv`;
+		a.click(); URL.revokeObjectURL(url);
 	};
 
 	document.addEventListener('DOMContentLoaded', renderSalesPage);
