@@ -149,7 +149,7 @@
       price: 15500,
       regularPrice: 24000,
       discount: 35,
-      image: "images/black_formal.jpg",
+      image: "",
       stockStatus: "in-stock",
       isNew: false,
       isSale: true,
@@ -162,8 +162,8 @@
       price: 11900,
       regularPrice: 19500,
       discount: 39,
-      image: "images/black_formal.jpg",
-      imageStyle: "filter: hue-rotate(90deg);",
+      image: "",
+      imageStyle: "",
       stockStatus: "booked",
       isNew: false,
       isSale: true,
@@ -176,7 +176,7 @@
       price: 6950,
       regularPrice: 13900,
       discount: 50,
-      image: "images/black_formal.jpg",
+      image: "",
       stockStatus: "in-stock",
       isNew: true,
       isSale: true,
@@ -189,8 +189,8 @@
       price: 7200,
       regularPrice: 12000,
       discount: 40,
-      image: "images/summer_collection.jpg",
-      imageStyle: "filter: brightness(1.1) saturate(0.5);",
+      image: "",
+      imageStyle: "",
       stockStatus: "in-stock",
       isNew: true,
       isSale: true,
@@ -203,7 +203,7 @@
       price: 4850,
       regularPrice: 8500,
       discount: 43,
-      image: "images/summer_collection.jpg",
+      image: "",
       stockStatus: "in-stock",
       isNew: false,
       isSale: true,
@@ -216,7 +216,7 @@
       price: 5850,
       regularPrice: 9450,
       discount: 38,
-      image: "images/mauve_pret.jpg",
+      image: "",
       stockStatus: "sold-out",
       isNew: false,
       isSale: true,
@@ -229,8 +229,8 @@
       price: 2450,
       regularPrice: 3800,
       discount: 35,
-      image: "images/summer_collection.jpg",
-      imageStyle: "filter: hue-rotate(330deg);",
+      image: "",
+      imageStyle: "",
       stockStatus: "in-stock",
       isNew: false,
       isSale: true,
@@ -243,8 +243,8 @@
       price: 1650,
       regularPrice: 2500,
       discount: 34,
-      image: "images/mauve_pret.jpg",
-      imageStyle: "filter: hue-rotate(270deg);",
+      image: "",
+      imageStyle: "",
       stockStatus: "in-stock",
       isNew: false,
       isSale: true,
@@ -257,7 +257,7 @@
       price: 12500,
       regularPrice: 18500,
       discount: 32,
-      image: "images/boski_fabric.jpg",
+      image: "",
       stockStatus: "in-stock",
       isNew: true,
       isSale: true,
@@ -270,8 +270,8 @@
       price: 9800,
       regularPrice: 14000,
       discount: 30,
-      image: "images/boski_fabric.jpg",
-      imageStyle: "filter: brightness(1.04);",
+      image: "",
+      imageStyle: "",
       stockStatus: "booked",
       isNew: false,
       isSale: true,
@@ -284,7 +284,7 @@
       price: 18500,
       regularPrice: 26000,
       discount: 29,
-      image: "images/silk_rida.jpg",
+      image: "",
       stockStatus: "in-stock",
       isNew: true,
       isSale: true,
@@ -297,8 +297,8 @@
       price: 14200,
       regularPrice: 21000,
       discount: 32,
-      image: "images/silk_rida.jpg",
-      imageStyle: "filter: hue-rotate(240deg) saturate(1.1);",
+      image: "",
+      imageStyle: "",
       stockStatus: "booked",
       isNew: false,
       isSale: true,
@@ -2492,6 +2492,13 @@
               console.warn('Firestore set error:', fsErr);
             }
           });
+
+          // Direct MongoDB Atlas API Sync
+          fetch('/api/products' + (editId ? `/${encodeURIComponent(editId)}` : ''), {
+            method: editId ? 'PUT' : 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(productPayload)
+          }).catch(apiErr => console.warn('MongoDB API sync warning:', apiErr));
         }
 
         window.AimanStore.resetProductForm();
@@ -2618,6 +2625,10 @@
             console.warn('Firestore delete note:', err.message);
           }
         });
+
+        // Direct MongoDB Atlas API Delete
+        fetch(`/api/products/${encodeURIComponent(id)}`, { method: 'DELETE' })
+          .catch(e => console.warn('MongoDB API delete note:', e));
       }
     },
 
@@ -3417,25 +3428,40 @@
   window.addEventListener('resize', lockZeroHorizontalScroll);
   window.addEventListener('orientationchange', lockZeroHorizontalScroll);
 
-  // Fast local API catalog loader for instant background updates
+  // Dedicated MongoDB Atlas Real-Time Catalog & Image Sync
   function fetchLocalApiProducts() {
     if (typeof fetch === 'function') {
       fetch('/api/products')
         .then(res => res.ok ? res.json() : null)
-        .then(data => {
-          if (Array.isArray(data) && data.length > 0) {
-            const cleanList = data.map(d => ({
-              ...d,
-              image: (d.image && d.image.startsWith('data:image') && knownImageMap[d.id]) ? knownImageMap[d.id] : (d.image || FALLBACK_PRODUCT_IMAGE)
+        .then(res => {
+          const list = Array.isArray(res) ? res : (res && Array.isArray(res.data) ? res.data : []);
+          if (list.length > 0) {
+            const cleanList = list.map(d => ({
+              id: d.id,
+              title: d.title || d.name || 'Bohra Libas Ensemble',
+              name: d.title || d.name || 'Bohra Libas Ensemble',
+              category: normalizeCategory(d.category),
+              price: Number(d.price) || 0,
+              costPrice: Number(d.costPrice) || 0,
+              regularPrice: Number(d.regularPrice || d.originalPrice) || 0,
+              discount: Number(d.discount) || 0,
+              image: (d.image && d.image.startsWith('data:image') && knownImageMap[d.id]) ? knownImageMap[d.id] : (d.image || ''),
+              imageStyle: d.imageStyle || '',
+              gallery: Array.isArray(d.gallery) ? d.gallery : (Array.isArray(d.galleryImages) ? d.galleryImages : []),
+              stockStatus: d.stockStatus || (d.isSoldOut ? 'sold-out' : (d.isBooked ? 'booked' : 'in-stock')),
+              isNew: Boolean(d.isNew ?? d.isNewArrival),
+              isSale: Boolean(d.isSale ?? d.onSale),
+              bestSeller: Boolean(d.bestSeller ?? d.isFeatured)
             }));
             products = cleanList;
             try { localStorage.setItem('aiman_products', JSON.stringify(products)); } catch (e) {}
             renderProducts();
             renderAdminProducts();
             updateSalesDashboard();
+            console.log(`⚡ [MongoDB Atlas Sync] ${products.length} products & images synced directly from MongoDB`);
           }
         })
-        .catch(() => {});
+        .catch(err => console.warn('MongoDB sync notice:', err));
     }
   }
 
