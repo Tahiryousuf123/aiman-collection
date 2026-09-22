@@ -315,15 +315,25 @@
   };
 
   // Instant State: Cached or Bundled Default (Zero Wait for Network)
+  const CACHE_KEY_VERSION = 'aiman_v11_clean_mongo';
   let products = (function () {
     try {
+      const v = localStorage.getItem('aiman_cache_ver');
+      if (v !== CACHE_KEY_VERSION) {
+        localStorage.removeItem('aiman_products');
+        localStorage.setItem('aiman_cache_ver', CACHE_KEY_VERSION);
+        return DEFAULT_PRODUCTS;
+      }
       const stored = JSON.parse(localStorage.getItem('aiman_products'));
       if (Array.isArray(stored) && stored.length > 0) {
         return stored.map(p => {
-          if (p.image && p.image.startsWith('data:image') && knownImageMap[p.id]) {
-            return { ...p, image: knownImageMap[p.id] };
+          let img = p.image || '';
+          if (knownImageMap[p.id]) {
+            img = knownImageMap[p.id];
+          } else if (img.startsWith('images/') && !img.startsWith('images/uploads')) {
+            img = '';
           }
-          return p;
+          return { ...p, image: img };
         });
       }
     } catch (e) {}
