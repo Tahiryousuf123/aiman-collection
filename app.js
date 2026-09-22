@@ -418,11 +418,37 @@
      3. SALES DASHBOARD & METRICS
      -------------------------------------------------------------------------- */
   function updateSalesDashboard() {
-    const totalRev = salesLedger.reduce((sum, s) => sum + Number(s.amount || s.totalRevenue || s.sellingPrice || 0), 0);
-    const totalCost = salesLedger.reduce((sum, s) => sum + Number(s.costPrice ?? s.cost ?? s.unitCost ?? s.totalCost ?? 0), 0);
+    // 1. Catalog Products Inventory & Investment Calculation ("Lagaye hue paise")
+    const totalCatalogProducts = products.length;
+    const totalCatalogCost = products.reduce((sum, p) => sum + (Number(p.costPrice) || 0), 0);
+    const totalCatalogRetail = products.reduce((sum, p) => sum + (Number(p.price) || 0), 0);
+
+    const catalogProdElem = document.getElementById('statTotalCatalogProducts');
+    if (catalogProdElem) catalogProdElem.textContent = `${totalCatalogProducts} Items`;
+
+    const catalogCostElem = document.getElementById('statTotalCatalogCost');
+    if (catalogCostElem) catalogCostElem.textContent = `Rs. ${totalCatalogCost.toLocaleString()}`;
+
+    const catalogRetailElem = document.getElementById('statTotalCatalogRetail');
+    if (catalogRetailElem) catalogRetailElem.textContent = `Rs. ${totalCatalogRetail.toLocaleString()}`;
+
+    // 2. Sales Ledger Financials Calculation (with Quantity awareness)
+    const totalRev = salesLedger.reduce((sum, s) => {
+      const qty = Math.max(1, Number(s.quantity) || 1);
+      const rev = Number(s.totalRevenue ?? s.amount) || ((Number(s.sellingPrice ?? s.unitPrice ?? 0) * qty));
+      return sum + (isNaN(rev) ? 0 : rev);
+    }, 0);
+
+    const totalCost = salesLedger.reduce((sum, s) => {
+      const qty = Math.max(1, Number(s.quantity) || 1);
+      const c = Number(s.totalCost ?? s.costPrice) || ((Number(s.unitCost ?? s.cost ?? 0) * qty));
+      return sum + (isNaN(c) ? 0 : c);
+    }, 0);
+
     const totalNetProfit = totalRev - totalCost;
     const totalCount = salesLedger.length;
-    const avgProfitPerRida = totalCount > 0 ? Math.round(totalNetProfit / totalCount) : 0;
+    const totalUnitsSold = salesLedger.reduce((sum, s) => sum + Math.max(1, Number(s.quantity) || 1), 0);
+    const avgProfitPerUnit = totalUnitsSold > 0 ? Math.round(totalNetProfit / totalUnitsSold) : 0;
     const profitMarginPct = totalRev > 0 ? ((totalNetProfit / totalRev) * 100).toFixed(1) : '0.0';
     const pendingCount = salesLedger.filter(s => s.status && (s.status.includes('Dispatched') || s.status.includes('Stitching'))).length;
     const deliveredCount = salesLedger.filter(s => s.status && s.status.includes('Delivered')).length;
@@ -448,12 +474,15 @@
 
     const avgProfitElem = document.getElementById('statAvgProfitPerRida');
     if (avgProfitElem) {
-      avgProfitElem.textContent = `${avgProfitPerRida >= 0 ? '' : '-'}Rs. ${Math.abs(avgProfitPerRida).toLocaleString()}`;
-      avgProfitElem.style.color = avgProfitPerRida >= 0 ? '#b45309' : '#dc2626';
+      avgProfitElem.textContent = `${avgProfitPerUnit >= 0 ? '' : '-'}Rs. ${Math.abs(avgProfitPerUnit).toLocaleString()}`;
+      avgProfitElem.style.color = avgProfitPerUnit >= 0 ? '#b45309' : '#dc2626';
     }
 
     const soldElem = document.getElementById('statTotalSold');
-    if (soldElem) soldElem.textContent = totalCount;
+    if (soldElem) soldElem.textContent = `${totalUnitsSold} Pcs`;
+
+    const ordersSubtitle = document.getElementById('statTotalOrdersSubtitle');
+    if (ordersSubtitle) ordersSubtitle.textContent = `${totalCount} Orders recorded`;
 
     const pendElem = document.getElementById('statPendingOrders');
     if (pendElem) pendElem.textContent = pendingCount;
@@ -461,36 +490,49 @@
     const delivElem = document.getElementById('statCompletedOrders');
     if (delivElem) delivElem.textContent = deliveredCount;
 
-    // Render Sales Table
+    // Render Sales Table with Quantity Column
     const tbody = document.getElementById('salesTableBody');
     if (tbody) {
       if (salesLedger.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:25px; color:#888;">No sales recorded yet. Record your first sale above!</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding:25px; color:#888;">No sales recorded yet. Record your first sale above!</td></tr>`;
       } else {
         tbody.innerHTML = salesLedger.map((s, idx) => {
           let statusClass = 'status-sold';
           if (s.status && s.status.includes('Delivered')) statusClass = 'status-delivered';
           else if (s.status && s.status.includes('Dispatched')) statusClass = 'status-shipped';
 
+          const qty = Math.max(1, Number(s.quantity) || 1);
           const sellPrice = Number(s.amount ?? s.totalRevenue ?? s.sellingPrice ?? 0);
+          const unitPrice = Number(s.unitPrice) || (qty > 0 ? Math.round(sellPrice / qty) : sellPrice);
           const costPrice = Number(s.costPrice ?? s.cost ?? s.unitCost ?? s.totalCost ?? 0);
+          const unitCost = Number(s.unitCost) || (qty > 0 ? Math.round(costPrice / qty) : costPrice);
           const netProfit = (s.netProfit !== undefined && s.netProfit !== null && !isNaN(Number(s.netProfit)))
             ? Number(s.netProfit)
             : ((s.profit !== undefined && s.profit !== null && !isNaN(Number(s.profit)))
                 ? Number(s.profit)
                 : (sellPrice - costPrice));
           const margin = sellPrice > 0 ? Math.round((netProfit / sellPrice) * 100) : 0;
+          const profitPerUnit = Math.round(netProfit / qty);
           const isProfitPos = netProfit >= 0;
 
           return `
             <tr>
               <td><strong>${s.date || new Date().toISOString().split('T')[0]}</strong></td>
               <td><strong>${s.productName || 'Bohra Rida'}</strong></td>
+              <td>
+                <span class="sale-qty-badge" style="background:#e0f2fe; color:#0369a1; font-weight:700; padding:2px 8px; border-radius:12px; font-size:0.8rem; white-space:nowrap; display:inline-block;">
+                  <i class="fas fa-boxes-stacked" style="font-size:0.75rem;"></i> ${qty} ${qty === 1 ? 'pc' : 'pcs'}
+                </span>
+              </td>
               <td>${s.customerName || 'Customer'}</td>
               <td>${s.phone || '-'}</td>
-              <td><strong style="color:#1e293b;">Rs. ${sellPrice.toLocaleString()}</strong></td>
+              <td>
+                <strong style="color:#1e293b;">Rs. ${sellPrice.toLocaleString()}</strong>
+                ${qty > 1 ? `<br><small style="color:#64748b; font-size:0.72rem;">(Rs. ${unitPrice.toLocaleString()}/pc)</small>` : ''}
+              </td>
               <td>
                 <span style="color:#64748b; font-weight:600;">Rs. ${costPrice.toLocaleString()}</span>
+                ${qty > 1 && unitCost > 0 ? `<br><small style="color:#94a3b8; font-size:0.72rem;">(Rs. ${unitCost.toLocaleString()}/pc)</small>` : ''}
               </td>
               <td>
                 <span class="profit-badge ${isProfitPos ? 'profit-positive' : 'profit-negative'}">
@@ -498,6 +540,7 @@
                   ${isProfitPos ? '+' : ''}Rs. ${netProfit.toLocaleString()}
                 </span>
                 <span class="profit-margin-tag">${margin}% profit margin</span>
+                ${qty > 1 ? `<small style="display:block; color:#059669; font-size:0.72rem; margin-top:2px;">(Rs. ${profitPerUnit.toLocaleString()} profit/pc)</small>` : ''}
               </td>
               <td>${s.paymentMethod || 'COD'}</td>
               <td><span class="status-tag ${statusClass}">${s.status || 'Delivered'}</span></td>
@@ -587,6 +630,8 @@
         </tr>
       `;
     }).join('');
+
+    updateSalesDashboard();
   }
 
   /* --------------------------------------------------------------------------
@@ -1699,18 +1744,32 @@
     calcSaleProfitPreview: function () {
       const amtInput = document.getElementById('saleAmountInput');
       const costInput = document.getElementById('saleCostInput');
+      const qtyInput = document.getElementById('saleQuantityInput');
       const previewText = document.getElementById('saleProfitPreviewText');
       const profitPill = document.getElementById('saleProfitPill');
+      const totalAmtHint = document.getElementById('saleTotalAmountHint');
+      const totalCostHint = document.getElementById('saleTotalCostHint');
+
+      const qty = Math.max(1, Number(qtyInput ? qtyInput.value : 1) || 1);
+      const unitAmt = Number(amtInput ? amtInput.value : 0) || 0;
+      const unitCost = Number(costInput ? costInput.value : 0) || 0;
+
+      const totalRevenue = unitAmt * qty;
+      const totalCost = unitCost * qty;
+      const netProfit = totalRevenue - totalCost;
+      const profitMargin = totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) : '0.0';
+
+      if (totalAmtHint) {
+        totalAmtHint.textContent = `Total (${qty} ${qty === 1 ? 'pc' : 'pcs'}): Rs. ${totalRevenue.toLocaleString()}`;
+      }
+      if (totalCostHint) {
+        totalCostHint.textContent = `Total Cost: Rs. ${totalCost.toLocaleString()}`;
+      }
 
       if (!previewText) return;
 
-      const amt = Number(amtInput ? amtInput.value : 0) || 0;
-      const cost = Number(costInput ? costInput.value : 0) || 0;
-      const profit = amt - cost;
-      const margin = amt > 0 ? ((profit / amt) * 100).toFixed(1) : '0.0';
-
-      if (amt === 0 && cost === 0) {
-        previewText.textContent = `Rs. 0 (0% margin)`;
+      if (totalRevenue === 0 && totalCost === 0) {
+        previewText.textContent = `${qty} ${qty === 1 ? 'pc' : 'pcs'}: Rs. 0 (0% margin)`;
         previewText.style.color = '#15803d';
         if (profitPill) {
           profitPill.textContent = 'Live Net Profit';
@@ -1720,12 +1779,12 @@
         return;
       }
 
-      const isPositive = profit >= 0;
-      previewText.textContent = `${isPositive ? '+' : ''}Rs. ${profit.toLocaleString()} (${margin}% profit margin)`;
-      previewText.style.color = isPositive ? '#15803d' : '#b91c1c';
+      const isPositive = netProfit >= 0;
+      const profitPerUnit = Math.round(netProfit / qty);
+      previewText.innerHTML = `${qty} ${qty === 1 ? 'pc' : 'pcs'}: <strong style="color:#1e293b;">Rs. ${totalRevenue.toLocaleString()}</strong> Sale &bull; <strong style="color:#64748b;">Rs. ${totalCost.toLocaleString()}</strong> Cost &bull; <span style="color:${isPositive ? '#15803d' : '#b91c1c'}; font-weight:700;">${isPositive ? '+' : ''}Rs. ${netProfit.toLocaleString()} Net Profit (${profitMargin}% margin${qty > 1 ? ` · Rs. ${profitPerUnit.toLocaleString()}/pc` : ''})</span>`;
 
       if (profitPill) {
-        profitPill.textContent = isPositive ? 'Net Profit / Rida' : 'Loss Warning';
+        profitPill.textContent = isPositive ? (qty > 1 ? `+Rs. ${profitPerUnit.toLocaleString()} / Unit` : 'Net Profit / Rida') : 'Loss Warning';
         profitPill.style.background = isPositive ? '#dcfce7' : '#fee2e2';
         profitPill.style.color = isPositive ? '#15803d' : '#b91c1c';
       }
@@ -1734,17 +1793,21 @@
     recordSale: function (e) {
       e.preventDefault();
       const prodSelect = document.getElementById('saleProductSelect');
-      const selectedOption = prodSelect.options[prodSelect.selectedIndex];
-      const prodTitle = selectedOption ? selectedOption.text.split(' (Rs.')[0] : 'Bespoke Rida';
-      const amount = Number(document.getElementById('saleAmountInput').value) || 0;
-      const costPrice = Number(document.getElementById('saleCostInput') ? document.getElementById('saleCostInput').value : 0) || 0;
+      const selectedOption = prodSelect ? prodSelect.options[prodSelect.selectedIndex] : null;
+      const prodTitle = selectedOption ? selectedOption.text.split(' (Rs.')[0] : 'Bespoke Item';
+      const qtyInput = document.getElementById('saleQuantityInput');
+      const qty = Math.max(1, Number(qtyInput ? qtyInput.value : 1) || 1);
+      const unitPrice = Number(document.getElementById('saleAmountInput').value) || 0;
+      const unitCost = Number(document.getElementById('saleCostInput') ? document.getElementById('saleCostInput').value : 0) || 0;
       const customer = document.getElementById('saleCustomerInput').value.trim();
       const phone = document.getElementById('salePhoneInput').value.trim();
       const payment = document.getElementById('salePaymentSelect').value;
       const status = document.getElementById('saleStatusSelect').value;
 
-      const netProfit = amount - costPrice;
-      const profitMargin = amount > 0 ? Number(((netProfit / amount) * 100).toFixed(1)) : 0;
+      const totalRevenue = unitPrice * qty;
+      const totalCost = unitCost * qty;
+      const netProfit = totalRevenue - totalCost;
+      const profitMargin = totalRevenue > 0 ? Number(((netProfit / totalRevenue) * 100).toFixed(1)) : 0;
 
       const newSale = {
         id: 'ORD-' + Math.floor(1000 + Math.random() * 9000),
@@ -1752,12 +1815,14 @@
         productName: prodTitle,
         customerName: customer,
         phone: phone,
-        amount: amount,
-        sellingPrice: amount,
-        costPrice: costPrice,
-        unitCost: costPrice,
-        totalCost: costPrice,
-        totalRevenue: amount,
+        quantity: qty,
+        unitPrice: unitPrice,
+        unitCost: unitCost,
+        sellingPrice: unitPrice,
+        amount: totalRevenue,
+        totalRevenue: totalRevenue,
+        costPrice: totalCost,
+        totalCost: totalCost,
         netProfit: netProfit,
         profit: netProfit,
         profitMargin: profitMargin,
@@ -1780,8 +1845,9 @@
         }
       });
 
-      alert(`✅ Sale recorded successfully!\nProduct: ${prodTitle}\nSelling Price: Rs. ${amount.toLocaleString()}\nCost Price: Rs. ${costPrice.toLocaleString()}\nNet Profit: Rs. ${netProfit.toLocaleString()} (${profitMargin}% margin)`);
+      alert(`✅ Sale recorded successfully!\nProduct: ${prodTitle}\nQuantity: ${qty} pcs\nTotal Sale: Rs. ${totalRevenue.toLocaleString()} (${qty} × Rs. ${unitPrice.toLocaleString()})\nTotal Cost: Rs. ${totalCost.toLocaleString()}\nNet Profit: Rs. ${netProfit.toLocaleString()} (${profitMargin}% margin)`);
       e.target.reset();
+      if (qtyInput) qtyInput.value = 1;
       this.calcSaleProfitPreview();
       updateSalesDashboard();
     },
@@ -1790,16 +1856,23 @@
       const p = products.find(x => String(x.id) === String(prodId));
       if (!p) return;
 
-      const customer = prompt(`Mark "${p.title}" as Sold.\nEnter Customer Name:`, 'Bohra Customer');
+      const qtyInput = prompt(`Record sale for "${p.title}".\nEnter Quantity Sold (Default: 1):`, '1');
+      if (qtyInput === null) return;
+      const qty = Math.max(1, parseInt(qtyInput) || 1);
+
+      const customer = prompt(`Enter Customer Name for ${qty}x "${p.title}":`, 'Bohra Customer');
       if (!customer) return;
 
       const phone = prompt('Enter Customer WhatsApp/Phone:', '03001234567') || '';
-      const defaultCost = p.costPrice || 0;
-      const costInput = prompt(`Enter Cost Price (Kapra + Karigari) in PKR for "${p.title}":`, String(defaultCost));
-      const costPrice = (costInput !== null && costInput !== '') ? (Number(costInput) || 0) : defaultCost;
-      const amount = Number(p.price) || 0;
-      const netProfit = amount - costPrice;
-      const profitMargin = amount > 0 ? Number(((netProfit / amount) * 100).toFixed(1)) : 0;
+      const defaultUnitCost = Number(p.costPrice) || 0;
+      const costInput = prompt(`Enter Unit Cost Price (Kapra + Karigari) per item in PKR for "${p.title}":`, String(defaultUnitCost));
+      const unitCost = (costInput !== null && costInput !== '') ? (Number(costInput) || 0) : defaultUnitCost;
+      const unitPrice = Number(p.price) || 0;
+
+      const totalRevenue = unitPrice * qty;
+      const totalCost = unitCost * qty;
+      const netProfit = totalRevenue - totalCost;
+      const profitMargin = totalRevenue > 0 ? Number(((netProfit / totalRevenue) * 100).toFixed(1)) : 0;
 
       const newSale = {
         id: 'ORD-' + Math.floor(1000 + Math.random() * 9000),
@@ -1807,12 +1880,14 @@
         productName: p.title,
         customerName: customer,
         phone: phone,
-        amount: amount,
-        sellingPrice: amount,
-        costPrice: costPrice,
-        unitCost: costPrice,
-        totalCost: costPrice,
-        totalRevenue: amount,
+        quantity: qty,
+        unitPrice: unitPrice,
+        unitCost: unitCost,
+        sellingPrice: unitPrice,
+        amount: totalRevenue,
+        totalRevenue: totalRevenue,
+        costPrice: totalCost,
+        totalCost: totalCost,
         netProfit: netProfit,
         profit: netProfit,
         profitMargin: profitMargin,
@@ -1849,7 +1924,7 @@
       renderProducts();
       renderAdminProducts();
 
-      alert(`🎉 Sale added to Ledger!\nProduct: ${p.title}\nSale: Rs. ${amount.toLocaleString()} | Cost: Rs. ${costPrice.toLocaleString()}\nNet Profit: Rs. ${netProfit.toLocaleString()}`);
+      alert(`🎉 Sale added to Ledger!\nProduct: ${p.title}\nQuantity: ${qty} pcs\nTotal Sale: Rs. ${totalRevenue.toLocaleString()} | Total Cost: Rs. ${totalCost.toLocaleString()}\nNet Profit: Rs. ${netProfit.toLocaleString()}`);
       updateSalesDashboard();
       window.AimanStore.switchAdminTab('sales');
     },
@@ -1858,18 +1933,22 @@
       const item = salesLedger[index];
       if (!item) return;
 
-      const currentCost = Number(item.costPrice ?? item.cost ?? item.unitCost ?? 0);
-      const sellPrice = Number(item.amount ?? item.sellingPrice ?? item.totalRevenue ?? 0);
-      const input = prompt(`Update Cost Price (PKR) for:\n"${item.productName}"\n\nSelling Price: Rs. ${sellPrice.toLocaleString()}\nCurrent Cost: Rs. ${currentCost.toLocaleString()}`, String(currentCost));
+      const qty = Math.max(1, Number(item.quantity) || 1);
+      const totalCost = Number(item.costPrice ?? item.cost ?? item.totalCost ?? 0);
+      const unitCost = Number(item.unitCost) || (qty > 0 ? Math.round(totalCost / qty) : totalCost);
+      const totalRev = Number(item.amount ?? item.totalRevenue ?? item.sellingPrice ?? 0);
+
+      const input = prompt(`Update Unit Cost Price (PKR) for:\n"${item.productName}" (Quantity: ${qty} pcs)\n\nTotal Sale: Rs. ${totalRev.toLocaleString()}\nCurrent Unit Cost: Rs. ${unitCost.toLocaleString()} (Total: Rs. ${totalCost.toLocaleString()})\n\nEnter new Unit Cost (Kapra + Karigari per piece):`, String(unitCost));
       if (input === null) return; // User pressed Cancel
 
-      const newCost = Math.max(0, Number(input) || 0);
-      const newProfit = sellPrice - newCost;
-      const newMargin = sellPrice > 0 ? Number(((newProfit / sellPrice) * 100).toFixed(1)) : 0;
+      const newUnitCost = Math.max(0, Number(input) || 0);
+      const newTotalCost = newUnitCost * qty;
+      const newProfit = totalRev - newTotalCost;
+      const newMargin = totalRev > 0 ? Number(((newProfit / totalRev) * 100).toFixed(1)) : 0;
 
-      item.costPrice = newCost;
-      item.unitCost = newCost;
-      item.totalCost = newCost;
+      item.unitCost = newUnitCost;
+      item.costPrice = newTotalCost;
+      item.totalCost = newTotalCost;
       item.netProfit = newProfit;
       item.profit = newProfit;
       item.profitMargin = newMargin;
@@ -1885,9 +1964,9 @@
         if (item.id) {
           try {
             await db.collection('sales').doc(String(item.id)).set({
-              costPrice: newCost,
-              unitCost: newCost,
-              totalCost: newCost,
+              unitCost: newUnitCost,
+              costPrice: newTotalCost,
+              totalCost: newTotalCost,
               netProfit: newProfit,
               profit: newProfit,
               profitMargin: newMargin
@@ -1899,7 +1978,7 @@
         }
       });
 
-      alert(`✅ Cost updated for "${item.productName}"!\nNew Cost: Rs. ${newCost.toLocaleString()}\nNew Net Profit: Rs. ${newProfit.toLocaleString()} (${newMargin}% margin)`);
+      alert(`✅ Cost updated for "${item.productName}" (${qty} pcs)!\nNew Unit Cost: Rs. ${newUnitCost.toLocaleString()} (Total Cost: Rs. ${newTotalCost.toLocaleString()})\nNew Net Profit: Rs. ${newProfit.toLocaleString()} (${newMargin}% margin)`);
     },
 
     deleteSale: async function (index) {
@@ -1955,16 +2034,19 @@
         alert('No sales data to export.');
         return;
       }
-      let csv = 'Order ID,Date,Product,Customer,Phone,Sale Price (PKR),Cost Price (PKR),Net Profit (PKR),Margin %,Payment Method,Status\n';
+      let csv = 'Order ID,Date,Product,Quantity,Unit Price (PKR),Total Sale (PKR),Unit Cost (PKR),Total Cost (PKR),Net Profit (PKR),Margin %,Customer,Phone,Payment Method,Status\n';
       salesLedger.forEach(s => {
-        const amt = Number(s.amount ?? s.totalRevenue ?? s.sellingPrice ?? 0);
-        const cost = Number(s.costPrice ?? s.cost ?? s.unitCost ?? s.totalCost ?? 0);
+        const qty = Math.max(1, Number(s.quantity) || 1);
+        const totalRev = Number(s.amount ?? s.totalRevenue ?? s.sellingPrice ?? 0);
+        const unitPrice = Number(s.unitPrice) || (qty > 0 ? Math.round(totalRev / qty) : totalRev);
+        const totalCost = Number(s.costPrice ?? s.cost ?? s.totalCost ?? 0);
+        const unitCost = Number(s.unitCost) || (qty > 0 ? Math.round(totalCost / qty) : totalCost);
         const profit = (s.netProfit !== undefined && s.netProfit !== null && !isNaN(Number(s.netProfit)))
           ? Number(s.netProfit)
-          : (amt - cost);
-        const margin = amt > 0 ? Math.round((profit / amt) * 100) : 0;
+          : (totalRev - totalCost);
+        const margin = totalRev > 0 ? Math.round((profit / totalRev) * 100) : 0;
 
-        csv += `"${s.id}","${s.date}","${(s.productName || '').replace(/"/g, '""')}","${(s.customerName || '').replace(/"/g, '""')}","${s.phone || ''}","${amt}","${cost}","${profit}","${margin}%","${s.paymentMethod || ''}","${s.status || ''}"\n`;
+        csv += `"${s.id}","${s.date}","${(s.productName || '').replace(/"/g, '""')}","${qty}","${unitPrice}","${totalRev}","${unitCost}","${totalCost}","${profit}","${margin}%","${(s.customerName || '').replace(/"/g, '""')}","${s.phone || ''}","${s.paymentMethod || ''}","${s.status || ''}"\n`;
       });
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');

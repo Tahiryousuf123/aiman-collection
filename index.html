@@ -430,6 +430,19 @@
           <div class="admin-stats-grid">
             <div class="stat-metric-card">
               <div>
+                <p>Products Added &amp; Investment</p>
+                <h3 id="statTotalCatalogProducts" style="color:#4f46e5; margin-bottom:2px;">0 Items</h3>
+                <div style="font-size:0.75rem; color:#475569; margin-top:2px; display:flex; flex-direction:column; gap:1px;">
+                  <span>Lagaye: <strong id="statTotalCatalogCost" style="color:#b45309;">Rs. 0</strong></span>
+                  <span style="color:#64748b;">Worth: <strong id="statTotalCatalogRetail" style="color:#16a34a;">Rs. 0</strong></span>
+                </div>
+              </div>
+              <div class="stat-icon" style="background:#eef2ff; color:#4f46e5;">
+                <i class="fas fa-boxes-stacked"></i>
+              </div>
+            </div>
+            <div class="stat-metric-card">
+              <div>
                 <p>Total Sales Revenue</p>
                 <h3 id="statTotalRevenue" style="color:#16a34a;">Rs. 0</h3>
               </div>
@@ -460,7 +473,7 @@
             </div>
             <div class="stat-metric-card">
               <div>
-                <p>Avg Profit / Rida</p>
+                <p>Avg Profit / Unit</p>
                 <h3 id="statAvgProfitPerRida" style="color:#b45309;">Rs. 0</h3>
               </div>
               <div class="stat-icon" style="background:#fffbeb; color:#b45309;">
@@ -469,8 +482,9 @@
             </div>
             <div class="stat-metric-card">
               <div>
-                <p>Ridas / Items Sold</p>
-                <h3 id="statTotalSold">0</h3>
+                <p>Items Sold &amp; Orders</p>
+                <h3 id="statTotalSold" style="color:#2563eb; margin-bottom:2px;">0</h3>
+                <div style="font-size:0.75rem; color:#64748b;" id="statTotalOrdersSubtitle">0 Orders recorded</div>
               </div>
               <div class="stat-icon" style="background:#eff6ff; color:#2563eb;">
                 <i class="fas fa-crown"></i>
@@ -493,24 +507,34 @@
           <!-- Section: Record New Sale Form -->
           <div class="admin-section-box">
             <div class="admin-section-header">
-              <h3><i class="fas fa-plus-circle" style="color:#16a34a;"></i> Record New Sale (Rida Sold)</h3>
-              <span style="font-size:0.8rem; color:#777;">Record order details &amp; track profit per rida</span>
+              <h3><i class="fas fa-plus-circle" style="color:#16a34a;"></i> Record New Sale (Product Sold)</h3>
+              <span style="font-size:0.8rem; color:#777;">Record single or bulk product sales with automatic profit calculation</span>
             </div>
             <form onsubmit="window.AimanStore.recordSale(event)">
               <div class="admin-form-grid">
-                <div class="form-group">
+                <div class="form-group" style="grid-column: span 2;">
                   <label>Rida / Product Sold *</label>
                   <select id="saleProductSelect" required onchange="window.AimanStore.onSaleProductChange(this.value)">
                     <!-- Populated dynamically -->
                   </select>
                 </div>
                 <div class="form-group">
-                  <label>Sale Price (PKR) *</label>
-                  <input type="number" id="saleAmountInput" required min="1" placeholder="e.g. 15500" oninput="window.AimanStore.calcSaleProfitPreview()">
+                  <label>Quantity / Qty (تعداد) *</label>
+                  <input type="number" id="saleQuantityInput" required min="1" value="1" placeholder="e.g. 1 or 30" oninput="window.AimanStore.calcSaleProfitPreview()">
                 </div>
                 <div class="form-group">
-                  <label>Cost / Making Price (PKR) <span style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Kapra + Karigari)</span></label>
-                  <input type="number" id="saleCostInput" min="0" placeholder="e.g. 8500" oninput="window.AimanStore.calcSaleProfitPreview()">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <label style="margin-bottom:0;">Sale Price / Unit (PKR) *</label>
+                    <span id="saleTotalAmountHint" style="font-size:0.75rem; color:#16a34a; font-weight:700;">Total: Rs. 0</span>
+                  </div>
+                  <input type="number" id="saleAmountInput" required min="0" placeholder="e.g. 1500" oninput="window.AimanStore.calcSaleProfitPreview()" style="margin-top:4px;">
+                </div>
+                <div class="form-group">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <label style="margin-bottom:0;">Cost Price / Unit (PKR) <span style="font-size:0.72rem; color:#64748b; font-weight:normal;">(Kapra + Karigari)</span></label>
+                    <span id="saleTotalCostHint" style="font-size:0.75rem; color:#b45309; font-weight:700;">Total Cost: Rs. 0</span>
+                  </div>
+                  <input type="number" id="saleCostInput" min="0" placeholder="e.g. 800" oninput="window.AimanStore.calcSaleProfitPreview()" style="margin-top:4px;">
                 </div>
                 <div class="form-group">
                   <label>Customer Name *</label>
@@ -544,8 +568,8 @@
               <div id="saleProfitPreviewWrap" style="display:flex; align-items:center; justify-content:space-between; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 16px; margin-top:12px; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
                 <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                   <i class="fas fa-calculator" style="color:#16a34a;"></i>
-                  <span style="font-size:0.85rem; font-weight:600; color:#166534;">Profit Calculation (Per Rida):</span>
-                  <span id="saleProfitPreviewText" style="font-size:0.95rem; font-weight:700; color:#15803d;">Rs. 0 (0% margin)</span>
+                  <span style="font-size:0.85rem; font-weight:600; color:#166534;">Profit Calculation:</span>
+                  <span id="saleProfitPreviewText" style="font-size:0.95rem; font-weight:700; color:#15803d;">1 pc: Rs. 0 (0% margin)</span>
                 </div>
                 <span id="saleProfitPill" style="font-size:0.75rem; color:#15803d; background:#dcfce7; padding:3px 10px; border-radius:12px; font-weight:700;">
                   Live Net Profit
@@ -578,11 +602,12 @@
                 <thead>
                   <tr>
                     <th>Date</th>
-                    <th>Product / Rida</th>
+                    <th>Product / Item</th>
+                    <th>Qty</th>
                     <th>Customer</th>
                     <th>Phone</th>
-                    <th>Sale Price</th>
-                    <th>Cost Price</th>
+                    <th>Total Sale</th>
+                    <th>Total Cost</th>
                     <th>Net Profit</th>
                     <th>Payment</th>
                     <th>Status</th>

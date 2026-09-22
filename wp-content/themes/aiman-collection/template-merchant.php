@@ -45,6 +45,19 @@ $phone_disp = get_theme_mod( 'aiman_whatsapp_display', '+92 345 2439196' );
 		<div class="admin-stats-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
 			<div style="background:#fff; border:1px solid #eee; border-radius:10px; padding:1.25rem; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
 				<div>
+					<p style="font-size:0.8rem; text-transform:uppercase; color:#777; margin:0 0 5px 0; font-weight:600;"><?php esc_html_e( 'Products Added & Investment', 'aiman-collection' ); ?></p>
+					<h3 id="statTotalProductsPage" style="font-size:1.5rem; color:#4f46e5; margin:0; font-weight:700;">0 Items</h3>
+					<div style="font-size:0.75rem; color:#475569; margin-top:3px; display:flex; flex-direction:column; gap:1px;">
+						<span>Lagaye: <strong id="statTotalCatalogCostPage" style="color:#b45309;">Rs. 0</strong></span>
+						<span style="color:#64748b;">Worth: <strong id="statTotalCatalogRetailPage" style="color:#16a34a;">Rs. 0</strong></span>
+					</div>
+				</div>
+				<div style="width:44px; height:44px; border-radius:10px; background:#eef2ff; color:#4f46e5; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
+					<i class="fas fa-boxes-stacked"></i>
+				</div>
+			</div>
+			<div style="background:#fff; border:1px solid #eee; border-radius:10px; padding:1.25rem; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+				<div>
 					<p style="font-size:0.8rem; text-transform:uppercase; color:#777; margin:0 0 5px 0; font-weight:600;"><?php esc_html_e( 'Total Sales Revenue', 'aiman-collection' ); ?></p>
 					<h3 id="statTotalRevenuePage" style="font-size:1.5rem; color:#16a34a; margin:0; font-weight:700;">Rs. 0</h3>
 				</div>
@@ -75,7 +88,7 @@ $phone_disp = get_theme_mod( 'aiman_whatsapp_display', '+92 345 2439196' );
 			</div>
 			<div style="background:#fff; border:1px solid #eee; border-radius:10px; padding:1.25rem; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
 				<div>
-					<p style="font-size:0.8rem; text-transform:uppercase; color:#777; margin:0 0 5px 0; font-weight:600;"><?php esc_html_e( 'Avg Profit / Rida', 'aiman-collection' ); ?></p>
+					<p style="font-size:0.8rem; text-transform:uppercase; color:#777; margin:0 0 5px 0; font-weight:600;"><?php esc_html_e( 'Avg Profit / Unit', 'aiman-collection' ); ?></p>
 					<h3 id="statAvgProfitPage" style="font-size:1.5rem; color:#b45309; margin:0; font-weight:700;">Rs. 0</h3>
 				</div>
 				<div style="width:44px; height:44px; border-radius:10px; background:#fffbeb; color:#b45309; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
@@ -84,8 +97,9 @@ $phone_disp = get_theme_mod( 'aiman_whatsapp_display', '+92 345 2439196' );
 			</div>
 			<div style="background:#fff; border:1px solid #eee; border-radius:10px; padding:1.25rem; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
 				<div>
-					<p style="font-size:0.8rem; text-transform:uppercase; color:#777; margin:0 0 5px 0; font-weight:600;"><?php esc_html_e( 'Ridas Sold', 'aiman-collection' ); ?></p>
+					<p style="font-size:0.8rem; text-transform:uppercase; color:#777; margin:0 0 5px 0; font-weight:600;"><?php esc_html_e( 'Items Sold & Orders', 'aiman-collection' ); ?></p>
 					<h3 id="statTotalSoldPage" style="font-size:1.5rem; color:#111; margin:0; font-weight:700;">0</h3>
+					<div style="font-size:0.75rem; color:#64748b; margin-top:2px;" id="statTotalOrdersSubtitlePage">0 Orders</div>
 				</div>
 				<div style="width:44px; height:44px; border-radius:10px; background:#eff6ff; color:#2563eb; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
 					<i class="fas fa-crown"></i>
@@ -112,7 +126,7 @@ $phone_disp = get_theme_mod( 'aiman_whatsapp_display', '+92 345 2439196' );
 			<div style="background:#fff; border:1px solid #e5e5e5; border-radius:10px; padding:1.5rem; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
 				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:12px; margin-bottom:15px;">
 					<h3 style="font-size:1.1rem; font-weight:700; margin:0; display:flex; align-items:center; gap:8px;">
-						<i class="fas fa-plus-circle" style="color:#16a34a;"></i> <?php esc_html_e( 'Record New Sale (Rida Sold)', 'aiman-collection' ); ?>
+						<i class="fas fa-plus-circle" style="color:#16a34a;"></i> <?php esc_html_e( 'Record New Sale (Product Sold)', 'aiman-collection' ); ?>
 					</h3>
 					<span style="font-size:0.8rem; color:#666;"><?php esc_html_e( 'Direct Entry to Atelier Ledger', 'aiman-collection' ); ?></span>
 				</div>
@@ -123,12 +137,22 @@ $phone_disp = get_theme_mod( 'aiman_whatsapp_display', '+92 345 2439196' );
 							<input type="text" id="merchantSaleProduct" required placeholder="e.g. Royal Crimson Heavy Zardozi Bridal Silk Rida" style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:6px; font-size:0.9rem;">
 						</div>
 						<div>
-							<label style="display:block; font-size:0.8rem; font-weight:600; text-transform:uppercase; margin-bottom:4px; color:#555;">Sale Price (PKR) *</label>
-							<input type="number" id="merchantSaleAmount" required min="1" placeholder="e.g. 15500" oninput="calcMerchantProfit()" style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:6px; font-size:0.9rem;">
+							<label style="display:block; font-size:0.8rem; font-weight:600; text-transform:uppercase; margin-bottom:4px; color:#555;">Quantity / Qty (تعداد) *</label>
+							<input type="number" id="merchantSaleQty" required min="1" value="1" placeholder="e.g. 1 or 30" oninput="calcMerchantProfit()" style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:6px; font-size:0.9rem;">
 						</div>
 						<div>
-							<label style="display:block; font-size:0.8rem; font-weight:600; text-transform:uppercase; margin-bottom:4px; color:#555;">Cost / Making Price (PKR) <span style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Kapra + Karigari)</span></label>
-							<input type="number" id="merchantSaleCost" min="0" placeholder="e.g. 8500" oninput="calcMerchantProfit()" style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:6px; font-size:0.9rem;">
+							<div style="display:flex; justify-content:space-between; align-items:center;">
+								<label style="display:block; font-size:0.8rem; font-weight:600; text-transform:uppercase; margin-bottom:4px; color:#555;">Sale Price / Unit *</label>
+								<span id="merchantTotalSaleHint" style="font-size:0.75rem; color:#16a34a; font-weight:700;">Total: Rs. 0</span>
+							</div>
+							<input type="number" id="merchantSaleAmount" required min="0" placeholder="e.g. 1500" oninput="calcMerchantProfit()" style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:6px; font-size:0.9rem;">
+						</div>
+						<div style="grid-column: span 2;">
+							<div style="display:flex; justify-content:space-between; align-items:center;">
+								<label style="display:block; font-size:0.8rem; font-weight:600; text-transform:uppercase; margin-bottom:4px; color:#555;">Cost Price / Unit (Kapra + Karigari)</label>
+								<span id="merchantTotalCostHint" style="font-size:0.75rem; color:#b45309; font-weight:700;">Total Cost: Rs. 0</span>
+							</div>
+							<input type="number" id="merchantSaleCost" min="0" placeholder="e.g. 800" oninput="calcMerchantProfit()" style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:6px; font-size:0.9rem;">
 						</div>
 						<div>
 							<label style="display:block; font-size:0.8rem; font-weight:600; text-transform:uppercase; margin-bottom:4px; color:#555;">Customer Name *</label>
@@ -148,7 +172,7 @@ $phone_disp = get_theme_mod( 'aiman_whatsapp_display', '+92 345 2439196' );
 								<option value="Direct Bank Transfer">Direct Bank Transfer</option>
 							</select>
 						</div>
-						<div style="grid-column: span 2;">
+						<div>
 							<label style="display:block; font-size:0.8rem; font-weight:600; text-transform:uppercase; margin-bottom:4px; color:#555;">Order Status</label>
 							<select id="merchantSaleStatus" style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:6px; font-size:0.9rem;">
 								<option value="Sold - In Stitching">Sold - In Stitching</option>
@@ -161,14 +185,14 @@ $phone_disp = get_theme_mod( 'aiman_whatsapp_display', '+92 345 2439196' );
 					<div id="merchantProfitPreview" style="display:flex; align-items:center; justify-content:space-between; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:9px 14px; margin-bottom:12px; flex-wrap:wrap; gap:6px;">
 						<div style="display:flex; align-items:center; gap:7px;">
 							<i class="fas fa-calculator" style="color:#16a34a;"></i>
-							<span style="font-size:0.82rem; font-weight:600; color:#166534;">Profit Per Rida:</span>
-							<span id="merchantProfitText" style="font-size:0.92rem; font-weight:700; color:#15803d;">Rs. 0 (0% margin)</span>
+							<span style="font-size:0.82rem; font-weight:600; color:#166534;">Profit Calculation:</span>
+							<span id="merchantProfitText" style="font-size:0.92rem; font-weight:700; color:#15803d;">1 pc: Rs. 0 (0% margin)</span>
 						</div>
 						<span id="merchantProfitPill" style="font-size:0.72rem; color:#15803d; background:#dcfce7; padding:2px 9px; border-radius:10px; font-weight:700;">Live Net Profit</span>
 					</div>
 					<div style="display:flex; justify-content:flex-end;">
 						<button type="submit" style="background:#16a34a; color:#fff; border:none; padding:10px 20px; border-radius:6px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px;">
-							<i class="fas fa-check"></i> <?php esc_html_e( 'Record Sold Rida', 'aiman-collection' ); ?>
+							<i class="fas fa-check"></i> <?php esc_html_e( 'Record Sold Product', 'aiman-collection' ); ?>
 						</button>
 					</div>
 				</form>
@@ -228,11 +252,12 @@ $phone_disp = get_theme_mod( 'aiman_whatsapp_display', '+92 345 2439196' );
 					<thead>
 						<tr style="border-bottom:2px solid #eee; background:#fafafa;">
 							<th style="padding:10px 12px; font-weight:600; color:#555;">Date</th>
-							<th style="padding:10px 12px; font-weight:600; color:#555;">Rida / Libas</th>
+							<th style="padding:10px 12px; font-weight:600; color:#555;">Product / Item</th>
+							<th style="padding:10px 12px; font-weight:600; color:#555;">Qty</th>
 							<th style="padding:10px 12px; font-weight:600; color:#555;">Customer</th>
 							<th style="padding:10px 12px; font-weight:600; color:#555;">Phone</th>
-							<th style="padding:10px 12px; font-weight:600; color:#555;">Sale Price</th>
-							<th style="padding:10px 12px; font-weight:600; color:#555;">Cost Price</th>
+							<th style="padding:10px 12px; font-weight:600; color:#555;">Total Sale</th>
+							<th style="padding:10px 12px; font-weight:600; color:#555;">Total Cost</th>
 							<th style="padding:10px 12px; font-weight:600; color:#555;">Net Profit</th>
 							<th style="padding:10px 12px; font-weight:600; color:#555;">Payment</th>
 							<th style="padding:10px 12px; font-weight:600; color:#555;">Status</th>
@@ -253,24 +278,41 @@ $phone_disp = get_theme_mod( 'aiman_whatsapp_display', '+92 345 2439196' );
 (function() {
 	function getSales() {
 		return JSON.parse(localStorage.getItem('aiman_sales')) || [
-			{ id: 'ORD-1091', date: '2026-09-06', productName: 'Royal Crimson Heavy Zardozi Bridal Silk Rida', customerName: 'Fatema Bhen Shabbir', phone: '03452281923', amount: 15500, costPrice: 9000, paymentMethod: 'Cash on Delivery (COD)', status: 'Delivered & Paid' },
-			{ id: 'ORD-1090', date: '2026-09-05', productName: 'Pastel Mint Chiffon Dupatta Summer Cotton Pret', customerName: 'Sakina Bhen Burhanuddin', phone: '03332194821', amount: 4850, costPrice: 2500, paymentMethod: 'Meezan Raast', status: 'Delivered & Paid' },
-			{ id: 'ORD-1089', date: '2026-09-04', productName: 'Handcrafted Gold Zardozi Matching Bridal Batwa', customerName: 'Zainab Bhen Mustafa', phone: '03219984723', amount: 2450, costPrice: 0, paymentMethod: 'EasyPaisa', status: 'Dispatched TCS' }
+			{ id: 'ORD-1091', date: '2026-09-06', productName: 'Royal Crimson Heavy Zardozi Bridal Silk Rida', quantity: 1, customerName: 'Fatema Bhen Shabbir', phone: '03452281923', amount: 15500, costPrice: 9000, paymentMethod: 'Cash on Delivery (COD)', status: 'Delivered & Paid' },
+			{ id: 'ORD-1090', date: '2026-09-05', productName: 'Pastel Mint Chiffon Dupatta Summer Cotton Pret', quantity: 1, customerName: 'Sakina Bhen Burhanuddin', phone: '03332194821', amount: 4850, costPrice: 2500, paymentMethod: 'Meezan Raast', status: 'Delivered & Paid' },
+			{ id: 'ORD-1089', date: '2026-09-04', productName: 'Handcrafted Gold Zardozi Matching Bridal Batwa', quantity: 5, customerName: 'Zainab Bhen Mustafa', phone: '03219984723', amount: 12250, costPrice: 6000, paymentMethod: 'EasyPaisa', status: 'Dispatched TCS' }
 		];
 	}
 
 	window.calcMerchantProfit = function() {
-		const amt = Number(document.getElementById('merchantSaleAmount').value) || 0;
-		const cost = Number(document.getElementById('merchantSaleCost').value) || 0;
-		const profit = amt - cost;
-		const margin = amt > 0 ? ((profit / amt) * 100).toFixed(1) : '0.0';
+		const qtyInput = document.getElementById('merchantSaleQty');
+		const qty = Math.max(1, Number(qtyInput ? qtyInput.value : 1) || 1);
+		const unitAmt = Number(document.getElementById('merchantSaleAmount').value) || 0;
+		const unitCost = Number(document.getElementById('merchantSaleCost').value) || 0;
+		
+		const totalRev = unitAmt * qty;
+		const totalCost = unitCost * qty;
+		const profit = totalRev - totalCost;
+		const margin = totalRev > 0 ? ((profit / totalRev) * 100).toFixed(1) : '0.0';
+
+		const totalSaleHint = document.getElementById('merchantTotalSaleHint');
+		if (totalSaleHint) totalSaleHint.textContent = `Total (${qty} pcs): Rs. ${totalRev.toLocaleString()}`;
+		const totalCostHint = document.getElementById('merchantTotalCostHint');
+		if (totalCostHint) totalCostHint.textContent = `Total Cost: Rs. ${totalCost.toLocaleString()}`;
+
 		const text = document.getElementById('merchantProfitText');
 		const pill = document.getElementById('merchantProfitPill');
 		if (!text) return;
+
 		const isPos = profit >= 0;
-		text.textContent = `${isPos ? '+' : ''}Rs. ${profit.toLocaleString()} (${margin}% margin)`;
-		text.style.color = isPos ? '#15803d' : '#b91c1c';
-		if (pill) { pill.textContent = isPos ? 'Net Profit / Rida' : 'Loss Warning'; pill.style.background = isPos ? '#dcfce7' : '#fee2e2'; pill.style.color = isPos ? '#15803d' : '#b91c1c'; }
+		const profitPerUnit = Math.round(profit / qty);
+		text.innerHTML = `${qty} pcs: Rs. ${totalRev.toLocaleString()} Sale &bull; Rs. ${totalCost.toLocaleString()} Cost &bull; <span style="color:${isPos ? '#15803d' : '#b91c1c'}; font-weight:700;">${isPos ? '+' : ''}Rs. ${profit.toLocaleString()} (${margin}% margin${qty > 1 ? ` · Rs. ${profitPerUnit.toLocaleString()}/pc` : ''})</span>`;
+		
+		if (pill) {
+			pill.textContent = isPos ? (qty > 1 ? `+Rs. ${profitPerUnit.toLocaleString()} / Unit` : 'Net Profit / Rida') : 'Loss Warning';
+			pill.style.background = isPos ? '#dcfce7' : '#fee2e2';
+			pill.style.color = isPos ? '#15803d' : '#b91c1c';
+		}
 	};
 
 	function renderSalesPage() {
@@ -278,18 +320,36 @@ $phone_disp = get_theme_mod( 'aiman_whatsapp_display', '+92 345 2439196' );
 		const tbody = document.getElementById('merchantLedgerTableBody');
 		if (!tbody) return;
 
-		let totalRev = 0, totalCost = 0, pending = 0, completed = 0;
+		// 1. Catalog Products Inventory Calculation
+		const rawProducts = JSON.parse(localStorage.getItem('aiman_products')) || [];
+		const totalCatalogProducts = rawProducts.length;
+		const totalCatalogCost = rawProducts.reduce((sum, p) => sum + (Number(p.costPrice) || 0), 0);
+		const totalCatalogRetail = rawProducts.reduce((sum, p) => sum + (Number(p.price) || 0), 0);
+
+		const prodCountEl = document.getElementById('statTotalProductsPage');
+		if (prodCountEl) prodCountEl.textContent = `${totalCatalogProducts} Items`;
+		const prodCostEl = document.getElementById('statTotalCatalogCostPage');
+		if (prodCostEl) prodCostEl.textContent = `Rs. ${totalCatalogCost.toLocaleString()}`;
+		const prodRetailEl = document.getElementById('statTotalCatalogRetailPage');
+		if (prodRetailEl) prodRetailEl.textContent = `Rs. ${totalCatalogRetail.toLocaleString()}`;
+
+		let totalRev = 0, totalCost = 0, pending = 0, completed = 0, totalUnitsSold = 0;
 
 		tbody.innerHTML = '';
 		if (sales.length === 0) {
-			tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:30px; color:#999;">No sales recorded yet. Use the form above to record sold ridas.</td></tr>';
+			tbody.innerHTML = '<tr><td colspan="11" style="text-align:center; padding:30px; color:#999;">No sales recorded yet. Use the form above to record sold products.</td></tr>';
 		} else {
 			sales.forEach((s, idx) => {
+				const qty = Math.max(1, Number(s.quantity) || 1);
+				totalUnitsSold += qty;
 				const amt = Number(s.amount || s.totalRevenue || s.sellingPrice || 0);
+				const unitPrice = Number(s.unitPrice) || (qty > 0 ? Math.round(amt / qty) : amt);
 				const cost = Number(s.costPrice || s.unitCost || s.totalCost || 0);
+				const unitCost = Number(s.unitCost) || (qty > 0 ? Math.round(cost / qty) : cost);
 				const profit = (s.netProfit !== undefined && s.netProfit !== null && !isNaN(Number(s.netProfit)))
 					? Number(s.netProfit) : (s.profit !== undefined && !isNaN(Number(s.profit))) ? Number(s.profit) : (amt - cost);
 				const margin = amt > 0 ? Math.round((profit / amt) * 100) : 0;
+				const profitPerUnit = Math.round(profit / qty);
 
 				totalRev += amt;
 				totalCost += cost;
@@ -307,16 +367,27 @@ $phone_disp = get_theme_mod( 'aiman_whatsapp_display', '+92 345 2439196' );
 
 				tr.innerHTML = `
 					<td style="padding:9px 12px; color:#777; font-size:0.82rem;">${s.date || 'Today'}</td>
-					<td style="padding:9px 12px; font-weight:600; color:#111;">${s.productName || 'Bohra Rida'}</td>
+					<td style="padding:9px 12px; font-weight:600; color:#111;">${s.productName || 'Bohra Item'}</td>
+					<td style="padding:9px 12px;">
+						<span style="background:#e0f2fe; color:#0369a1; font-weight:700; padding:2px 8px; border-radius:12px; font-size:0.8rem; white-space:nowrap; display:inline-block;">
+							<i class="fas fa-boxes-stacked" style="font-size:0.75rem;"></i> ${qty} ${qty === 1 ? 'pc' : 'pcs'}
+						</span>
+					</td>
 					<td style="padding:9px 12px;">${s.customerName || 'Customer'}</td>
 					<td style="padding:9px 12px; font-size:0.82rem; color:#555;">${s.phone || '—'}</td>
-					<td style="padding:9px 12px; font-weight:700; color:#1e293b;">Rs. ${amt.toLocaleString()}</td>
-					<td style="padding:9px 12px; color:#64748b; font-weight:600;">Rs. ${cost.toLocaleString()}</td>
+					<td style="padding:9px 12px; font-weight:700; color:#1e293b;">
+						Rs. ${amt.toLocaleString()}
+						${qty > 1 ? `<br><small style="color:#64748b; font-size:0.72rem;">(Rs. ${unitPrice.toLocaleString()}/pc)</small>` : ''}
+					</td>
+					<td style="padding:9px 12px; color:#64748b; font-weight:600;">
+						Rs. ${cost.toLocaleString()}
+						${qty > 1 && unitCost > 0 ? `<br><small style="color:#94a3b8; font-size:0.72rem;">(Rs. ${unitCost.toLocaleString()}/pc)</small>` : ''}
+					</td>
 					<td style="padding:9px 12px;">
 						<span style="background:${isPos ? '#ecfdf5' : '#fef2f2'}; color:${isPos ? '#059669' : '#dc2626'}; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:700; border:1px solid ${isPos ? '#a7f3d0' : '#fecaca'};">
 							${isPos ? '+' : ''}Rs. ${profit.toLocaleString()}
 						</span>
-						<small style="display:block; color:#64748b; font-size:0.72rem; margin-top:2px;">${margin}% margin</small>
+						<small style="display:block; color:#64748b; font-size:0.72rem; margin-top:2px;">${margin}% margin${qty > 1 ? ` · Rs. ${profitPerUnit.toLocaleString()}/pc` : ''}</small>
 					</td>
 					<td style="padding:9px 12px; font-size:0.82rem;">${s.paymentMethod || 'COD'}</td>
 					<td style="padding:9px 12px;">
@@ -335,7 +406,7 @@ $phone_disp = get_theme_mod( 'aiman_whatsapp_display', '+92 345 2439196' );
 
 		const totalProfit = totalRev - totalCost;
 		const profitMargin = totalRev > 0 ? ((totalProfit / totalRev) * 100).toFixed(1) : '0.0';
-		const avgProfit = sales.length > 0 ? Math.round(totalProfit / sales.length) : 0;
+		const avgProfit = totalUnitsSold > 0 ? Math.round(totalProfit / totalUnitsSold) : 0;
 
 		document.getElementById('statTotalRevenuePage').textContent = 'Rs. ' + totalRev.toLocaleString();
 
@@ -351,7 +422,10 @@ $phone_disp = get_theme_mod( 'aiman_whatsapp_display', '+92 345 2439196' );
 		const avgEl = document.getElementById('statAvgProfitPage');
 		if (avgEl) { avgEl.textContent = (avgProfit >= 0 ? '' : '-') + 'Rs. ' + Math.abs(avgProfit).toLocaleString(); avgEl.style.color = avgProfit >= 0 ? '#b45309' : '#dc2626'; }
 
-		document.getElementById('statTotalSoldPage').textContent = sales.length;
+		document.getElementById('statTotalSoldPage').textContent = totalUnitsSold + ' Pcs';
+		const ordersSubtitle = document.getElementById('statTotalOrdersSubtitlePage');
+		if (ordersSubtitle) ordersSubtitle.textContent = sales.length + ' Orders';
+
 		const pendEl = document.getElementById('statPendingOrdersPage');
 		if (pendEl) pendEl.textContent = pending;
 		const compEl = document.getElementById('statCompletedOrdersPage');
@@ -361,17 +435,21 @@ $phone_disp = get_theme_mod( 'aiman_whatsapp_display', '+92 345 2439196' );
 	window.handleMerchantSaleSubmit = function(e) {
 		e.preventDefault();
 		const prod = document.getElementById('merchantSaleProduct').value.trim();
-		const amt = Number(document.getElementById('merchantSaleAmount').value);
-		const cost = Number(document.getElementById('merchantSaleCost').value) || 0;
+		const qtyInput = document.getElementById('merchantSaleQty');
+		const qty = Math.max(1, Number(qtyInput ? qtyInput.value : 1) || 1);
+		const unitAmt = Number(document.getElementById('merchantSaleAmount').value) || 0;
+		const unitCost = Number(document.getElementById('merchantSaleCost').value) || 0;
 		const cust = document.getElementById('merchantSaleCustomer').value.trim();
 		const phone = document.getElementById('merchantSalePhone').value.trim();
 		const pay = document.getElementById('merchantSalePayment').value;
 		const status = document.getElementById('merchantSaleStatus').value;
 
-		if (!prod || !amt || !cust) return;
+		if (!prod || !cust) return;
 
-		const netProfit = amt - cost;
-		const profitMargin = amt > 0 ? Number(((netProfit / amt) * 100).toFixed(1)) : 0;
+		const totalRevenue = unitAmt * qty;
+		const totalCost = unitCost * qty;
+		const netProfit = totalRevenue - totalCost;
+		const profitMargin = totalRevenue > 0 ? Number(((netProfit / totalRevenue) * 100).toFixed(1)) : 0;
 
 		const sales = getSales();
 		sales.unshift({
@@ -380,12 +458,14 @@ $phone_disp = get_theme_mod( 'aiman_whatsapp_display', '+92 345 2439196' );
 			productName: prod,
 			customerName: cust,
 			phone: phone,
-			amount: amt,
-			sellingPrice: amt,
-			totalRevenue: amt,
-			costPrice: cost,
-			unitCost: cost,
-			totalCost: cost,
+			quantity: qty,
+			unitPrice: unitAmt,
+			unitCost: unitCost,
+			sellingPrice: unitAmt,
+			amount: totalRevenue,
+			totalRevenue: totalRevenue,
+			costPrice: totalCost,
+			totalCost: totalCost,
 			netProfit: netProfit,
 			profit: netProfit,
 			profitMargin: profitMargin,
@@ -395,47 +475,52 @@ $phone_disp = get_theme_mod( 'aiman_whatsapp_display', '+92 345 2439196' );
 
 		localStorage.setItem('aiman_sales', JSON.stringify(sales));
 		e.target.reset();
+		if (qtyInput) qtyInput.value = 1;
 		calcMerchantProfit();
 		renderSalesPage();
-		alert('Sale successfully recorded to Atelier Ledger!\nNet Profit: Rs. ' + netProfit.toLocaleString() + ' (' + profitMargin + '% margin)');
+		alert('Sale successfully recorded to Atelier Ledger!\nQuantity: ' + qty + ' pcs\nTotal Sale: Rs. ' + totalRevenue.toLocaleString() + '\nNet Profit: Rs. ' + netProfit.toLocaleString() + ' (' + profitMargin + '% margin)');
 	};
 
 	window.editMerchantSaleCost = function(idx) {
 		const sales = getSales();
 		const s = sales[idx];
 		if (!s) return;
-		const currentCost = Number(s.costPrice || s.unitCost || s.totalCost || 0);
+		const qty = Math.max(1, Number(s.quantity) || 1);
+		const totalCost = Number(s.costPrice || s.unitCost || s.totalCost || 0);
+		const unitCost = Number(s.unitCost) || (qty > 0 ? Math.round(totalCost / qty) : totalCost);
 		const sellPrice = Number(s.amount || s.totalRevenue || s.sellingPrice || 0);
-		const input = prompt('Update Cost Price (PKR) for:\n"' + s.productName + '"\n\nSelling Price: Rs. ' + sellPrice.toLocaleString() + '\nCurrent Cost: Rs. ' + currentCost.toLocaleString(), String(currentCost));
-		if (input === null) return;
-		const newCost = Math.max(0, Number(input) || 0);
-		const newProfit = sellPrice - newCost;
-		const newMargin = sellPrice > 0 ? Number(((newProfit / sellPrice) * 100).toFixed(1)) : 0;
-		s.costPrice = newCost; s.unitCost = newCost; s.totalCost = newCost;
-		s.netProfit = newProfit; s.profit = newProfit; s.profitMargin = newMargin;
-		localStorage.setItem('aiman_sales', JSON.stringify(sales));
-		renderSalesPage();
-		alert('Cost updated!\nNew Net Profit: Rs. ' + newProfit.toLocaleString() + ' (' + newMargin + '% margin)');
-	};
 
-	window.deleteMerchantSale = function(idx) {
-		if (!confirm('Are you sure you want to remove this sale record?')) return;
-		const sales = getSales();
-		sales.splice(idx, 1);
+		const input = prompt('Update Unit Cost Price (PKR) for:\n"' + s.productName + '" (Quantity: ' + qty + ' pcs)\n\nTotal Sale: Rs. ' + sellPrice.toLocaleString() + '\nCurrent Unit Cost: Rs. ' + unitCost.toLocaleString() + ' (Total Cost: Rs. ' + totalCost.toLocaleString() + ')\n\nEnter new Unit Cost:', String(unitCost));
+		if (input === null) return;
+		const newUnitCost = Math.max(0, Number(input) || 0);
+		const newTotalCost = newUnitCost * qty;
+		const newProfit = sellPrice - newTotalCost;
+		const newMargin = sellPrice > 0 ? Number(((newProfit / sellPrice) * 100).toFixed(1)) : 0;
+
+		s.unitCost = newUnitCost;
+		s.costPrice = newTotalCost;
+		s.totalCost = newTotalCost;
+		s.netProfit = newProfit;
+		s.profit = newProfit;
+		s.profitMargin = newMargin;
 		localStorage.setItem('aiman_sales', JSON.stringify(sales));
 		renderSalesPage();
+		alert('Cost updated!\nNew Total Cost: Rs. ' + newTotalCost.toLocaleString() + '\nNew Net Profit: Rs. ' + newProfit.toLocaleString() + ' (' + newMargin + '% margin)');
 	};
 
 	window.exportMerchantCSV = function() {
 		const sales = getSales();
 		if (!sales.length) { alert('No sales to export.'); return; }
-		let csv = 'ID,Date,Product,Customer,Phone,Sale Price (PKR),Cost Price (PKR),Net Profit (PKR),Margin %,Payment,Status\n';
+		let csv = 'ID,Date,Product,Quantity,Unit Price (PKR),Total Sale (PKR),Unit Cost (PKR),Total Cost (PKR),Net Profit (PKR),Margin %,Customer,Phone,Payment,Status\n';
 		sales.forEach(s => {
+			const qty = Math.max(1, Number(s.quantity) || 1);
 			const amt = Number(s.amount || s.totalRevenue || s.sellingPrice || 0);
+			const unitPrice = Number(s.unitPrice) || (qty > 0 ? Math.round(amt / qty) : amt);
 			const cost = Number(s.costPrice || s.unitCost || s.totalCost || 0);
+			const unitCost = Number(s.unitCost) || (qty > 0 ? Math.round(cost / qty) : cost);
 			const profit = (s.netProfit !== undefined && !isNaN(Number(s.netProfit))) ? Number(s.netProfit) : (amt - cost);
 			const margin = amt > 0 ? Math.round((profit / amt) * 100) : 0;
-			csv += `"${s.id}","${s.date}","${(s.productName||'').replace(/"/g,'""')}","${(s.customerName||'').replace(/"/g,'""')}","${s.phone||''}","${amt}","${cost}","${profit}","${margin}%","${s.paymentMethod||''}","${s.status||''}"\n`;
+			csv += `"${s.id}","${s.date}","${(s.productName||'').replace(/"/g,'""')}","${qty}","${unitPrice}","${amt}","${unitCost}","${cost}","${profit}","${margin}%","${(s.customerName||'').replace(/"/g,'""')}","${s.phone||''}","${s.paymentMethod||''}","${s.status||''}"\n`;
 		});
 		const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
 		const url = URL.createObjectURL(blob);
