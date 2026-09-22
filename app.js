@@ -70,8 +70,265 @@
     { id: 'pouches', name: '💄 Vanity & Topi Pouches', image: '', style: '' }
   ];
 
-  // Pure Cloud First State (no mock products or mock sales)
-  let products = JSON.parse(localStorage.getItem('aiman_products')) || [];
+  // Bundled Default Catalog for Instant 0ms Paint
+  const DEFAULT_PRODUCTS = [
+    {
+      id: "prod-1788691956929",
+      title: "Ambossed fabric",
+      name: "Ambossed fabric",
+      category: "cotton-pret",
+      price: 3000,
+      regularPrice: 3750,
+      discount: 25,
+      image: "images/uploads/ambossed_fabric.jpg",
+      stockStatus: "in-stock",
+      isNew: true,
+      isSale: true,
+      bestSeller: true
+    },
+    {
+      id: "prod-1788691452220",
+      title: "Self print orange",
+      name: "Self print orange",
+      category: "heavy-rida",
+      price: 1400,
+      regularPrice: 1750,
+      discount: 25,
+      image: "images/uploads/self_print_orange.jpg",
+      stockStatus: "in-stock",
+      isNew: true,
+      isSale: true,
+      bestSeller: true
+    },
+    {
+      id: "prod-1788691110455",
+      title: "Self  boski blue",
+      name: "Self  boski blue",
+      category: "heavy-rida",
+      price: 1500,
+      regularPrice: 1875,
+      discount: 25,
+      image: "images/uploads/self_boski_blue.jpg",
+      stockStatus: "in-stock",
+      isNew: true,
+      isSale: true,
+      bestSeller: true
+    },
+    {
+      id: "prod-1788690672181",
+      title: "Self  boski brown",
+      name: "Self  boski brown",
+      category: "heavy-rida",
+      price: 1500,
+      regularPrice: 1875,
+      discount: 25,
+      image: "images/uploads/self_boski_brown.jpg",
+      stockStatus: "in-stock",
+      isNew: true,
+      isSale: true,
+      bestSeller: true
+    },
+    {
+      id: "prod-1788690322612",
+      title: "Self  boski lavender",
+      name: "Self  boski lavender",
+      category: "heavy-rida",
+      price: 1500,
+      regularPrice: 1875,
+      discount: 25,
+      image: "images/uploads/self_boski_lavender.jpg",
+      stockStatus: "in-stock",
+      isNew: true,
+      isSale: true,
+      bestSeller: true
+    },
+    {
+      id: 1,
+      title: "Royal Crimson Heavy Zardozi Ceremonial Bridal Silk Rida",
+      category: "heavy-rida",
+      price: 15500,
+      regularPrice: 24000,
+      discount: 35,
+      image: "images/black_formal.jpg",
+      stockStatus: "in-stock",
+      isNew: false,
+      isSale: true,
+      bestSeller: true
+    },
+    {
+      id: 2,
+      title: "Emerald Velvet Boti Festive Milad Libas & Matching Batwa",
+      category: "heavy-rida",
+      price: 11900,
+      regularPrice: 19500,
+      discount: 39,
+      image: "images/black_formal.jpg",
+      imageStyle: "filter: hue-rotate(90deg);",
+      stockStatus: "booked",
+      isNew: false,
+      isSale: true,
+      bestSeller: true
+    },
+    {
+      id: 3,
+      title: "Jet Black Royal Festive Zardozi Formal Embroidered Ensemble",
+      category: "new-arrivals",
+      price: 6950,
+      regularPrice: 13900,
+      discount: 50,
+      image: "images/black_formal.jpg",
+      stockStatus: "in-stock",
+      isNew: true,
+      isSale: true,
+      bestSeller: true
+    },
+    {
+      id: 4,
+      title: "Pearl White Zari Organza Formal Evening Pret Suit",
+      category: "new-arrivals",
+      price: 7200,
+      regularPrice: 12000,
+      discount: 40,
+      image: "images/summer_collection.jpg",
+      imageStyle: "filter: brightness(1.1) saturate(0.5);",
+      stockStatus: "in-stock",
+      isNew: true,
+      isSale: true,
+      bestSeller: true
+    },
+    {
+      id: 5,
+      title: "Pastel Mint Chiffon Dupatta Summer Cotton Pret Rida",
+      category: "cotton-pret",
+      price: 4850,
+      regularPrice: 8500,
+      discount: 43,
+      image: "images/summer_collection.jpg",
+      stockStatus: "in-stock",
+      isNew: false,
+      isSale: true,
+      bestSeller: true
+    },
+    {
+      id: 6,
+      title: "Dusty Rose Mauve Scalloped Cutwork 3-Piece Pret Suit",
+      category: "cotton-pret",
+      price: 5850,
+      regularPrice: 9450,
+      discount: 38,
+      image: "images/mauve_pret.jpg",
+      stockStatus: "sold-out",
+      isNew: false,
+      isSale: true,
+      bestSeller: true
+    },
+    {
+      id: 7,
+      title: "Handcrafted Gold Zardozi Matching Bridal Batwa",
+      category: "bags-batwas",
+      price: 2450,
+      regularPrice: 3800,
+      discount: 35,
+      image: "images/summer_collection.jpg",
+      imageStyle: "filter: hue-rotate(330deg);",
+      stockStatus: "in-stock",
+      isNew: false,
+      isSale: true,
+      bestSeller: false
+    },
+    {
+      id: 8,
+      title: "Luxury Velvet Quilted Topi & Cosmetic Vanity Pouch Set",
+      category: "pouches",
+      price: 1650,
+      regularPrice: 2500,
+      discount: 34,
+      image: "images/mauve_pret.jpg",
+      imageStyle: "filter: hue-rotate(270deg);",
+      stockStatus: "in-stock",
+      isNew: false,
+      isSale: true,
+      bestSeller: false
+    },
+    {
+      id: 9,
+      title: "Pure Royal Silk Boski Unstitched 6-Meter Ceremonial Suit",
+      category: "boski-fabric",
+      price: 12500,
+      regularPrice: 18500,
+      discount: 32,
+      image: "images/boski_fabric.jpg",
+      stockStatus: "in-stock",
+      isNew: true,
+      isSale: true,
+      bestSeller: true
+    },
+    {
+      id: 10,
+      title: "Imperial Ivory Boski Embroidered Kurta & Libas Ensemble",
+      category: "boski-fabric",
+      price: 9800,
+      regularPrice: 14000,
+      discount: 30,
+      image: "images/boski_fabric.jpg",
+      imageStyle: "filter: brightness(1.04);",
+      stockStatus: "booked",
+      isNew: false,
+      isSale: true,
+      bestSeller: true
+    },
+    {
+      id: 11,
+      title: "Royal Pure Silk Zari Zardozi Bridal Rida with Matching Batwa",
+      category: "silk-rida",
+      price: 18500,
+      regularPrice: 26000,
+      discount: 29,
+      image: "images/silk_rida.jpg",
+      stockStatus: "in-stock",
+      isNew: true,
+      isSale: true,
+      bestSeller: true
+    },
+    {
+      id: 12,
+      title: "Lavender Mulberry Silk Embroidered Formal Rida & Pardi",
+      category: "silk-rida",
+      price: 14200,
+      regularPrice: 21000,
+      discount: 32,
+      image: "images/silk_rida.jpg",
+      imageStyle: "filter: hue-rotate(240deg) saturate(1.1);",
+      stockStatus: "booked",
+      isNew: false,
+      isSale: true,
+      bestSeller: true
+    }
+  ];
+
+  const knownImageMap = {
+    'prod-1788691956929': 'images/uploads/ambossed_fabric.jpg',
+    'prod-1788691452220': 'images/uploads/self_print_orange.jpg',
+    'prod-1788691110455': 'images/uploads/self_boski_blue.jpg',
+    'prod-1788690672181': 'images/uploads/self_boski_brown.jpg',
+    'prod-1788690322612': 'images/uploads/self_boski_lavender.jpg'
+  };
+
+  // Instant State: Cached or Bundled Default (Zero Wait for Network)
+  let products = (function () {
+    try {
+      const stored = JSON.parse(localStorage.getItem('aiman_products'));
+      if (Array.isArray(stored) && stored.length > 0) {
+        return stored.map(p => {
+          if (p.image && p.image.startsWith('data:image') && knownImageMap[p.id]) {
+            return { ...p, image: knownImageMap[p.id] };
+          }
+          return p;
+        });
+      }
+    } catch (e) {}
+    return DEFAULT_PRODUCTS;
+  })();
   let salesLedger = JSON.parse(localStorage.getItem('aiman_sales')) || [];
   let heroSettings = JSON.parse(localStorage.getItem('aiman_hero_settings')) || null;
   let categoryCards = (function () {
@@ -388,7 +645,7 @@
             ${p.discount > 0 ? `<span class="kashaf-sale-badge">-${p.discount}%</span>` : ''}
             <div class="product-stock-badge">${statusBadgeHtml}</div>
             <a href="javascript:void(0)" onclick="window.AimanStore.openProductPage('${p.id}')">
-              <img src="${p.image || FALLBACK_PRODUCT_IMAGE}" onerror="this.onerror=null; this.src=FALLBACK_PRODUCT_IMAGE;" style="${p.imageStyle || ''}" alt="${title}" loading="lazy">
+              <img src="${p.image || FALLBACK_PRODUCT_IMAGE}" onerror="this.onerror=null; this.src=FALLBACK_PRODUCT_IMAGE;" style="${p.imageStyle || ''}" alt="${title}" loading="lazy" decoding="async">
             </a>
             <button type="button" class="product-quick-view-btn" onclick="window.AimanStore.openProductPage('${p.id}')">
               <i class="fas fa-eye"></i> View Details
@@ -2960,7 +3217,7 @@
                 costPrice: Number(d.costPrice) || 0,
                 regularPrice: Number(d.regularPrice || d.originalPrice) || 0,
                 discount: Number(d.discount) || 0,
-                image: d.image || FALLBACK_PRODUCT_IMAGE,
+                image: (d.image && d.image.startsWith('data:image') && knownImageMap[d.id || doc.id]) ? knownImageMap[d.id || doc.id] : (d.image || FALLBACK_PRODUCT_IMAGE),
                 imageStyle: d.imageStyle || '',
                 gallery: Array.isArray(d.gallery) ? d.gallery : (Array.isArray(d.galleryImages) ? d.galleryImages : []),
                 stockStatus: d.stockStatus || (d.isSoldOut ? 'sold-out' : (d.isBooked ? 'booked' : 'in-stock')),
@@ -3160,6 +3417,28 @@
   window.addEventListener('resize', lockZeroHorizontalScroll);
   window.addEventListener('orientationchange', lockZeroHorizontalScroll);
 
+  // Fast local API catalog loader for instant background updates
+  function fetchLocalApiProducts() {
+    if (typeof fetch === 'function') {
+      fetch('/api/products')
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (Array.isArray(data) && data.length > 0) {
+            const cleanList = data.map(d => ({
+              ...d,
+              image: (d.image && d.image.startsWith('data:image') && knownImageMap[d.id]) ? knownImageMap[d.id] : (d.image || FALLBACK_PRODUCT_IMAGE)
+            }));
+            products = cleanList;
+            try { localStorage.setItem('aiman_products', JSON.stringify(products)); } catch (e) {}
+            renderProducts();
+            renderAdminProducts();
+            updateSalesDashboard();
+          }
+        })
+        .catch(() => {});
+    }
+  }
+
   // Initial Boot — guaranteed to run even if DOMContentLoaded already fired
   function initStore() {
     lockZeroHorizontalScroll();
@@ -3168,6 +3447,7 @@
     renderProducts();
     updateHeaderCartBadge();
     startHeroSlider();
+    fetchLocalApiProducts();
     setupFirestoreRealtimeSync();
 
     // Auto-sync across devices whenever user tabs back or focuses browser
