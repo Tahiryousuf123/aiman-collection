@@ -37,6 +37,7 @@
   }
 
   function ensureFirestore(callback) {
+    if (typeof window === 'undefined' || !window.firebase) return;
     const db = getDb();
     if (db) {
       if (callback) callback(db);
@@ -49,9 +50,8 @@
       if (activeDb) {
         clearInterval(timer);
         if (callback) callback(activeDb);
-      } else if (attempts > 60) {
+      } else if (attempts > 5) {
         clearInterval(timer);
-        console.warn('⚡ [Firebase] Connection retry timeout');
       }
     }, 100);
   }
@@ -3213,6 +3213,12 @@
      -------------------------------------------------------------------------- */
   let unsubscribeFirestore = null;
   function setupFirestoreRealtimeSync() {
+    const syncBadge = document.getElementById('adminCloudSyncBadge');
+    if (syncBadge) {
+      syncBadge.innerHTML = `<i class="fas fa-database" style="color:#10b981;"></i> Cloud Sync: MongoDB Atlas Active`;
+    }
+    if (typeof window === 'undefined' || !window.firebase) return;
+
     ensureFirestore(db => {
       // Detach previous listeners if already attached to prevent duplicates
       if (typeof unsubscribeFirestore === 'function') {
@@ -3249,16 +3255,18 @@
             }
           });
 
-          // Firestore is the single source of truth - replace directly, never merge deleted/old items!
-          products = firestoreList;
-          try {
-            localStorage.setItem('aiman_products', JSON.stringify(products));
-          } catch (storageErr) {}
+          // Only sync if Firestore actually has products (never wipe out MongoDB Atlas catalog!)
+          if (firestoreList.length > 0) {
+            products = firestoreList;
+            try {
+              localStorage.setItem('aiman_products', JSON.stringify(products));
+            } catch (storageErr) {}
 
-          renderProducts();
-          renderAdminProducts();
-          updateSalesDashboard();
-          console.log(`⚡ [Real-Time Sync] ${firestoreList.length} products synced live from Firebase Firestore`);
+            renderProducts();
+            renderAdminProducts();
+            updateSalesDashboard();
+            console.log(`⚡ [Real-Time Sync] ${firestoreList.length} products synced live from Firebase Firestore`);
+          }
         }, err => {
           console.warn('Firestore products onSnapshot notice:', err.message);
         });
@@ -3379,13 +3387,15 @@
           // Sort latest first
           fsSales.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
-          // Exact cloud sync: whether 10 items or 0 items (when deleted), sync cleanly!
-          salesLedger = fsSales;
-          try {
-            localStorage.setItem('aiman_sales', JSON.stringify(salesLedger));
-          } catch (e) {}
-          updateSalesDashboard();
-          console.log(`⚡ [Real-Time Sync] ${fsSales.length} sales synced live from Firebase Firestore`);
+          // Exact cloud sync: only update if Firestore actually has sales records
+          if (fsSales.length > 0) {
+            salesLedger = fsSales;
+            try {
+              localStorage.setItem('aiman_sales', JSON.stringify(salesLedger));
+            } catch (e) {}
+            updateSalesDashboard();
+            console.log(`⚡ [Real-Time Sync] ${fsSales.length} sales synced live from Firebase Firestore`);
+          }
         }, err => console.warn('Firestore sales notice:', err.message));
         unsubs.push(unsubSales);
 
@@ -3475,6 +3485,25 @@
     }
   }
 
+  // Dedicated MongoDB Atlas Real-Time Sales Ledger Sync
+  function fetchLocalApiSales() {
+    if (typeof fetch === 'function') {
+      fetch('/api/sales')
+        .then(res => res.ok ? res.json() : null)
+        .then(res => {
+          const list = Array.isArray(res) ? res : (res && Array.isArray(res.data) ? res.data : []);
+          if (list.length > 0) {
+            salesLedger = list;
+            try { localStorage.setItem('aiman_sales', JSON.stringify(salesLedger)); } catch (e) {}
+            updateSalesDashboard();
+            if (typeof renderAdminSalesLedger === 'function') renderAdminSalesLedger();
+            console.log(`⚡ [MongoDB Atlas Sync] ${salesLedger.length} sales records synced live from MongoDB`);
+          }
+        })
+        .catch(() => {});
+    }
+  }
+
   // Initial Boot — guaranteed to run even if DOMContentLoaded already fired
   function initStore() {
     lockZeroHorizontalScroll();
@@ -3484,17 +3513,26 @@
     updateHeaderCartBadge();
     startHeroSlider();
     fetchLocalApiProducts();
+    fetchLocalApiSales();
     setupFirestoreRealtimeSync();
 
-    // Auto-sync across devices whenever user tabs back or focuses browser
+    // Auto-sync from MongoDB Atlas Cloud whenever user tabs back or focuses browser
     window.addEventListener('focus', () => {
-      setupFirestoreRealtimeSync();
+      fetchLocalApiProducts();
+      fetchLocalApiSales();
     });
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
-        setupFirestoreRealtimeSync();
+        fetchLocalApiProducts();
+        fetchLocalApiSales();
       }
     });
+
+    // Periodic background sync from MongoDB Atlas Cloud (every 12 seconds)
+    setInterval(() => {
+      fetchLocalApiProducts();
+      fetchLocalApiSales();
+    }, 12000);
 
     // Check URL routing on load
     const initHash = window.location.hash;
