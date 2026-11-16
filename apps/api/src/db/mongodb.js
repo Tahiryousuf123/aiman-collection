@@ -4,10 +4,12 @@ import path from 'path';
 import dns from 'dns';
 import { fileURLToPath } from 'url';
 
-// Configure DNS resolvers for systems where local DNS blocks MongoDB SRV records
-try {
-  dns.setServers(['8.8.8.8', '1.1.1.1', '8.8.4.4']);
-} catch (e) {}
+// Configure DNS resolvers only on Windows where local ISP blocks MongoDB SRV records
+if (process.platform === 'win32') {
+  try {
+    dns.setServers(['8.8.8.8', '1.1.1.1', '8.8.4.4']);
+  } catch (e) {}
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

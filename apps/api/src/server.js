@@ -1,7 +1,9 @@
 import dns from 'dns';
-try {
-  dns.setServers(['8.8.8.8', '1.1.1.1', '8.8.4.4']);
-} catch (e) {}
+if (process.platform === 'win32') {
+  try {
+    dns.setServers(['8.8.8.8', '1.1.1.1', '8.8.4.4']);
+  } catch (e) {}
+}
 
 import express from 'express';
 import cors from 'cors';
@@ -78,12 +80,16 @@ app.use((req, res, next) => {
   next();
 });
 
+let lastMongoError = null;
+
 // Database connection middleware for Serverless & Long-running instances
 app.use(async (req, res, next) => {
   if (req.path.startsWith('/api')) {
     try {
       await connectMongoDB();
+      lastMongoError = null;
     } catch (err) {
+      lastMongoError = err.message;
       console.warn('MongoDB connection middleware warning:', err.message);
     }
   }
@@ -100,7 +106,8 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
     service: 'AIMAN COLLECTION Engine',
     database: 'MongoDB Atlas',
-    mongo: status
+    mongo: status,
+    lastError: lastMongoError
   });
 });
 
