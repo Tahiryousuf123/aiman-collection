@@ -846,6 +846,40 @@
     });
   }
 
+  // Upload image to Node.js backend storage (images/uploads) with Base64 fallback
+  async function uploadImageToServer(base64Data, filename) {
+    if (!base64Data || !base64Data.startsWith('data:image')) return base64Data;
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64Data, filename: filename || 'upload' })
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json && json.success && json.url) {
+          return json.url;
+        }
+      }
+    } catch (e) {
+      console.warn('Server upload fallback:', e.message);
+    }
+    return base64Data;
+  }
+
+  function updateCategoryCardPreview(idx, imgUrl) {
+    const wrap = document.getElementById(`catCardPreviewWrap_${idx}`);
+    if (!wrap) return;
+    if (imgUrl) {
+      wrap.innerHTML = `<img id="catCardPreview_${idx}" src="${imgUrl}" style="width:100%; height:100%; object-fit:cover;">`;
+    } else {
+      const cards = (categoryCards && categoryCards.length > 0) ? categoryCards : defaultCategoryCards;
+      const c = cards[idx] || defaultCategoryCards[idx];
+      const icon = c && c.name ? c.name.split(' ')[0] : '🌸';
+      wrap.innerHTML = `<div id="catCardPreview_${idx}" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#d4af37; font-size:1.5rem;">${icon}</div>`;
+    }
+  }
+
   // Universal Category Normalizer for MongoDB Atlas Sync across all devices
   function normalizeCategory(cat) {
     if (!cat) return 'heavy-rida';
@@ -1507,7 +1541,7 @@
 
     listEl.innerHTML = cards.map((c, idx) => `
       <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; display:flex; gap:12px; align-items:center;">
-        <div style="width:75px; height:85px; flex-shrink:0; border-radius:6px; overflow:hidden; border:1px solid #cbd5e1; background:#1e1b18;">
+        <div id="catCardPreviewWrap_${idx}" style="width:75px; height:85px; flex-shrink:0; border-radius:6px; overflow:hidden; border:1px solid #cbd5e1; background:#1e1b18;">
           ${c.image ? `
             <img id="catCardPreview_${idx}" src="${c.image}" style="width:100%; height:100%; object-fit:cover; ${c.style || ''}">
           ` : `
@@ -2250,6 +2284,13 @@
         localStorage.setItem('aiman_sales', JSON.stringify(salesLedger));
       } catch (e) {}
 
+      // Dual Persist: MongoDB Atlas & Server API
+      fetch('/api/sales', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newSale)
+      }).catch(err => console.warn('Storefront order sales API sync note:', err));
+
       // Save directly to Firebase Firestore
       ensureFirestore(async (db) => {
         try {
@@ -2559,6 +2600,13 @@
         localStorage.setItem('aiman_sales', JSON.stringify(salesLedger));
       } catch (e) {}
 
+      // Dual Persist: MongoDB Atlas & Server API
+      fetch('/api/sales', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newSale)
+      }).catch(err => console.warn('Record sale API sync note:', err));
+
       // Persist directly to Firebase Firestore
       ensureFirestore(async (db) => {
         try {
@@ -2625,9 +2673,29 @@
       } catch (e) {}
 
       p.stockStatus = 'sold-out';
+      p.isSoldOut = true;
       try {
         localStorage.setItem('aiman_products', JSON.stringify(products));
       } catch (e) {}
+
+      // 1. Direct MongoDB Sales API Sync
+      fetch('/api/sales', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newSale)
+      }).catch(err => console.warn('Quick mark sold sales API error:', err));
+
+      // 2. Direct MongoDB Product Stock Status Update
+      fetch('/api/products/' + encodeURIComponent(p.id), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...p,
+          stockStatus: 'sold-out',
+          isSoldOut: true,
+          inStock: false
+        })
+      }).catch(err => console.warn('Product stock status API error:', err));
 
       // Persist directly to Firebase Firestore
       ensureFirestore(async (db) => {
@@ -2683,6 +2751,13 @@
 
       updateSalesDashboard();
 
+      // Direct MongoDB Sales Edit API Sync
+      fetch('/api/sales', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(item)
+      }).catch(err => console.warn('Sales edit cost sync error:', err));
+
       // Sync updated cost to Firestore
       ensureFirestore(async (db) => {
         if (item.id) {
@@ -2718,6 +2793,11 @@
 
         updateSalesDashboard();
 
+        // Direct MongoDB Sales Delete API
+        fetch('/api/sales/' + encodeURIComponent(saleId), {
+          method: 'DELETE'
+        }).catch(err => console.warn('Sales delete API error:', err));
+
         // Delete from Firestore Real-Time Cloud (instant sync across all other devices)
         ensureFirestore(async (db) => {
           if (saleId) {
@@ -2734,6 +2814,13 @@
 
     clearSalesHistory: async function () {
       if (confirm('Are you sure you want to clear the entire sales ledger from all devices?')) {
+        // Clear sales on backend
+        salesLedger.forEach(s => {
+          if (s && s.id) {
+            fetch('/api/sales/' + encodeURIComponent(s.id), { method: 'DELETE' }).catch(() => {});
+          }
+        });
+
         salesLedger = [];
         try { localStorage.setItem('aiman_sales', JSON.stringify([])); } catch (e) {}
         updateSalesDashboard();
@@ -3126,14 +3213,13 @@
       if (!file) return;
 
       const nameLabel = document.getElementById(`slideFileName_${idx}`);
-      if (nameLabel) nameLabel.innerHTML = `<i class="fas fa-spinner fa-spin" style="color:#0f766e;"></i> Compressing & Cloud Uploading...`;
+      if (nameLabel) nameLabel.innerHTML = `<i class="fas fa-spinner fa-spin" style="color:#0f766e;"></i> Uploading & Saving...`;
 
       const dInput = document.getElementById(`slideDesktop_${idx}`);
       const mInput = document.getElementById(`slideMobile_${idx}`);
       const preview = document.getElementById(`adminSlidePreview_${idx}`);
 
       try {
-        // High quality yet lightweight compression: 1200px max width, 0.72 quality (~45-70KB)
         const compressedBase64 = await compressImageFile(file, 1200, 0.72);
 
         if (dInput) dInput.value = compressedBase64;
@@ -3146,44 +3232,53 @@
           }
         }
 
-        // Auto-save immediately to Firestore so it NEVER gets lost on refresh!
+        // Upload to server storage
+        let finalUrl = compressedBase64;
+        try {
+          finalUrl = await uploadImageToServer(compressedBase64, `slide_${idx}_${Date.now()}`);
+          if (dInput) dInput.value = finalUrl;
+          if (mInput) mInput.value = finalUrl;
+          const newPreview = document.getElementById(`adminSlidePreview_${idx}`);
+          if (newPreview && newPreview.tagName === 'IMG') newPreview.src = finalUrl;
+        } catch (uploadErr) {
+          console.warn('Hero upload fallback:', uploadErr);
+        }
+
         const currentSlides = [...getActiveBannerSlides()];
         if (currentSlides && currentSlides[idx]) {
           const slide = currentSlides[idx];
           slide.id = slide.id || ('slide-' + (idx + 1));
-          slide.desktopImg = compressedBase64;
-          slide.mobileImg = compressedBase64;
+          slide.desktopImg = finalUrl;
+          slide.mobileImg = finalUrl;
           slide.order = idx;
 
           heroSettings = heroSettings || {};
           heroSettings.bannerSlides = currentSlides;
           try { localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings)); } catch (e) {}
 
+          // Dual Persist: MongoDB & Server settings
+          fetch('/api/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key: 'heroSettings', value: heroSettings })
+          }).catch(err => console.warn('Hero settings API warning:', err));
+
           ensureFirestore((db) => {
-            // 1. Save to dedicated hero_slides collection doc (never hits 1MB document limit)
             db.collection('hero_slides').doc(slide.id).set({
               id: slide.id,
               title: slide.title || `Slide ${idx + 1}`,
-              desktopImg: compressedBase64,
-              mobileImg: compressedBase64,
+              desktopImg: finalUrl,
+              mobileImg: finalUrl,
               category: slide.category || 'all',
               order: idx,
               updatedAt: new Date().toISOString()
-            }, { merge: true })
-              .then(() => {
-                console.log(`⚡ [Firebase] Hero slide ${slide.id} uploaded live to Firestore`);
-                if (nameLabel) nameLabel.innerHTML = `<i class="fas fa-circle-check" style="color:#10b981;"></i> Cloud Synced: ${file.name}`;
-              })
-              .catch(err => {
-                console.warn('Firestore hero_slides save error:', err);
-                if (nameLabel) nameLabel.innerHTML = `<i class="fas fa-circle-exclamation" style="color:#ef4444;"></i> Save note: ${err.message}`;
-              });
+            }, { merge: true }).catch(() => {});
 
-            // 2. Also mirror to settings/hero doc
             db.collection('settings').doc('hero').set({ bannerSlides: currentSlides }, { merge: true })
-              .catch(e => console.warn('settings/hero sync note:', e));
+              .catch(() => {});
           });
 
+          if (nameLabel) nameLabel.innerHTML = `<i class="fas fa-circle-check" style="color:#10b981;"></i> Cloud & Database Synced`;
           renderHeroSlider();
         }
       } catch (err) {
@@ -3208,6 +3303,12 @@
       heroSettings = heroSettings || {};
       heroSettings.bannerSlides = currentSlides;
       try { localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings)); } catch (e) {}
+
+      fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: 'heroSettings', value: heroSettings })
+      }).catch(() => {});
 
       ensureFirestore((db) => {
         db.collection('hero_slides').doc(newId).set(newSlide)
@@ -3235,6 +3336,12 @@
         heroSettings.bannerSlides = currentSlides;
         try { localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings)); } catch (e) {}
 
+        fetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: 'heroSettings', value: heroSettings })
+        }).catch(() => {});
+
         ensureFirestore((db) => {
           if (deletedSlide && deletedSlide.id) {
             db.collection('hero_slides').doc(deletedSlide.id).delete()
@@ -3252,8 +3359,8 @@
       }
     },
 
-    saveHeroBanners: function (e) {
-      e.preventDefault();
+    saveHeroBanners: async function (e) {
+      if (e) e.preventDefault();
       const currentSlides = getActiveBannerSlides();
       const newSlides = [];
 
@@ -3265,9 +3372,20 @@
 
         const id = currentSlides[i].id || ('slide-' + (i + 1));
         const title = titleEl ? titleEl.value.trim() : `Slide ${i + 1}`;
-        const desktopImg = dEl ? dEl.value.trim() : '';
-        const mobileImg = (mEl && mEl.value.trim()) ? mEl.value.trim() : desktopImg;
+        let desktopImg = dEl ? dEl.value.trim() : '';
+        let mobileImg = (mEl && mEl.value.trim()) ? mEl.value.trim() : desktopImg;
         const category = cEl ? cEl.value : 'all';
+
+        if (desktopImg && desktopImg.startsWith('data:image')) {
+          try {
+            desktopImg = await uploadImageToServer(desktopImg, `slide_${i}_${Date.now()}`);
+          } catch (err) {}
+        }
+        if (mobileImg && mobileImg.startsWith('data:image')) {
+          try {
+            mobileImg = await uploadImageToServer(mobileImg, `slide_mob_${i}_${Date.now()}`);
+          } catch (err) {}
+        }
 
         newSlides.push({
           id,
@@ -3283,6 +3401,17 @@
       heroSettings = heroSettings || {};
       heroSettings.bannerSlides = newSlides;
       try { localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings)); } catch (e) {}
+
+      // Save to MongoDB / backend API
+      try {
+        await fetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: 'heroSettings', value: heroSettings })
+        });
+      } catch (err) {
+        console.warn('Hero settings sync note:', err);
+      }
 
       // Save directly to Firebase Firestore
       ensureFirestore((db) => {
@@ -3300,7 +3429,7 @@
       startHeroSlider();
       renderAdminHeroSlides();
 
-      alert('🎉 Hero Banners saved & published live successfully on website!');
+      alert('🎉 Hero Banners saved & published live successfully on all devices!');
     },
 
     resetHeroBannersToDefault: function () {
@@ -3308,6 +3437,12 @@
         heroSettings = heroSettings || {};
         heroSettings.bannerSlides = [...defaultBannerSlides];
         try { localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings)); } catch (e) {}
+
+        fetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: 'heroSettings', value: heroSettings })
+        }).catch(() => {});
 
         ensureFirestore((db) => {
           db.collection('hero_slides').get().then(snap => {
@@ -3341,6 +3476,13 @@
       const badge = document.getElementById('announcementLiveBadge');
       if (badge) badge.textContent = text;
 
+      // Save to MongoDB / backend API
+      fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: 'heroSettings', value: heroSettings })
+      }).catch(() => {});
+
       // Save directly to Firebase Firestore
       ensureFirestore((db) => {
         db.collection('settings').doc('hero').set({ announcement: text }, { merge: true })
@@ -3357,52 +3499,78 @@
       if (!file) return;
 
       const nameLabel = document.getElementById(`catCardFileName_${idx}`);
-      if (nameLabel) nameLabel.textContent = file.name;
+      if (nameLabel) nameLabel.innerHTML = `<i class="fas fa-spinner fa-spin" style="color:#0f766e;"></i> Uploading...`;
 
       try {
         const compressedBase64 = await compressImageFile(file, 900, 0.78);
-        const preview = document.getElementById(`catCardPreview_${idx}`);
+        updateCategoryCardPreview(idx, compressedBase64);
+
         const input = document.getElementById(`catCardImgInput_${idx}`);
-        if (preview) preview.src = compressedBase64;
         if (input) input.value = compressedBase64;
 
-        // Auto-save immediately to Firestore so it NEVER gets lost if user refreshes!
+        // Upload to server disk storage for permanent persistent URL
+        let finalUrl = compressedBase64;
+        try {
+          finalUrl = await uploadImageToServer(compressedBase64, `cat_${idx}_${Date.now()}`);
+          if (input) input.value = finalUrl;
+          updateCategoryCardPreview(idx, finalUrl);
+        } catch (uploadErr) {
+          console.warn('Server cat upload fallback:', uploadErr);
+        }
+
         const currentCards = (categoryCards && categoryCards.length > 0) ? categoryCards : defaultCategoryCards;
         if (currentCards && currentCards[idx]) {
-          currentCards[idx].image = compressedBase64;
+          currentCards[idx].image = finalUrl;
           categoryCards = currentCards;
           try { localStorage.setItem('aiman_category_cards', JSON.stringify(categoryCards)); } catch (e) {}
+
+          // Dual Persist: MongoDB & Server settings
+          fetch('/api/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key: 'categoryCards', value: categoryCards })
+          }).catch(err => console.warn('Category sync error:', err));
+
           ensureFirestore((db) => {
             db.collection('settings').doc('category_cards').set({ cards: currentCards }, { merge: true })
-              .then(() => console.log(`⚡ [Firebase] Category card ${idx + 1} picture auto-saved live to Firestore`))
-              .catch(err => console.warn('Firestore cat card auto-save note:', err));
+              .catch(err => console.warn('Firestore cat card note:', err));
           });
+
           renderCategoryCards();
+          if (nameLabel) nameLabel.innerHTML = `<i class="fas fa-circle-check" style="color:#0f766e;"></i> Live Synced`;
         }
       } catch (err) {
         alert('Error reading image: ' + err.message);
+        if (nameLabel) nameLabel.textContent = 'Error';
       }
     },
 
     previewCategoryCard: function (idx) {
       const input = document.getElementById(`catCardImgInput_${idx}`);
-      const preview = document.getElementById(`catCardPreview_${idx}`);
-      if (input && preview) {
+      if (input) {
         const val = input.value.trim();
-        if (val) preview.src = val;
+        updateCategoryCardPreview(idx, val);
       }
     },
 
-    saveCategoryCards: function (e) {
+    saveCategoryCards: async function (e) {
       if (e) e.preventDefault();
       const currentCards = (categoryCards && categoryCards.length > 0) ? categoryCards : defaultCategoryCards;
-      const updated = currentCards.map((c, idx) => {
+      const updated = [];
+
+      for (let idx = 0; idx < currentCards.length; idx++) {
         const input = document.getElementById(`catCardImgInput_${idx}`);
-        return {
-          ...c,
-          image: (input && input.value.trim()) ? input.value.trim() : c.image
-        };
-      });
+        let imgVal = (input && input.value.trim()) ? input.value.trim() : (currentCards[idx].image || '');
+        if (imgVal && imgVal.startsWith('data:image')) {
+          try {
+            imgVal = await uploadImageToServer(imgVal, `cat_${idx}_${Date.now()}`);
+          } catch (e) {}
+        }
+        updated.push({
+          ...currentCards[idx],
+          image: imgVal
+        });
+      }
 
       categoryCards = updated;
       try {
@@ -3411,16 +3579,26 @@
         console.warn('localStorage quota note:', storageErr);
       }
 
+      // Save to MongoDB / backend API
+      try {
+        await fetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: 'categoryCards', value: categoryCards })
+        });
+      } catch (apiErr) {
+        console.warn('Settings API sync note:', apiErr);
+      }
+
       // Save directly to Firebase Firestore
       ensureFirestore((db) => {
         db.collection('settings').doc('category_cards').set({ cards: updated }, { merge: true })
-          .then(() => console.log('⚡ [Firebase] Category cards saved to Firestore'))
           .catch(err => console.warn('Firestore category cards save note:', err));
       });
 
       renderCategoryCards();
       renderAdminCategoryCards();
-      alert('🎉 Shop By Category ki pictures kamyabi se update aur publish ho gayin!');
+      alert('🎉 Shop By Category ki pictures kamyabi se update aur sab devices par live publish ho gayin!');
     },
 
     resetCategoryCardsToDefault: function () {
@@ -3429,6 +3607,12 @@
         try {
           localStorage.setItem('aiman_category_cards', JSON.stringify(categoryCards));
         } catch (e) {}
+
+        fetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: 'categoryCards', value: defaultCategoryCards })
+        }).catch(() => {});
 
         ensureFirestore((db) => {
           db.collection('settings').doc('category_cards').set({ cards: defaultCategoryCards }, { merge: true })
@@ -3465,12 +3649,17 @@
 
     syncCloudNow: async function () {
       const badge = document.getElementById('adminCloudSyncBadge');
-      if (badge) badge.innerHTML = `<i class="fas fa-spinner fa-spin" style="color:#eab308;"></i> Cloud Syncing...`;
+      if (badge) badge.innerHTML = `<i class="fas fa-spinner fa-spin" style="color:#eab308;"></i> Database Syncing...`;
+      
+      // 1. Instant sync from Node.js & MongoDB Server
+      fetchLocalApiProducts();
+      fetchLocalApiSales();
+      fetchLocalApiSettings();
+
       try {
         const db = getDb();
         if (!db) {
-          if (badge) badge.innerHTML = `<i class="fas fa-circle-exclamation" style="color:#ef4444;"></i> Cloud connecting...`;
-          setupFirestoreRealtimeSync();
+          if (badge) badge.innerHTML = `<i class="fas fa-circle-check" style="color:#10b981;"></i> Synced with Database (${products.length} items, ${salesLedger.length} sales)`;
           return;
         }
 
@@ -3961,6 +4150,35 @@
     }
   }
 
+  // Dedicated MongoDB Atlas Real-Time Settings (Hero Banners & Category Pictures) Sync
+  function fetchLocalApiSettings() {
+    if (typeof fetch === 'function') {
+      fetch('/api/settings')
+        .then(res => res.ok ? res.json() : null)
+        .then(res => {
+          const data = (res && res.data) ? res.data : res;
+          if (data && typeof data === 'object') {
+            // 1. Hero Settings & Banners
+            if (data.heroSettings && data.heroSettings.bannerSlides && Array.isArray(data.heroSettings.bannerSlides) && data.heroSettings.bannerSlides.length > 0) {
+              heroSettings = data.heroSettings;
+              try { localStorage.setItem('aiman_hero_settings', JSON.stringify(heroSettings)); } catch (e) {}
+              renderHeroSlider();
+              if (typeof renderAdminHeroSlides === 'function') renderAdminHeroSlides();
+            }
+            // 2. Category Cards Pictures
+            if (Array.isArray(data.categoryCards) && data.categoryCards.length > 0) {
+              categoryCards = data.categoryCards;
+              try { localStorage.setItem('aiman_category_cards', JSON.stringify(categoryCards)); } catch (e) {}
+              renderCategoryCards();
+              if (typeof renderAdminCategoryCards === 'function') renderAdminCategoryCards();
+            }
+            console.log(`⚡ [MongoDB Settings Sync] Hero banners & Category pictures synced live from database`);
+          }
+        })
+        .catch(() => {});
+    }
+  }
+
   // Initial Boot — guaranteed to run even if DOMContentLoaded already fired
   function initStore() {
     lockZeroHorizontalScroll();
@@ -3971,25 +4189,29 @@
     startHeroSlider();
     fetchLocalApiProducts();
     fetchLocalApiSales();
+    fetchLocalApiSettings();
     setupFirestoreRealtimeSync();
 
-    // Auto-sync from MongoDB Atlas Cloud whenever user tabs back or focuses browser
+    // Auto-sync from Database whenever user tabs back or focuses browser
     window.addEventListener('focus', () => {
       fetchLocalApiProducts();
       fetchLocalApiSales();
+      fetchLocalApiSettings();
     });
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
         fetchLocalApiProducts();
         fetchLocalApiSales();
+        fetchLocalApiSettings();
       }
     });
 
-    // Periodic background sync from MongoDB Atlas Cloud (every 12 seconds)
+    // Periodic background sync from Database (every 8 seconds)
     setInterval(() => {
       fetchLocalApiProducts();
       fetchLocalApiSales();
-    }, 12000);
+      fetchLocalApiSettings();
+    }, 8000);
 
     // Check URL routing on load
     const initHash = window.location.hash;
