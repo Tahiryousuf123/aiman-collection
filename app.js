@@ -4152,11 +4152,6 @@
         .catch(() => {});
     }
   }
-          }
-        })
-        .catch(() => {});
-    }
-  }
 
   // Dedicated MongoDB Atlas Real-Time Settings (Hero Banners & Category Pictures) Sync
   function fetchLocalApiSettings() {
