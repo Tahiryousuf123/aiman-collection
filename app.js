@@ -772,7 +772,7 @@
   };
 
   // Instant State: Cached or Bundled Default (Zero Wait for Network)
-  const CACHE_KEY_VERSION = 'aiman_v12_all_43_firebase_migrated';
+  const CACHE_KEY_VERSION = 'aiman_v14_atlas_authoritative_44';
   let products = (function () {
     try {
       const v = localStorage.getItem('aiman_cache_ver');
@@ -4120,16 +4120,13 @@
               bestSeller: Boolean(d.bestSeller ?? d.isFeatured)
             }));
             
-            // Smart Merge: Don't wipe newly created local products if server is still syncing
-            const serverIds = new Set(cleanList.map(p => String(p.id)));
-            const localOnly = products.filter(p => !serverIds.has(String(p.id)));
-            products = [...localOnly, ...cleanList];
-            
+            // Full Sync with MongoDB Atlas Authority: Deleted products are removed everywhere
+            products = cleanList;
             try { localStorage.setItem('aiman_products', JSON.stringify(products)); } catch (e) {}
             renderProducts();
             renderAdminProducts();
             updateSalesDashboard();
-            console.log(`⚡ [MongoDB Atlas Sync] ${products.length} products & images synced directly from MongoDB`);
+            console.log(`⚡ [MongoDB Atlas Sync] Exact ${products.length} products synced directly from MongoDB Atlas`);
           }
         })
         .catch(err => console.warn('MongoDB sync notice:', err));
@@ -4143,16 +4140,18 @@
         .then(res => res.ok ? res.json() : null)
         .then(res => {
           const list = Array.isArray(res) ? res : (res && Array.isArray(res.data) ? res.data : []);
-          if (list.length > 0) {
-            // Smart Merge: Don't wipe newly recorded local sales if server is offline
-            const serverSaleIds = new Set(list.map(s => String(s.id)));
-            const localOnlySales = salesLedger.filter(s => !serverSaleIds.has(String(s.id)));
-            salesLedger = [...localOnlySales, ...list];
-            
+          if (Array.isArray(list)) {
+            // Full Sync with MongoDB Atlas Authority
+            salesLedger = list;
             try { localStorage.setItem('aiman_sales', JSON.stringify(salesLedger)); } catch (e) {}
             updateSalesDashboard();
             if (typeof renderAdminSalesLedger === 'function') renderAdminSalesLedger();
-            console.log(`⚡ [MongoDB Atlas Sync] ${salesLedger.length} sales records synced live from MongoDB`);
+            console.log(`⚡ [MongoDB Atlas Sync] Exact ${salesLedger.length} sales records synced live from MongoDB`);
+          }
+        })
+        .catch(() => {});
+    }
+  }
           }
         })
         .catch(() => {});
