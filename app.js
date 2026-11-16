@@ -4119,7 +4119,12 @@
               isSale: Boolean(d.isSale ?? d.onSale),
               bestSeller: Boolean(d.bestSeller ?? d.isFeatured)
             }));
-            products = cleanList;
+            
+            // Smart Merge: Don't wipe newly created local products if server is still syncing
+            const serverIds = new Set(cleanList.map(p => String(p.id)));
+            const localOnly = products.filter(p => !serverIds.has(String(p.id)));
+            products = [...localOnly, ...cleanList];
+            
             try { localStorage.setItem('aiman_products', JSON.stringify(products)); } catch (e) {}
             renderProducts();
             renderAdminProducts();
@@ -4139,7 +4144,11 @@
         .then(res => {
           const list = Array.isArray(res) ? res : (res && Array.isArray(res.data) ? res.data : []);
           if (list.length > 0) {
-            salesLedger = list;
+            // Smart Merge: Don't wipe newly recorded local sales if server is offline
+            const serverSaleIds = new Set(list.map(s => String(s.id)));
+            const localOnlySales = salesLedger.filter(s => !serverSaleIds.has(String(s.id)));
+            salesLedger = [...localOnlySales, ...list];
+            
             try { localStorage.setItem('aiman_sales', JSON.stringify(salesLedger)); } catch (e) {}
             updateSalesDashboard();
             if (typeof renderAdminSalesLedger === 'function') renderAdminSalesLedger();
